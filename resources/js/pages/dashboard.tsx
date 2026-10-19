@@ -105,6 +105,7 @@ export default function Dashboard({ missions, overdue, today, upcoming, stats, r
                                             <p className="text-muted-foreground text-xs">
                                                 {c.task.room?.icon} {c.task.room?.name} · {formatDate(c.completed_on)}
                                                 {c.member && ` · ${c.member.name}`}
+                                                {c.effort_points !== null && ` · ${c.effort_points} ${c.effort_points === 1 ? 'point' : 'points'} d’effort`}
                                                 {c.task.next_due_date && ` · prochaine échéance ${formatDate(c.task.next_due_date)}`}
                                             </p>
                                         </div>

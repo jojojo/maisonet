@@ -1,5 +1,6 @@
 import { TaskFormDialog } from '@/components/task-form-dialog';
 import { DirtGauge } from '@/components/dirt-gauge';
+import { EffortBadge } from '@/components/effort-badge';
 import { MemberDot } from '@/components/form-fields';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -40,6 +41,7 @@ export function TaskItem({ task, showRoom = true, onCompleted }: { task: Task; s
                         </Badge>
                     )}
                     <span className={cn('font-medium', statusStyles[task.status])}>{dueLabel(task)}</span>
+                    <EffortBadge task={task} />
                     <span className="inline-flex items-center gap-1">
                         <Repeat className="size-3" /> {recurrenceLabel(task.recurrence, task.interval)}
                     </span>

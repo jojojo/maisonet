@@ -240,4 +240,53 @@ class TaskTest extends TestCase
         $this->get(route('dashboard'))->assertInertia(fn (Assert $page) => $page
             ->has('missions', 2)->where('missions.0.dirt_level', null)->where('missions.1.dirt_level', 0));
     }
+
+    public function test_effort_can_be_set_changed_and_cleared(): void
+    {
+        $data = [
+            'title' => 'Grand ménage', 'room_id' => $this->room->id,
+            'recurrence' => 'weekly', 'interval' => 1, 'next_due_date' => '2026-10-19',
+            'effort_size' => 'XL', 'effort_points' => 999,
+        ];
+        $this->post(route('tasks.store'), $data)->assertSessionHasNoErrors();
+        $task = Task::firstWhere('title', 'Grand ménage');
+        $this->assertSame('XL', $task->effort_size->value);
+        $this->assertSame(8, $task->effort_points);
+        $this->get(route('tasks.index'))->assertInertia(fn (Assert $page) => $page
+            ->where('tasks.0.effort_size', 'XL')->where('tasks.0.effort_points', 8));
+
+        $this->put(route('tasks.update', $task), [...$data, 'effort_size' => 'XS'])
+            ->assertSessionHasNoErrors();
+        $this->assertSame(1, $task->fresh()->effort_points);
+
+        $this->put(route('tasks.update', $task), [...$data, 'effort_size' => ''])
+            ->assertSessionHasNoErrors();
+        $this->assertNull($task->fresh()->effort_size);
+        $this->assertNull($task->fresh()->effort_points);
+        $this->assertNull($this->makeTask()->effort_size);
+    }
+
+    public function test_unknown_effort_size_is_rejected(): void
+    {
+        $task = $this->makeTask();
+        $this->put(route('tasks.update', $task), [
+            'title' => $task->title, 'room_id' => $this->room->id,
+            'recurrence' => 'weekly', 'interval' => 1, 'effort_size' => 'XXL',
+        ])->assertSessionHasErrors('effort_size');
+        $this->assertNull($task->fresh()->effort_size);
+    }
+
+    public function test_completion_keeps_the_effort_points_at_the_time_it_was_done(): void
+    {
+        $task = $this->makeTask(['effort_size' => 'L']);
+        $this->post(route('tasks.complete', $task))->assertRedirect();
+        $this->assertSame(5, $task->completions()->first()->effort_points);
+
+        $task->update(['effort_size' => 'XS']);
+        $this->assertSame(1, $task->effort_points);
+        $this->assertSame(5, $task->completions()->first()->effort_points);
+
+        $this->delete(route('tasks.undo', $task))->assertRedirect();
+        $this->assertCount(0, $task->fresh()->completions);
+    }
 }

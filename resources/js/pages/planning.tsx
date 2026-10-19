@@ -1,6 +1,7 @@
 import { MemberFilter } from '@/components/member-filter';
 import { MemberDot } from '@/components/form-fields';
 import { DirtGauge } from '@/components/dirt-gauge';
+import { EffortBadge } from '@/components/effort-badge';
 import { NewTaskButton } from '@/components/task-form-dialog';
 import { TaskList } from '@/components/task-item';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,7 @@ function DayTask({ task }: { task: Task }) {
             )}
             <div className="min-w-0 flex-1">
                 <p className="font-medium break-words">{task.title}</p>
+                <EffortBadge task={task} />
                 <p className="text-muted-foreground text-xs">
                     {task.room?.icon} {task.room?.name} · {recurrenceLabel(task.recurrence, task.interval)}
                 </p>

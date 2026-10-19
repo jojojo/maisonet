@@ -31,6 +31,7 @@ export interface SharedData {
 
 export type Recurrence = 'once' | 'daily' | 'weekly' | 'monthly' | 'yearly';
 export type TaskStatus = 'overdue' | 'today' | 'upcoming' | 'done';
+export type EffortSize = 'XS' | 'S' | 'M' | 'L' | 'XL';
 
 export interface Room {
     id: number;
@@ -56,6 +57,8 @@ export interface Task {
     member_id: number | null;
     title: string;
     notes: string | null;
+    effort_size: EffortSize | null;
+    effort_points: number | null;
     recurrence: Recurrence;
     interval: number;
     next_due_date: string | null;
@@ -70,6 +73,7 @@ export interface Task {
 export interface Completion {
     id: number;
     completed_on: string;
+    effort_points: number | null;
     task: Task;
     member: Member | null;
 }

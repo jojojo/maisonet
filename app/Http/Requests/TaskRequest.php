@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\Recurrence;
+use App\Enums\EffortSize;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -19,6 +20,7 @@ class TaskRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:120'],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'effort_size' => ['nullable', Rule::enum(EffortSize::class)],
             'room_id' => ['required', 'integer', 'exists:rooms,id'],
             'member_id' => ['nullable', 'integer', 'exists:members,id'],
             'member_ids' => ['sometimes', 'array'],

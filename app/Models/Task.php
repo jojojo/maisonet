@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Recurrence;
+use App\Enums\EffortSize;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -14,16 +15,17 @@ use Illuminate\Support\Facades\DB;
 class Task extends Model
 {
     protected $fillable = [
-        'room_id', 'member_id', 'title', 'notes',
+        'room_id', 'member_id', 'title', 'notes', 'effort_size',
         'recurrence', 'interval', 'next_due_date', 'last_completed_at',
     ];
 
-    protected $appends = ['status', 'dirt_level'];
+    protected $appends = ['status', 'dirt_level', 'effort_points'];
 
     protected function casts(): array
     {
         return [
             'recurrence' => Recurrence::class,
+            'effort_size' => EffortSize::class,
             'interval' => 'integer',
             'next_due_date' => 'date:Y-m-d',
             'last_completed_at' => 'date:Y-m-d',
@@ -48,6 +50,11 @@ class Task extends Model
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(Member::class)->orderBy('name');
+    }
+
+    protected function effortPoints(): Attribute
+    {
+        return Attribute::get(fn (): ?int => $this->effort_size?->points());
     }
 
     /** One of: overdue, today, upcoming, done. */
@@ -110,6 +117,7 @@ class Task extends Model
                 'member_id' => $memberId ?? ($this->members()->count() === 1 ? $this->members()->first()->id : null),
                 'completed_on' => $on,
                 'due_on' => $this->next_due_date,
+                'effort_points' => $this->effort_points,
             ]);
 
             $this->forceFill([

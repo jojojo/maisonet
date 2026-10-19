@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { recurrenceOptions, todayISO } from '@/lib/tasks';
-import { type Recurrence, type SharedData, type Task } from '@/types';
+import { type EffortSize, type Recurrence, type SharedData, type Task } from '@/types';
+import { cn } from '@/lib/utils';
 import { useForm, usePage } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { FormEvent, useState } from 'react';
@@ -14,6 +15,14 @@ interface Props {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
+
+const effortOptions: { size: EffortSize; points: number; label: string }[] = [
+    { size: 'XS', points: 1, label: 'Très léger' },
+    { size: 'S', points: 2, label: 'Léger' },
+    { size: 'M', points: 3, label: 'Moyen' },
+    { size: 'L', points: 5, label: 'Important' },
+    { size: 'XL', points: 8, label: 'Très important' },
+];
 
 export function TaskFormDialog({ task, defaultRoomId, open, onOpenChange }: Props) {
     return (
@@ -35,6 +44,7 @@ function TaskForm({ task, defaultRoomId, onDone }: { task?: Task; defaultRoomId?
     const form = useForm({
         title: task?.title ?? '',
         notes: task?.notes ?? '',
+        effort_size: task?.effort_size ?? ('' as EffortSize | ''),
         room_id: String(task?.room_id ?? defaultRoomId ?? rooms[0]?.id ?? ''),
         member_ids: task?.members.map((member) => member.id) ?? ([] as number[]),
         recurrence: (task?.recurrence ?? 'weekly') as Recurrence,
@@ -60,6 +70,32 @@ function TaskForm({ task, defaultRoomId, onDone }: { task?: Task; defaultRoomId?
             <Field label="Titre" error={form.errors.title}>
                 <Input value={form.data.title} onChange={(e) => form.setData('title', e.target.value)} placeholder="Passer l'aspirateur" autoFocus required />
             </Field>
+
+            <fieldset className="grid gap-2">
+                <legend className="mb-2 text-sm font-medium">Taille d’effort</legend>
+                <div className="grid grid-cols-5 gap-2">
+                    {effortOptions.map((option) => (
+                        <label key={option.size} title={option.label} className={cn(
+                            'relative flex cursor-pointer flex-col items-center gap-1 rounded-lg border p-2 text-center has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-violet-500',
+                            form.data.effort_size === option.size
+                                ? 'border-violet-500 bg-violet-50 text-violet-800 dark:bg-violet-950 dark:text-violet-200'
+                                : 'hover:bg-muted',
+                        )}>
+                            <input type="radio" name="effort_size" value={option.size} checked={form.data.effort_size === option.size}
+                                onChange={() => form.setData('effort_size', option.size)} className="sr-only" />
+                            <span className="font-semibold">{option.size}</span>
+                            <span className="text-xs">{option.points} {option.points === 1 ? 'pt' : 'pts'}</span>
+                        </label>
+                    ))}
+                </div>
+                <label className="text-muted-foreground flex items-center gap-2 text-xs">
+                    <input type="radio" name="effort_size" value="" checked={form.data.effort_size === ''}
+                        onChange={() => form.setData('effort_size', '')} />
+                    Non cotée
+                </label>
+                <p className="text-muted-foreground text-xs">De XS (très léger) à XL (très important), selon le temps et l’énergie nécessaires.</p>
+                {form.errors.effort_size && <p role="alert" className="text-destructive text-xs">{form.errors.effort_size}</p>}
+            </fieldset>
 
             <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Pièce" error={form.errors.room_id}>
