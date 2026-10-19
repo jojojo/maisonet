@@ -2,9 +2,11 @@ import { NativeSelect } from '@/components/form-fields';
 import { NewTaskButton } from '@/components/task-form-dialog';
 import { TaskList } from '@/components/task-item';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData, type Task } from '@/types';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { BookOpen } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Tâches', href: '/tasks' }];
@@ -34,9 +36,12 @@ export default function Tasks({ tasks, filters }: { tasks: Task[]; filters: Filt
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Tâches" />
             <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                     <h1 className="text-xl font-semibold">Toutes les tâches</h1>
-                    <NewTaskButton />
+                    <div className="flex flex-wrap gap-2">
+                        <Button variant="outline" asChild><Link href={route('task-templates.index', filters.room ? { room_id: filters.room } : {})}><BookOpen /> Catalogue</Link></Button>
+                        <NewTaskButton />
+                    </div>
                 </div>
 
                 <p className="text-muted-foreground text-sm">🧽 Du rouge au vert : les missions les plus pressantes passent en premier. Une tâche faite, et sa jauge revient au vert !</p>

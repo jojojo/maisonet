@@ -4,8 +4,8 @@ import { TaskList } from '@/components/task-item';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Room, type Task } from '@/types';
-import { Head, router } from '@inertiajs/react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { BookOpen, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 export default function RoomShow({ room, tasks }: { room: Room; tasks: Task[] }) {
@@ -30,7 +30,7 @@ export default function RoomShow({ room, tasks }: { room: Room; tasks: Task[] })
                     <h1 className="text-xl font-semibold">
                         {room.icon} {room.name}
                     </h1>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <Button variant="outline" size="icon" onClick={() => setEditing(true)} aria-label="Modifier la pièce">
                             <Pencil />
                         </Button>
@@ -38,6 +38,7 @@ export default function RoomShow({ room, tasks }: { room: Room; tasks: Task[] })
                             <Trash2 />
                         </Button>
                         <NewTaskButton defaultRoomId={room.id} />
+                        <Button variant="outline" asChild><Link href={route('task-templates.index', { room_id: room.id })}><BookOpen /> Ajouter des modèles</Link></Button>
                     </div>
                 </div>
                 <TaskList tasks={tasks} showRoom={false} empty="Aucune tâche dans cette pièce." />

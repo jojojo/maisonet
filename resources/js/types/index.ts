@@ -26,6 +26,7 @@ export interface SharedData {
     auth: Auth;
     rooms: Room[];
     members: Member[];
+    flash?: { success: string | null };
     [key: string]: unknown;
 }
 

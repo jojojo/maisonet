@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 class Task extends Model
 {
     protected $fillable = [
-        'room_id', 'member_id', 'title', 'notes', 'effort_size',
+        'room_id', 'member_id', 'title', 'notes', 'effort_size', 'template_key',
         'recurrence', 'interval', 'next_due_date', 'last_completed_at',
     ];
 

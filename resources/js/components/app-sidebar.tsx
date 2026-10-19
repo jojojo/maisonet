@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { CalendarDays, Home, LayoutGrid, ListChecks, Users } from 'lucide-react';
+import { BookOpen, CalendarDays, Home, LayoutGrid, ListChecks, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -11,6 +11,7 @@ const mainNavItems: NavItem[] = [
     { title: 'Planning', url: '/planning', icon: CalendarDays },
     { title: 'Pièces', url: '/rooms', icon: Home },
     { title: 'Tâches', url: '/tasks', icon: ListChecks },
+    { title: 'Catalogue', url: '/task-templates', icon: BookOpen },
     { title: 'Famille', url: '/members', icon: Users },
 ];
 
