@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -50,6 +52,10 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+        if ($user->is_parent && User::whereKeyNot($user->id)->exists()
+            && ! User::where('is_parent', true)->whereKeyNot($user->id)->exists()) {
+            throw ValidationException::withMessages(['password' => 'Désigne un autre compte parent avant de supprimer ton compte.']);
+        }
 
         Auth::logout();
 

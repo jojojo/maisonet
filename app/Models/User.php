@@ -3,14 +3,17 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    protected $attributes = ['is_parent' => false];
 
     /**
      * The attributes that are mass assignable.
@@ -41,6 +44,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'is_parent' => 'boolean',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
