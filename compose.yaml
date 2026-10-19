@@ -26,6 +26,7 @@ services:
     networks:
       - proxy
     labels:
+      eoloa.traefik.managed: "true"
       traefik.enable: "true"
       traefik.docker.network: traefik_proxy
       traefik.http.routers.maisonet.rule: Host(`${MAISONET_HOST:-maisonet.eoloa.net}`)
