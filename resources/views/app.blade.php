@@ -6,7 +6,7 @@
         <meta name="theme-color" content="#059669">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
-        <meta name="apple-mobile-web-app-title" content="Maisonnet">
+        <meta name="apple-mobile-web-app-title" content="Maiso'net">
         <link rel="manifest" href="/manifest.webmanifest">
         <link rel="icon" type="image/png" sizes="192x192" href="/pwa-icons/icon-192.png">
         <link rel="apple-touch-icon" sizes="180x180" href="/pwa-icons/apple-touch-icon.png">

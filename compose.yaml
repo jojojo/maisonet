@@ -3,7 +3,7 @@ services:
     image: ${MAISONET_IMAGE:-maisonet:latest}
     restart: unless-stopped
     environment:
-      APP_NAME: Maisonnet
+      APP_NAME: "Maiso'net"
       APP_ENV: production
       APP_DEBUG: "false"
       APP_KEY: ${MAISONET_APP_KEY:?Set MAISONET_APP_KEY in Portainer}
@@ -15,6 +15,7 @@ services:
       DB_CONNECTION: sqlite
       DB_DATABASE: /var/www/html/storage/app/maisonet.sqlite
       SESSION_DRIVER: database
+      SESSION_COOKIE: maisonnet_session
       SESSION_SECURE_COOKIE: "true"
       CACHE_STORE: database
       QUEUE_CONNECTION: sync
