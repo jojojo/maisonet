@@ -5,12 +5,12 @@ import { EffortBadge } from '@/components/effort-badge';
 import { NewTaskButton } from '@/components/task-form-dialog';
 import { TaskList } from '@/components/task-item';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { TaskCompletionControl } from '@/components/task-completion-control';
 import AppLayout from '@/layouts/app-layout';
 import { formatDate, recurrenceLabel, sortByDirt, todayISO } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData, type Task } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Planning', href: '/planning' }];
@@ -28,12 +28,7 @@ function DayTask({ task }: { task: Task }) {
     return (
         <div className={cn('bg-background flex items-start gap-2 rounded-md border p-2 text-sm', task.projected && 'border-dashed opacity-70')}>
             {!task.projected && (
-                <Checkbox
-                    className="mt-0.5"
-                    checked={false}
-                    onCheckedChange={() => router.post(route('tasks.complete', task.id), {}, { preserveScroll: true })}
-                    aria-label="Marquer comme faite"
-                />
+                <TaskCompletionControl task={task} className="mt-0.5" />
             )}
             <div className="min-w-0 flex-1">
                 <p className="font-medium break-words">{task.title}</p>

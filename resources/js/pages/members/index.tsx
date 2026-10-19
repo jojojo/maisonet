@@ -5,8 +5,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
-import { type BreadcrumbItem, type Member } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
+import { type BreadcrumbItem, type Member, type SharedData } from '@/types';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 
@@ -68,11 +68,13 @@ function MemberDialog({ member, open, onOpenChange }: { member?: Member; open: b
 }
 
 function MemberCard({ member }: { member: Member }) {
+    const { auth } = usePage<SharedData>().props;
+    const [error, setError] = useState('');
     const [editing, setEditing] = useState(false);
 
     const remove = () => {
         if (confirm(`Supprimer ${member.name} ? Ses tâches deviendront non attribuées.`)) {
-            router.delete(route('members.destroy', member.id), { preserveScroll: true });
+            router.delete(route('members.destroy', member.id), { preserveScroll: true, onError: (errors) => setError(errors.member) });
         }
     };
 
@@ -91,14 +93,15 @@ function MemberCard({ member }: { member: Member }) {
                         {member.done_this_week} faite(s) cette semaine
                     </p>
                 </div>
-                <div className="flex shrink-0 items-center gap-1">
+                {auth.user.is_parent && <div className="flex shrink-0 items-center gap-1">
                     <Button variant="ghost" size="icon" onClick={() => setEditing(true)} aria-label="Modifier">
                         <Pencil />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={remove} aria-label="Supprimer">
                         <Trash2 />
                     </Button>
-                </div>
+                </div>}
+                {error && <p role="alert" className="text-destructive text-xs">{error}</p>}
                 <MemberDialog member={member} open={editing} onOpenChange={setEditing} />
             </CardContent>
         </Card>
@@ -106,6 +109,7 @@ function MemberCard({ member }: { member: Member }) {
 }
 
 export default function Members({ members }: { members: Member[] }) {
+    const { auth } = usePage<SharedData>().props;
     const [creating, setCreating] = useState(false);
 
     return (
@@ -114,9 +118,9 @@ export default function Members({ members }: { members: Member[] }) {
             <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <h1 className="text-xl font-semibold">Famille</h1>
-                    <Button onClick={() => setCreating(true)}>
+                    {auth.user.is_parent && <Button onClick={() => setCreating(true)}>
                         <Plus /> Nouveau membre
-                    </Button>
+                    </Button>}
                 </div>
                 {members.length === 0 ? (
                     <p className="text-muted-foreground rounded-lg border border-dashed p-8 text-center text-sm">Ajoute les membres de la famille pour leur attribuer des tâches.</p>

@@ -22,5 +22,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::define('manage-rewards', fn (User $user): bool => (bool) $user->is_parent);
+        Gate::define('manage-goals', fn (User $user): bool => (bool) $user->is_parent);
     }
 }

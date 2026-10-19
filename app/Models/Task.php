@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use App\Enums\Recurrence;
 use App\Enums\EffortSize;
+use App\Enums\Recurrence;
+use App\Services\CompletionService;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Task extends Model
 {
@@ -19,7 +20,11 @@ class Task extends Model
         'recurrence', 'interval', 'next_due_date', 'last_completed_at',
     ];
 
-    protected $appends = ['status', 'dirt_level', 'effort_points'];
+    protected $appends = ['status', 'dirt_level', 'effort_points', 'points_available_on', 'can_earn_points', 'completion_info'];
+
+    protected $with = ['latestPointAward', 'latestCompletion'];
+
+    protected $hidden = ['latestPointAward', 'latestCompletion'];
 
     protected function casts(): array
     {
@@ -50,6 +55,36 @@ class Task extends Model
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(Member::class)->orderBy('name');
+    }
+
+    public function latestPointAward(): HasOne
+    {
+        return $this->hasOne(TaskCompletion::class)->ofMany(['id' => 'max'], fn ($query) => $query->where('awards_points', true)->where('status', '!=', 'rejected'));
+    }
+
+    public function latestCompletion(): HasOne
+    {
+        return $this->hasOne(TaskCompletion::class)->ofMany(['id' => 'max'], fn ($query) => $query->where('status', '!=', 'rejected'));
+    }
+
+    protected function pointsAvailableOn(): Attribute
+    {
+        return Attribute::get(fn (): ?string => $this->latestPointAward?->points_next_available_on?->toDateString());
+    }
+
+    protected function canEarnPoints(): Attribute
+    {
+        return Attribute::get(fn (): bool => ($this->effort_points ?? 0) > 0 && $this->next_due_date !== null
+            && (! $this->latestPointAward || ($this->latestPointAward->points_next_available_on !== null && today()->gte($this->latestPointAward->points_next_available_on))));
+    }
+
+    protected function completionInfo(): Attribute
+    {
+        return Attribute::get(fn (): ?array => $this->latestCompletion ? [
+            'id' => $this->latestCompletion->id, 'status' => $this->latestCompletion->status,
+            'completed_on' => $this->latestCompletion->completed_on->toDateString(),
+            'submitted_by' => $this->latestCompletion->submitted_by,
+        ] : null);
     }
 
     protected function effortPoints(): Attribute
@@ -106,43 +141,12 @@ class Task extends Model
     /** Record a completion and compute the next due date from the completion day. */
     public function complete(?int $memberId = null, ?CarbonInterface $on = null): void
     {
-        if ($this->next_due_date === null) {
-            return;
-        }
-
-        $on = ($on ?? today())->copy()->startOfDay();
-
-        DB::transaction(function () use ($memberId, $on) {
-            $this->completions()->create([
-                'member_id' => $memberId ?? ($this->members()->count() === 1 ? $this->members()->first()->id : null),
-                'completed_on' => $on,
-                'due_on' => $this->next_due_date,
-                'effort_points' => $this->effort_points,
-            ]);
-
-            $this->forceFill([
-                'last_completed_at' => $on,
-                'next_due_date' => $this->recurrence->advance($on, $this->interval),
-            ])->save();
-        });
+        app(CompletionService::class)->complete($this, $memberId ? [$memberId] : $this->members()->pluck('members.id')->all(), null, $on);
     }
 
     /** Cancel the latest completion and restore the previous schedule. */
     public function undoLastCompletion(): void
     {
-        DB::transaction(function () {
-            $last = $this->completions()->latest('id')->first();
-
-            if ($last === null) {
-                return;
-            }
-
-            $last->delete();
-
-            $this->forceFill([
-                'next_due_date' => $last->due_on,
-                'last_completed_at' => $this->completions()->max('completed_on'),
-            ])->save();
-        });
+        app(CompletionService::class)->undo($this);
     }
 }

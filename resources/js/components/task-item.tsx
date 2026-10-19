@@ -4,7 +4,7 @@ import { EffortBadge } from '@/components/effort-badge';
 import { MemberDot } from '@/components/form-fields';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { TaskCompletionControl } from '@/components/task-completion-control';
 import { dirtStyle, dueLabel, formatDate, recurrenceLabel, sortByDirt, statusStyles } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { type Task } from '@/types';
@@ -16,12 +16,6 @@ export function TaskItem({ task, showRoom = true, onCompleted }: { task: Task; s
     const [editing, setEditing] = useState(false);
     const done = task.status === 'done';
 
-    const toggle = () => {
-        const options = { preserveScroll: true };
-        if (done) router.delete(route('tasks.undo', task.id), options);
-        else router.post(route('tasks.complete', task.id), {}, { ...options, onSuccess: () => onCompleted?.(task.title) });
-    };
-
     const remove = () => {
         if (confirm(`Supprimer la tâche « ${task.title} » ?`)) {
             router.delete(route('tasks.destroy', task.id), { preserveScroll: true });
@@ -30,7 +24,7 @@ export function TaskItem({ task, showRoom = true, onCompleted }: { task: Task; s
 
     return (
         <div className={cn('bg-card flex items-start gap-3 rounded-xl border p-4', task.dirt_level !== null && dirtStyle(task.dirt_level).surface)}>
-            <Checkbox checked={done} onCheckedChange={toggle} className="mt-0.5 size-5" aria-label={done ? 'Rouvrir la tâche' : 'Marquer comme faite'} />
+            <TaskCompletionControl task={task} onCompleted={onCompleted} className="mt-0.5 size-5" />
 
             <div className="min-w-0 flex-1">
                 <p className={cn('font-medium break-words', done && 'text-muted-foreground line-through')}>{task.title}</p>
@@ -42,6 +36,7 @@ export function TaskItem({ task, showRoom = true, onCompleted }: { task: Task; s
                     )}
                     <span className={cn('font-medium', statusStyles[task.status])}>{dueLabel(task)}</span>
                     <EffortBadge task={task} />
+                    {task.completion_info?.status === 'pending' && <Badge variant="outline" className="text-amber-700 dark:text-amber-300">Points à valider</Badge>}
                     <span className="inline-flex items-center gap-1">
                         <Repeat className="size-3" /> {recurrenceLabel(task.recurrence, task.interval)}
                     </span>
@@ -76,7 +71,7 @@ export function TaskList({ tasks, showRoom = true, empty }: { tasks: Task[]; sho
     return (
         <div className="grid gap-2">
             <div role="status" aria-live="polite">
-                {completed && <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">✨ Bien joué ! Mission « {completed} » accomplie.</p>}
+                {completed && <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">✨ Réalisation de « {completed} » enregistrée.</p>}
             </div>
             {tasks.length === 0 && empty && <p className="text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">{empty}</p>}
             {sortByDirt(tasks).map((t) => (

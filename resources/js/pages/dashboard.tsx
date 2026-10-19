@@ -36,7 +36,7 @@ function Stat({ label, value, className }: { label: string; value: number; class
 }
 
 export default function Dashboard({ missions, overdue, today, upcoming, stats, recent, filters }: Props) {
-    const { members } = usePage<SharedData>().props;
+    const { members, auth } = usePage<SharedData>().props;
     const recurring = missions.filter((task) => task.dirt_level !== null);
     const clean = recurring.filter((task) => task.dirt_level! < 35).length;
     const urgent = recurring.filter((task) => task.dirt_level! >= 90).length;
@@ -95,7 +95,7 @@ export default function Dashboard({ missions, overdue, today, upcoming, stats, r
                         <h2 className="text-lg font-semibold">Historique récent</h2>
                         <div className="divide-y rounded-lg border">
                             {recent.map((c) => {
-                                const canUndo = !seen.has(c.task.id);
+                                const canUndo = !seen.has(c.task.id) && c.task.completion_info?.id === c.id && (auth.user.is_parent || (c.status === 'pending' && c.submitted_by === auth.user.id));
                                 seen.add(c.task.id);
 
                                 return (

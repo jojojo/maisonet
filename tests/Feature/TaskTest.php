@@ -22,7 +22,7 @@ class TaskTest extends TestCase
         parent::setUp();
 
         Carbon::setTestNow('2026-10-19');
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->create(['is_parent' => true]));
         $this->room = Room::create(['name' => 'Cuisine', 'icon' => '🍳']);
     }
 

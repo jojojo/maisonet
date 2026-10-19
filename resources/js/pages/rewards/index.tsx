@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { Check, Gift, Pencil, Plus, Search, ShieldCheck, Sparkles, Star, Users } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 
@@ -101,6 +101,7 @@ export default function Rewards({ canManage, rewards, templates, categories, acc
                 <div className="mt-4 flex flex-wrap items-center gap-2"><Badge variant="outline" className="border-amber-300 bg-white/60 dark:bg-white/5"><Gift className="mr-1 size-3" />{active.length} récompense(s) active(s)</Badge>{canManage && <Badge variant="outline" className="border-amber-300 bg-white/60 dark:bg-white/5"><ShieldCheck className="mr-1 size-3" />Espace parent</Badge>}</div>
             </header>
 
+            <Link href={route('goals.index')} className="text-sm underline">Voir mes objectifs, mes ?toiles et demander une r?compense ?</Link>
             {flash?.success && <p role="status" className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200"><Check className="size-4 shrink-0" aria-hidden />{flash.success}</p>}
 
             {canManage && <div className="flex flex-wrap items-center justify-between gap-3">

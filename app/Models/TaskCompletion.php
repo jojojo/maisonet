@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class TaskCompletion extends Model
 {
-    protected $fillable = ['task_id', 'member_id', 'completed_on', 'due_on', 'effort_points'];
+    protected $guarded = [];
 
     protected function casts(): array
     {
@@ -15,6 +16,9 @@ class TaskCompletion extends Model
             'completed_on' => 'date:Y-m-d',
             'due_on' => 'date:Y-m-d',
             'effort_points' => 'integer',
+            'awards_points' => 'boolean',
+            'points_next_available_on' => 'date:Y-m-d',
+            'reviewed_at' => 'datetime',
         ];
     }
 
@@ -26,5 +30,15 @@ class TaskCompletion extends Model
     public function member(): BelongsTo
     {
         return $this->belongsTo(Member::class);
+    }
+
+    public function participants(): BelongsToMany
+    {
+        return $this->belongsToMany(Member::class, 'completion_participants')->withPivot('points');
+    }
+
+    public function submitter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'submitted_by');
     }
 }

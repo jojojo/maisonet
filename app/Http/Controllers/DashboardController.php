@@ -25,8 +25,8 @@ class DashboardController extends Controller
 
         $weekStart = $today->copy()->startOfWeek();
 
-        $recent = TaskCompletion::with(['task.room', 'member'])
-            ->when($memberId, fn ($q) => $q->where('member_id', $memberId))
+        $recent = TaskCompletion::with(['task.room', 'member'])->where('status', '!=', 'rejected')
+            ->when($memberId, fn ($q) => $q->where(fn ($q) => $q->where('member_id', $memberId)->orWhereHas('participants', fn ($q) => $q->where('members.id', $memberId))))
             ->latest('completed_on')
             ->latest('id')
             ->limit(8)
@@ -39,8 +39,8 @@ class DashboardController extends Controller
             'upcoming' => $open->filter(fn ($t) => $t->status === 'upcoming' && $t->next_due_date->lte($horizon))->values(),
             'stats' => [
                 'tasks' => Task::when($memberId, fn ($q) => $q->whereHas('members', fn ($members) => $members->where('members.id', $memberId)))->count(),
-                'done_this_week' => TaskCompletion::where('completed_on', '>=', $weekStart->toDateString())
-                    ->when($memberId, fn ($q) => $q->where('member_id', $memberId))
+                'done_this_week' => TaskCompletion::where('status', '!=', 'rejected')->where('completed_on', '>=', $weekStart->toDateString())
+                    ->when($memberId, fn ($q) => $q->where(fn ($q) => $q->where('member_id', $memberId)->orWhereHas('participants', fn ($q) => $q->where('members.id', $memberId))))
                     ->count(),
             ],
             'recent' => $recent,
