@@ -28,4 +28,23 @@ class RegistrationTest extends TestCase
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
     }
+
+    public function test_family_registration_code_is_required_when_configured(): void
+    {
+        config(['auth.registration_code' => 'family-test-code']);
+        $data = [
+            'name' => 'Parent', 'email' => 'parent@example.com',
+            'password' => 'password', 'password_confirmation' => 'password',
+        ];
+
+        $this->post('/register', $data)->assertSessionHasErrors('registration_code');
+        $this->post('/register', [...$data, 'registration_code' => 'incorrect'])
+            ->assertSessionHasErrors('registration_code');
+        $this->assertGuest();
+        $this->assertDatabaseCount('users', 0);
+
+        $this->post('/register', [...$data, 'registration_code' => 'family-test-code'])
+            ->assertSessionHasNoErrors()->assertRedirect(route('dashboard', absolute: false));
+        $this->assertAuthenticated();
+    }
 }

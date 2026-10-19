@@ -20,7 +20,9 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('auth/register');
+        return Inertia::render('auth/register', [
+            'requiresRegistrationCode' => filled(config('auth.registration_code')),
+        ]);
     }
 
     /**
@@ -31,6 +33,13 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
+            'registration_code' => filled(config('auth.registration_code'))
+                ? ['required', 'string', function ($attribute, $value, $fail) {
+                    if (! hash_equals((string) config('auth.registration_code'), $value)) {
+                        $fail('Le code d’inscription familial est incorrect.');
+                    }
+                }]
+                : ['nullable', 'string'],
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
