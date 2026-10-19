@@ -1,4 +1,3 @@
-import AppLogoIcon from '@/components/app-logo-icon';
 import { Link } from '@inertiajs/react';
 
 interface AuthLayoutProps {
@@ -15,10 +14,7 @@ export default function AuthSimpleLayout({ children, title, description }: AuthL
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col items-center gap-4">
                         <Link href={route('home')} className="flex flex-col items-center gap-2 font-medium">
-                            <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-md">
-                                <AppLogoIcon className="size-9 fill-current text-[var(--foreground)] dark:text-white" />
-                            </div>
-                            <span className="sr-only">{title}</span>
+                            <img src="/logo.png" alt="Maiso’net" width={2172} height={724} className="mb-2 h-auto w-52 rounded-xl bg-white px-3 py-2" />
                         </Link>
 
                         <div className="space-y-2 text-center">
