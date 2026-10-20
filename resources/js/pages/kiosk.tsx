@@ -1,18 +1,21 @@
 import { DirtGauge } from '@/components/dirt-gauge';
 import { EffortBadge } from '@/components/effort-badge';
 import { HouseBuddy } from '@/components/house-buddy';
+import { KioskMissionTimer } from '@/components/kiosk-mission-timer';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useKioskScreen } from '@/hooks/use-kiosk-screen';
+import { useKioskTimer } from '@/hooks/use-kiosk-timer';
+import { formatElapsed } from '@/lib/kiosk-timer';
 import { dirtStyle, dueLabel, sortByDirt, todayISO } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { type SharedData, type Task } from '@/types';
 import { Head, Link, router, useForm, usePage, usePoll } from '@inertiajs/react';
-import { Check, Clock3, LockKeyhole, Maximize, RefreshCw, Sun, Tablet, Trophy } from 'lucide-react';
+import { Check, Clock3, LockKeyhole, Maximize, Play, RefreshCw, Sun, Tablet, Timer, Trophy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-function Declare({ task, memberId, close }: { task: Task; memberId: number | null; close: () => void }) {
+function Declare({ task, memberId, close, onRecorded }: { task: Task; memberId: number | null; close: () => void; onRecorded?: () => void }) {
     const { members } = usePage<SharedData>().props;
     const form = useForm({ member_ids: memberId ? [memberId] : task.members.length === 1 ? [task.members[0].id] : ([] as number[]) });
     return (
@@ -31,7 +34,13 @@ function Declare({ task, memberId, close }: { task: Task; memberId: number | nul
                     className="grid gap-4"
                     onSubmit={(event) => {
                         event.preventDefault();
-                        form.post(route('kiosk.complete', task.id), { preserveScroll: true, onSuccess: close });
+                        form.post(route('kiosk.complete', task.id), {
+                            preserveScroll: true,
+                            onSuccess: () => {
+                                onRecorded?.();
+                                close();
+                            },
+                        });
                     }}
                 >
                     <div className="grid gap-2 sm:grid-cols-2">
@@ -113,7 +122,7 @@ function Exit({ close }: { close: () => void }) {
 }
 
 export default function Kiosk({ active, tasks, completedToday }: { active: boolean; tasks: Task[]; completedToday: number }) {
-    const { members, flash } = usePage<SharedData>().props;
+    const { members, flash, auth } = usePage<SharedData>().props;
     const [memberId, setMemberId] = useState<number | null>(null);
     const [period, setPeriod] = useState<'today' | 'all'>('today');
     const [declaring, setDeclaring] = useState<Task | null>(null);
@@ -121,6 +130,20 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
     const [now, setNow] = useState(new Date());
     const [refreshing, setRefreshing] = useState(false);
     const screen = useKioskScreen();
+    const {
+        timer,
+        elapsedMs,
+        storageError,
+        start: startTimer,
+        pause: pauseChrono,
+        resume: resumeChrono,
+        clear: clearTimer,
+    } = useKioskTimer(auth.user.id);
+    const [timerFocused, setTimerFocused] = useState(true);
+    const timerTask = active && timer ? tasks.find((task) => task.id === timer.taskId) : undefined;
+    useEffect(() => {
+        if (active && timer && (!timerTask || (timerTask.completion_info?.id ?? null) !== timer.completionId)) clearTimer();
+    }, [active, timer, timerTask, clearTimer]);
     const { start: startPolling, stop: stopPolling } = usePoll(
         60000,
         () => ({ only: ['tasks', 'completedToday', 'members'], preserveScroll: true }),
@@ -182,12 +205,7 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                 </p>
                             </div>
                             {active && (
-                                <Button
-                                    variant="outline"
-                                    className="h-12 gap-2 px-4"
-                                    aria-label="Quitter le kiosque"
-                                    onClick={() => setExit(true)}
-                                >
+                                <Button variant="outline" className="h-12 gap-2 px-4" aria-label="Quitter le kiosque" onClick={() => setExit(true)}>
                                     <LockKeyhole />
                                     Quitter le kiosque
                                 </Button>
@@ -217,6 +235,25 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                 Retour au tableau de bord
                             </Link>
                         </section>
+                    ) : timerTask && timer && timerFocused ? (
+                        <KioskMissionTimer
+                            task={timerTask}
+                            member={members.find((member) => member.id === timer.memberId)}
+                            elapsedMs={elapsedMs}
+                            paused={timer.startedAt === null}
+                            awake={screen.awake}
+                            storageError={storageError}
+                            screenMessage={screen.message}
+                            onPause={pauseChrono}
+                            onResume={resumeChrono}
+                            onBack={() => setTimerFocused(false)}
+                            onCancel={clearTimer}
+                            onAwake={() => void screen.toggleAwake()}
+                            onFinish={() => {
+                                pauseChrono();
+                                setDeclaring(timerTask);
+                            }}
+                        />
                     ) : (
                         <>
                             <section className="family-card bg-primary/15 flex flex-wrap items-center justify-between gap-4 rounded-3xl border-2 border-cyan-500 p-5">
@@ -229,6 +266,19 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                     {completedToday} coup(s) de main aujourd’hui
                                 </p>
                             </section>
+                            {timerTask && timer && (
+                                <section className="family-card bg-secondary flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-cyan-500 p-4">
+                                    <div className="flex min-w-0 items-center gap-3">
+                                        <Timer className="shrink-0" />
+                                        <p className="font-bold break-words">
+                                            {timerTask.title}
+                                            <span className="ml-3 font-extrabold tabular-nums">{formatElapsed(elapsedMs)}</span>
+                                            <span className="ml-2 text-xs">{timer.startedAt === null ? 'En pause' : 'En cours'}</span>
+                                        </p>
+                                    </div>
+                                    <Button onClick={() => setTimerFocused(true)}>Afficher le chrono</Button>
+                                </section>
+                            )}
                             <nav aria-label="Choisir un membre" className="flex flex-wrap gap-3">
                                 <Button
                                     className="h-14 rounded-2xl px-5 text-base"
@@ -320,7 +370,25 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                                 )}
                                             </div>
                                             {task.dirt_level !== null && <DirtGauge level={task.dirt_level} compact />}
+                                            {!doneToday && (
+                                                <Button
+                                                    className="h-14 w-full rounded-2xl text-base"
+                                                    disabled={!!timer}
+                                                    onClick={() => {
+                                                        startTimer(
+                                                            task.id,
+                                                            memberId ?? (task.members.length === 1 ? task.members[0].id : null),
+                                                            task.completion_info?.id ?? null,
+                                                        );
+                                                        setTimerFocused(true);
+                                                    }}
+                                                >
+                                                    <Play />
+                                                    {timer ? 'Un chrono est déjà en cours' : 'Je commence'}
+                                                </Button>
+                                            )}
                                             <Button
+                                                variant={doneToday ? 'outline' : 'ghost'}
                                                 className="h-14 w-full rounded-2xl text-base"
                                                 disabled={doneToday}
                                                 onClick={() => setDeclaring(task)}
@@ -381,7 +449,16 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                         </>
                     )}
                 </div>
-                {declaring && <Declare task={declaring} memberId={memberId} close={() => setDeclaring(null)} />}
+                {declaring && (
+                    <Declare
+                        task={declaring}
+                        memberId={timer?.taskId === declaring.id ? timer.memberId : memberId}
+                        close={() => setDeclaring(null)}
+                        onRecorded={() => {
+                            if (timer?.taskId === declaring.id) clearTimer();
+                        }}
+                    />
+                )}
                 {exit && <Exit close={() => setExit(false)} />}
             </main>
         </>
