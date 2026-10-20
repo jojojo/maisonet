@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReviewCompletionRequest;
 use App\Models\Member;
 use App\Models\PointEntry;
 use App\Models\Reward;
@@ -125,14 +126,9 @@ class GoalController extends Controller
         return back()->with('success', 'Récompense à viser mise à jour.');
     }
 
-    public function reviewCompletion(Request $request, TaskCompletion $completion, CompletionService $service): RedirectResponse
+    public function reviewCompletion(ReviewCompletionRequest $request, TaskCompletion $completion, CompletionService $service): RedirectResponse
     {
-        Gate::authorize('manage-goals');
-        $data = $request->validate([
-            'decision' => ['required', 'in:approve,reject'],
-            'member_ids' => ['sometimes', 'array'],
-            'member_ids.*' => ['required', 'integer', 'distinct', FamilyContext::exists('members')],
-        ]);
+        $data = $request->validated();
         $service->review($completion, $request->user(), $data['decision'] === 'approve', $data['member_ids'] ?? []);
 
         return back()->with('success', $data['decision'] === 'approve' ? 'Mission validée : les points et les étoiles sont à jour.' : 'Mission refusée. Elle est rouverte si aucune réalisation plus récente ne la remplace.');

@@ -12,6 +12,7 @@
         "php": "^8.2",
         "inertiajs/inertia-laravel": "^3.0",
         "laravel/framework": "^13.0",
+        "laravel/sanctum": "~4.0",
         "laravel/tinker": "^3.0",
         "tightenco/ziggy": "^2.4"
     },
@@ -74,4 +75,3 @@
     "minimum-stability": "dev",
     "prefer-stable": true
 }
-
