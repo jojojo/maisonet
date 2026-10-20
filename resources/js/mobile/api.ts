@@ -1,3 +1,9 @@
+let transport: typeof fetch = (...args) => fetch(...args);
+
+export function configureApiTransport(nativeTransport: typeof fetch): void {
+    transport = nativeTransport;
+}
+
 export class ApiError extends Error {
     status: number;
     constructor(message: string, status: number) {
@@ -19,7 +25,7 @@ export class MobileApi {
         if (!path.startsWith('/') || path.startsWith('//')) throw new Error('Chemin API invalide.');
         let response: Response;
         try {
-            response = await fetch(`/api/v1${path}`, {
+            response = await transport(`/api/v1${path}`, {
                 method: options.method ?? (options.body === undefined ? 'GET' : 'POST'),
                 credentials: 'omit',
                 cache: 'no-store',

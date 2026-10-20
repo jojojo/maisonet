@@ -1,0 +1,4 @@
+{
+    "extends": "./tsconfig.json",
+    "include": ["resources/js/mobile/**/*.ts", "resources/js/mobile/**/*.tsx", "resources/js/components/house-buddy.tsx"]
+}

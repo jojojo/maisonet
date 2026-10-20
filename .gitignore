@@ -21,6 +21,12 @@
 /storage/*.key
 /storage/pail
 /vendor
+/mobile/dist
+/mobile/assets
+*.apk
+*.aab
+*.keystore
+*.jks
 auth.json
 Homestead.json
 Homestead.yaml

@@ -1,29 +1,11 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Check, ChevronRight, ClipboardCheck, Home, LoaderCircle, LogOut, RefreshCw, ShieldCheck, Sparkles, Star, UserRound, X } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { HouseBuddy } from '../components/house-buddy';
 import { ApiError, MobileApi } from './api';
+import { browserSessionStore, validSession, type SessionStore } from './session-store';
 import type { Account, Completion, Member, Page, Session, Task } from './types';
 
-const sessionKey = 'maisonet:mobile-session:v1';
-function saveSession(session: Session | null) {
-    try {
-        if (session) sessionStorage.setItem(sessionKey, JSON.stringify(session));
-        else sessionStorage.removeItem(sessionKey);
-    } catch {
-        /* The interface can still run in memory if browser storage is unavailable. */
-    }
-}
-function readSession(): Session | null {
-    try {
-        const session = JSON.parse(sessionStorage.getItem(sessionKey) ?? 'null');
-        if (typeof session?.token === 'string' && Date.parse(session.expiresAt) > Date.now()) return session;
-    } catch {
-        /* Invalid or unavailable storage requires a new login. */
-    }
-    saveSession(null);
-    return null;
-}
 const errorMessage = (error: unknown) => (error instanceof Error ? error.message : 'Une erreur est survenue. Réessaie.');
 const pointLabel = (points: number) => `${points.toLocaleString('fr-FR')} point${points > 1 ? 's' : ''}`;
 function dueLabel(task: Task) {
@@ -42,27 +24,81 @@ function recurrenceLabel(task: Task) {
         : `Tous les ${task.interval} ${units[task.recurrence]}${['daily', 'weekly', 'yearly'].includes(task.recurrence) ? 's' : ''}`;
 }
 
-export function MobileApp() {
-    const [session, setSession] = useState<Session | null>(readSession);
+export function MobileApp({ storage = browserSessionStore, platform = 'web' }: { storage?: SessionStore; platform?: string }) {
+    const [session, setSession] = useState<Session | null>(null);
+    const activeToken = useRef<string | null>(null);
+    const [ready, setReady] = useState(false);
+    const [bootError, setBootError] = useState(false);
+    const [attempt, setAttempt] = useState(0);
     const [notice, setNotice] = useState('');
-    const connect = (next: Session) => {
-        saveSession(next);
+    useEffect(() => {
+        let cancelled = false;
+        setBootError(false);
+        void (async () => {
+            try {
+                const saved = await storage.read();
+                const next = validSession(saved) ? saved : null;
+                if (saved && !next) await storage.write(null);
+                if (!cancelled) {
+                    activeToken.current = next?.token ?? null;
+                    setSession(next);
+                    setReady(true);
+                }
+            } catch {
+                if (!cancelled) setBootError(true);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [storage, attempt]);
+    const connect = async (next: Session) => {
+        try {
+            await storage.write(next);
+        } catch {
+            await new MobileApi(next.token).request('/auth/logout', { method: 'POST' }).catch(() => {});
+            throw new Error('Impossible de sécuriser ta connexion sur cet appareil. Réessaie.');
+        }
+        activeToken.current = next.token;
         setNotice('');
         setSession(next);
     };
-    const disconnect = useCallback((token: string, expired = false) => {
-        setSession((current) => {
-            if (current?.token !== token) return current;
-            saveSession(null);
-            return null;
-        });
-        if (expired) setNotice('Ta session a expiré. Reconnecte-toi pour retrouver tes missions.');
-    }, []);
-
-    return session ? <Workspace key={session.token} session={session} disconnect={disconnect} /> : <Login connect={connect} notice={notice} />;
+    const disconnect = useCallback(
+        (token: string, expired = false) => {
+            if (activeToken.current !== token) return;
+            activeToken.current = null;
+            setSession(null);
+            if (expired) setNotice('Ta session a expiré. Reconnecte-toi pour retrouver tes missions.');
+            void storage.write(null).catch(() => setNotice('Ta session est fermée. Le nettoyage du stockage local n’a pas pu être confirmé.'));
+        },
+        [storage],
+    );
+    if (bootError)
+        return (
+            <main className="mobile-login empty">
+                <HouseBuddy />
+                <h1>Un petit instant…</h1>
+                <p>Impossible d’ouvrir la connexion sécurisée sur cet appareil.</p>
+                <button className="action primary" onClick={() => setAttempt((value) => value + 1)}>
+                    Réessayer
+                </button>
+            </main>
+        );
+    if (!ready)
+        return (
+            <main className="mobile-login empty" role="status">
+                <LoaderCircle className="spin" />
+                <p>On prépare ta maison…</p>
+            </main>
+        );
+    return session ? (
+        <Workspace key={session.token} session={session} disconnect={disconnect} platform={platform} />
+    ) : (
+        <Login connect={connect} notice={notice} platform={platform} />
+    );
 }
 
-function Login({ connect, notice }: { connect: (session: Session) => void; notice: string }) {
+function Login({ connect, notice, platform }: { connect: (session: Session) => Promise<void>; notice: string; platform: string }) {
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
     async function submit(event: FormEvent<HTMLFormElement>) {
@@ -72,9 +108,13 @@ function Login({ connect, notice }: { connect: (session: Session) => void; notic
         setError('');
         try {
             const result = await new MobileApi(null).request<{ access_token: string; expires_at: string }>('/auth/login', {
-                body: { email: form.get('email'), password: form.get('password'), device_name: 'Maiso’net mobile · navigateur' },
+                body: {
+                    email: form.get('email'),
+                    password: form.get('password'),
+                    device_name: `Maiso’net · ${platform === 'web' ? 'navigateur' : platform}`,
+                },
             });
-            connect({ token: result.access_token, expiresAt: result.expires_at });
+            await connect({ token: result.access_token, expiresAt: result.expires_at });
         } catch (error) {
             setError(errorMessage(error));
         } finally {
@@ -138,7 +178,15 @@ function Login({ connect, notice }: { connect: (session: Session) => void; notic
 }
 
 type Selection = { kind: 'complete'; task: Task } | { kind: 'review'; completion: Completion };
-function Workspace({ session, disconnect }: { session: Session; disconnect: (token: string, expired?: boolean) => void }) {
+function Workspace({
+    session,
+    disconnect,
+    platform,
+}: {
+    session: Session;
+    disconnect: (token: string, expired?: boolean) => void;
+    platform: string;
+}) {
     const api = useMemo(() => new MobileApi(session.token, () => disconnect(session.token, true)), [session.token, disconnect]);
     const [account, setAccount] = useState<Account | null>(null);
     const [tasks, setTasks] = useState<Page<Task> | null>(null);
@@ -187,6 +235,24 @@ function Workspace({ session, disconnect }: { session: Session; disconnect: (tok
         const timeout = window.setTimeout(() => setToast(''), 6500);
         return () => window.clearTimeout(timeout);
     }, [toast]);
+
+    useEffect(() => {
+        const back = (event: Event) => {
+            if (tab !== 'missions') {
+                event.preventDefault();
+                setTab('missions');
+            }
+        };
+        const resume = () => {
+            if (!selection && !loading && !moreBusy) void refresh();
+        };
+        window.addEventListener('maisonet:back', back);
+        window.addEventListener('maisonet:resume', resume);
+        return () => {
+            window.removeEventListener('maisonet:back', back);
+            window.removeEventListener('maisonet:resume', resume);
+        };
+    }, [tab, selection, loading, moreBusy, refresh]);
 
     async function more(kind: 'tasks' | 'reviews') {
         const page = kind === 'tasks' ? tasks : pending;
@@ -471,7 +537,9 @@ function Workspace({ session, disconnect }: { session: Session; disconnect: (tok
                                     {logoutBusy ? 'Déconnexion…' : 'Me déconnecter'}
                                 </button>
                                 <p className="list-note">
-                                    Cette interface conserve ta connexion dans cet onglet. Fermer l’onglet termine la session locale.
+                                    {platform === 'web'
+                                        ? 'Cette connexion est propre à cet onglet. Déconnecte-toi avant de partager ton appareil.'
+                                        : 'Ta connexion est conservée dans le stockage sécurisé de cet appareil. Déconnecte-toi avant de le partager.'}
                                 </p>
                             </>
                         )}

@@ -14,3 +14,6 @@ bootstrap/cache/*.php
 .deployment
 tests
 scripts
+android
+ios
+mobile

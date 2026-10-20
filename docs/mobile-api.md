@@ -157,9 +157,9 @@ Pour ce prototype navigateur, le jeton est conservé dans `sessionStorage`, prop
 à l’onglet, avec repli en mémoire si ce stockage est indisponible. La déconnexion
 révoque le jeton côté serveur avant de l’effacer localement ; une réponse `401`
 efface la session. Le site complet conserve sa connexion web indépendante.
-Avant une distribution native, il faudra remplacer ce stockage par le stockage
-sécurisé du système, configurer le transport vers le serveur et empaqueter le
-client avec Capacitor. Cette prévisualisation n’est pas encore un APK ou une app iOS.
+Les projets Capacitor utilisent désormais le coffre sécurisé du système et un
+transport HTTP natif vers le serveur. La page `/mobile` reste la prévisualisation
+navigateur. Voir [la compilation Android et iOS](native-app.md) pour les paquets natifs.
 
 ### Commandes
 
@@ -176,6 +176,7 @@ La suite `MobileApiTest` utilise de vrais jetons Bearer pour vérifier le parcou
 les rôles, la révocation, l’expiration et l’isolation entre plusieurs familles.
 
 Restent pour les prochaines tranches : inscription et invitation dans le client
-mobile, écriture des tâches, objectifs/récompenses, kiosque, notifications,
-client Capacitor et synchronisation hors connexion. Le client web embarqué et
-sa configuration CORS ne font pas encore partie de cette tranche.
+mobile, écriture des tâches, objectifs/récompenses, kiosque, notifications
+et synchronisation hors connexion. Les projets Capacitor sont
+décrits dans [la documentation native](native-app.md) ; ils utilisent le transport
+HTTP natif et ne demandent pas d’élargissement CORS côté serveur.
