@@ -12,7 +12,7 @@ const mainNavItems: NavItem[] = [
     { title: 'Pièces', url: '/rooms', icon: Home },
     { title: 'Tâches', url: '/tasks', icon: ListChecks },
     { title: 'Catalogue', url: '/task-templates', icon: BookOpen },
-    { title: 'Famille', url: '/members', icon: Users },
+    { title: 'Famille', url: '/family', icon: Users },
     { title: 'Récompenses', url: '/rewards', icon: Gift },
     { title: 'Objectifs', url: '/goals', icon: Target },
 ];

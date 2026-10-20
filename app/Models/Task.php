@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\EffortSize;
 use App\Enums\Recurrence;
+use App\Models\Concerns\BelongsToFamily;
 use App\Services\CompletionService;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -15,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Task extends Model
 {
+    use BelongsToFamily;
+
     protected $fillable = [
         'room_id', 'member_id', 'title', 'notes', 'effort_size', 'template_key',
         'recurrence', 'interval', 'next_due_date', 'last_completed_at',

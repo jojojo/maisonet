@@ -30,7 +30,7 @@ class RewardController extends Controller
                 'reward' => $saved->get($template['template_key']),
             ]) : [],
             'categories' => config('reward-templates.categories'),
-            'accounts' => $canManage ? User::orderBy('name')->get(['id', 'name', 'email', 'is_parent']) : [],
+            'accounts' => $canManage ? User::inFamily()->orderBy('name')->get(['id', 'name', 'email', 'is_parent']) : [],
         ]);
     }
 
@@ -85,8 +85,8 @@ class RewardController extends Controller
         Gate::authorize('manage-rewards');
         $data = $request->validate(['is_parent' => ['required', 'boolean']]);
         DB::transaction(function () use ($user, $data) {
-            $parents = User::where('is_parent', true)->orderBy('id')->lockForUpdate()->get();
-            $account = User::lockForUpdate()->findOrFail($user->id);
+            $parents = User::inFamily()->where('is_parent', true)->orderBy('id')->lockForUpdate()->get();
+            $account = User::inFamily()->lockForUpdate()->findOrFail($user->id);
             if (! $data['is_parent'] && $account->is_parent && $parents->count() <= 1) {
                 throw ValidationException::withMessages(['parent_access' => 'Il faut conserver au moins un compte parent.']);
             }

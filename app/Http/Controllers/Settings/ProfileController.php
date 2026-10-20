@@ -52,8 +52,8 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
-        if ($user->is_parent && User::whereKeyNot($user->id)->exists()
-            && ! User::where('is_parent', true)->whereKeyNot($user->id)->exists()) {
+        if ($user->is_parent && User::inFamily()->whereKeyNot($user->id)->exists()
+            && ! User::inFamily()->where('is_parent', true)->whereKeyNot($user->id)->exists()) {
             throw ValidationException::withMessages(['password' => 'Désigne un autre compte parent avant de supprimer ton compte.']);
         }
 

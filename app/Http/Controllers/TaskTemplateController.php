@@ -6,6 +6,7 @@ use App\Enums\EffortSize;
 use App\Enums\Recurrence;
 use App\Models\Room;
 use App\Models\Task;
+use App\Support\FamilyContext;
 use App\Support\TaskCatalogue;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -19,7 +20,7 @@ class TaskTemplateController extends Controller
 {
     public function index(Request $request): Response
     {
-        $data = $request->validate(['room_id' => ['nullable', 'integer', 'exists:rooms,id']]);
+        $data = $request->validate(['room_id' => ['nullable', 'integer', FamilyContext::exists('rooms')]]);
         $tasks = Task::get(['room_id', 'title', 'template_key']);
         $existingRooms = [];
         foreach ($tasks as $task) {
@@ -45,9 +46,9 @@ class TaskTemplateController extends Controller
     {
         $templates = collect(TaskCatalogue::templates())->keyBy('key');
         $data = $request->validate([
-            'room_id' => ['required', 'integer', 'exists:rooms,id'],
+            'room_id' => ['required', 'integer', FamilyContext::exists('rooms')],
             'member_ids' => ['sometimes', 'array'],
-            'member_ids.*' => ['required', 'integer', 'distinct', 'exists:members,id'],
+            'member_ids.*' => ['required', 'integer', 'distinct', FamilyContext::exists('members')],
             'start_date' => ['required', 'date_format:Y-m-d'],
             'schedule' => ['required', 'in:spread,same_date'],
             'items' => ['required', 'array', 'min:1', 'max:'.$templates->count()],

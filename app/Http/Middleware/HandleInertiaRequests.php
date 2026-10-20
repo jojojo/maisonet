@@ -44,6 +44,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'household' => fn () => $request->user()?->family?->only(['id', 'name']),
             'rooms' => fn () => $request->user() ? Room::orderBy('name')->get(['id', 'name', 'icon']) : [],
             'members' => fn () => $request->user() ? Member::orderBy('name')->get(['id', 'name', 'color']) : [],
         ];

@@ -23,6 +23,7 @@ export interface NavItem {
 
 export interface SharedData {
     name: string;
+    household: { id: number; name: string } | null;
     auth: Auth;
     rooms: Room[];
     members: Member[];

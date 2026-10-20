@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -29,22 +30,20 @@ class RegistrationTest extends TestCase
         $response->assertRedirect(route('dashboard', absolute: false));
     }
 
-    public function test_family_registration_code_is_required_when_configured(): void
+    public function test_joining_requires_a_valid_family_code_and_does_not_grant_parent_access(): void
     {
-        config(['auth.registration_code' => 'family-test-code']);
-        $data = [
-            'name' => 'Parent', 'email' => 'parent@example.com',
-            'password' => 'password', 'password_confirmation' => 'password',
-        ];
-
-        $this->post('/register', $data)->assertSessionHasErrors('registration_code');
-        $this->post('/register', [...$data, 'registration_code' => 'incorrect'])
-            ->assertSessionHasErrors('registration_code');
+        $data = ['name' => 'Parent', 'email' => 'parent@example.com', 'password' => 'password', 'password_confirmation' => 'password'];
+        $this->post('/register', [...$data, 'family_action' => 'create', 'family_name' => 'Our family'])->assertSessionHasNoErrors();
+        $parent = User::firstWhere('email', $data['email']);
+        $code = $parent->family->invitation_code;
+        $this->post(route('logout'));
+        $join = [...$data, 'family_action' => 'join', 'email' => 'child@example.com', 'is_parent' => true, 'family_id' => 999];
+        $this->post('/register', [...$join, 'family_code' => 'INVALID'])->assertSessionHasErrors('family_code');
         $this->assertGuest();
-        $this->assertDatabaseCount('users', 0);
-
-        $this->post('/register', [...$data, 'registration_code' => 'family-test-code'])
-            ->assertSessionHasNoErrors()->assertRedirect(route('dashboard', absolute: false));
-        $this->assertAuthenticated();
+        $this->post('/register', [...$join, 'family_code' => strtolower(str_replace('-', ' ', $code))])->assertSessionHasNoErrors();
+        $child = User::firstWhere('email', 'child@example.com');
+        $this->assertSame($parent->family_id, $child->family_id);
+        $this->assertFalse($child->is_parent);
+        $this->assertNull($child->member_id);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\TaskCompletion;
 use App\Services\CompletionService;
+use App\Support\FamilyContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -47,7 +48,7 @@ class KioskController extends Controller
         abort_unless($request->user()->is_parent && $request->session()->get('kiosk'), 403);
         $data = $request->validate([
             'member_ids' => ['required', 'array', 'min:1'],
-            'member_ids.*' => ['required', 'integer', 'distinct', 'exists:members,id'],
+            'member_ids.*' => ['required', 'integer', 'distinct', FamilyContext::exists('members')],
         ]);
         $service->complete($task, $data['member_ids'], $request->user(), requiresReview: true);
 

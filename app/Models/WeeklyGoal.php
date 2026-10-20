@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToFamily;
 use Illuminate\Database\Eloquent\Model;
 
 class WeeklyGoal extends Model
 {
+    use BelongsToFamily;
+
     protected $guarded = [];
 
     protected function casts(): array

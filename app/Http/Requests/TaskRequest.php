@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\Recurrence;
 use App\Enums\EffortSize;
+use App\Enums\Recurrence;
+use App\Support\FamilyContext;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -21,10 +22,10 @@ class TaskRequest extends FormRequest
             'title' => ['required', 'string', 'max:120'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'effort_size' => ['nullable', Rule::enum(EffortSize::class)],
-            'room_id' => ['required', 'integer', 'exists:rooms,id'],
-            'member_id' => ['nullable', 'integer', 'exists:members,id'],
+            'room_id' => ['required', 'integer', FamilyContext::exists('rooms')],
+            'member_id' => ['nullable', 'integer', FamilyContext::exists('members')],
             'member_ids' => ['sometimes', 'array'],
-            'member_ids.*' => ['required', 'integer', 'distinct', 'exists:members,id'],
+            'member_ids.*' => ['required', 'integer', 'distinct', FamilyContext::exists('members')],
             'recurrence' => ['required', Rule::enum(Recurrence::class)],
             'interval' => ['required', 'integer', 'min:1', 'max:365'],
             'next_due_date' => [$this->isMethod('POST') ? 'required' : 'nullable', 'date'],

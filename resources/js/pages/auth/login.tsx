@@ -126,7 +126,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         </form>
                         <div className="mt-6 border-t border-slate-100 pt-5 text-center text-sm">
                             <p className="text-slate-500">Première visite ? <Link href={route('register')} className="font-semibold text-emerald-700 underline-offset-4 hover:underline">Créer mon compte</Link></p>
-                            <p className="mt-2 text-xs leading-relaxed text-slate-400">Munis-toi du code d’inscription de ta famille.</p>
+                            <p className="mt-2 text-xs leading-relaxed text-slate-400">Crée ton espace ou rejoins ta famille avec son code.</p>
                         </div>
                     </section>
                 </div>

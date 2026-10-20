@@ -154,8 +154,9 @@ class RewardTest extends TestCase
         $data = ['name' => 'Parent', 'email' => 'parent@example.com', 'password' => 'password', 'password_confirmation' => 'password'];
         $this->post(route('register'), $data)->assertSessionHasNoErrors();
         $this->assertTrue(User::firstWhere('email', $data['email'])->is_parent);
+        $code = User::firstWhere('email', $data['email'])->family->invitation_code;
         $this->post(route('logout'));
-        $this->post(route('register'), [...$data, 'name' => 'Enfant', 'email' => 'child@example.com', 'is_parent' => true])->assertSessionHasNoErrors();
+        $this->post(route('register'), [...$data, 'family_action' => 'join', 'family_code' => $code, 'name' => 'Enfant', 'email' => 'child@example.com', 'is_parent' => true])->assertSessionHasNoErrors();
         $this->assertFalse(User::firstWhere('email', 'child@example.com')->is_parent);
     }
 

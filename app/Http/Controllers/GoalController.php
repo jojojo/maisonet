@@ -13,11 +13,11 @@ use App\Models\WeeklyGoal;
 use App\Services\CompletionService;
 use App\Services\GoalService;
 use App\Services\RewardRequestService;
+use App\Support\FamilyContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,7 +26,7 @@ class GoalController extends Controller
 {
     public function index(Request $request, GoalService $goals): Response
     {
-        $data = $request->validate(['member_id' => ['nullable', 'integer', 'exists:members,id']]);
+        $data = $request->validate(['member_id' => ['nullable', 'integer', FamilyContext::exists('members')]]);
         $parent = (bool) $request->user()->is_parent;
         $all = Member::with(['targetReward' => fn ($query) => $query->where('is_active', true)])->orderBy('name')->get();
         $selectedId = isset($data['member_id']) ? (int) $data['member_id'] : ($request->user()->member_id ?? ($parent ? $all->first()?->id : null));
@@ -40,7 +40,7 @@ class GoalController extends Controller
             }, 3);
             $points = $goals->points($member, $week);
             $pending = DB::table('completion_participants')->join('task_completions', 'task_completions.id', '=', 'completion_participants.task_completion_id')
-                ->where('completion_participants.member_id', $member->id)->where('status', 'pending')
+                ->where('task_completions.family_id', $member->family_id)->where('completion_participants.member_id', $member->id)->where('status', 'pending')
                 ->whereBetween('completed_on', [$week->toDateString(), $week->addDays(6)->toDateString()])->sum('points');
 
             return [
@@ -63,7 +63,7 @@ class GoalController extends Controller
                 'points' => round($summaries->sum('week_points'), 2),
                 'target' => $summaries->sum('weekly_target'),
             ],
-            'accounts' => $parent ? User::orderBy('name')->get(['id', 'name', 'email', 'member_id', 'is_parent']) : [],
+            'accounts' => $parent ? User::inFamily()->orderBy('name')->get(['id', 'name', 'email', 'member_id', 'is_parent']) : [],
             'rewards' => Reward::where('is_active', true)->orderBy('star_cost')->orderBy('title')->get(),
             'pendingCompletions' => $parent ? TaskCompletion::where('status', 'pending')->with(['task.room', 'participants', 'submitter:id,name'])->oldest('completed_on')->oldest('id')->limit(100)->get() : [],
             'pendingCount' => $parent ? TaskCompletion::where('status', 'pending')->count() : 0,
@@ -97,14 +97,14 @@ class GoalController extends Controller
     public function linkAccount(Request $request, User $user): RedirectResponse
     {
         Gate::authorize('manage-goals');
-        $data = $request->validate(['member_id' => ['nullable', 'integer', 'exists:members,id']]);
+        $data = $request->validate(['member_id' => ['nullable', 'integer', FamilyContext::exists('members')]]);
         DB::transaction(function () use ($user, $data) {
             $id = $data['member_id'] ?? null;
             if ($id !== null) {
                 Member::whereKey($id)->lockForUpdate()->firstOrFail();
             }
-            $account = User::lockForUpdate()->findOrFail($user->id);
-            if ($id !== null && User::where('member_id', $id)->whereKeyNot($user->id)->exists()) {
+            $account = User::inFamily()->lockForUpdate()->findOrFail($user->id);
+            if ($id !== null && User::inFamily()->where('member_id', $id)->whereKeyNot($user->id)->exists()) {
                 throw ValidationException::withMessages(['member_id' => 'Ce membre est déjà relié à un autre compte.']);
             }
             $account->forceFill(['member_id' => $id])->save();
@@ -116,8 +116,8 @@ class GoalController extends Controller
     public function target(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'member_id' => ['required', 'integer', 'exists:members,id'],
-            'reward_id' => ['nullable', 'integer', Rule::exists('rewards', 'id')->where('is_active', true)],
+            'member_id' => ['required', 'integer', FamilyContext::exists('members')],
+            'reward_id' => ['nullable', 'integer', FamilyContext::exists('rewards')->where('is_active', true)],
         ]);
         $member = $this->member($request, $data['member_id']);
         $member->forceFill(['target_reward_id' => $data['reward_id'] ?? null])->save();
@@ -131,7 +131,7 @@ class GoalController extends Controller
         $data = $request->validate([
             'decision' => ['required', 'in:approve,reject'],
             'member_ids' => ['sometimes', 'array'],
-            'member_ids.*' => ['required', 'integer', 'distinct', 'exists:members,id'],
+            'member_ids.*' => ['required', 'integer', 'distinct', FamilyContext::exists('members')],
         ]);
         $service->review($completion, $request->user(), $data['decision'] === 'approve', $data['member_ids'] ?? []);
 
@@ -140,7 +140,7 @@ class GoalController extends Controller
 
     public function requestReward(Request $request, RewardRequestService $service): RedirectResponse
     {
-        $data = $request->validate(['member_id' => ['required', 'integer', 'exists:members,id'], 'reward_id' => ['required', 'integer', 'exists:rewards,id']]);
+        $data = $request->validate(['member_id' => ['required', 'integer', FamilyContext::exists('members')], 'reward_id' => ['required', 'integer', FamilyContext::exists('rewards')]]);
         $service->request($this->member($request, $data['member_id']), Reward::findOrFail($data['reward_id']), $request->user());
 
         return back()->with('success', 'Demande envoyée aux parents. Les étoiles sont réservées.');

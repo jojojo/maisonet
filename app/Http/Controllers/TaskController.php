@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TaskRequest;
 use App\Models\Task;
 use App\Services\CompletionService;
+use App\Support\FamilyContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -81,9 +82,9 @@ class TaskController extends Controller
     public function complete(Request $request, Task $task): RedirectResponse
     {
         $data = $request->validate([
-            'member_id' => ['nullable', 'integer', 'exists:members,id'],
+            'member_id' => ['nullable', 'integer', FamilyContext::exists('members')],
             'member_ids' => ['sometimes', 'array'],
-            'member_ids.*' => ['required', 'integer', 'distinct', 'exists:members,id'],
+            'member_ids.*' => ['required', 'integer', 'distinct', FamilyContext::exists('members')],
         ]);
         $actor = $request->user();
         $ids = $data['member_ids'] ?? (isset($data['member_id']) ? [$data['member_id']] : ($actor->is_parent ? $task->members()->pluck('members.id')->all() : array_filter([$actor->member_id])));

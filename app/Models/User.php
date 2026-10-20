@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Support\FamilyContext;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,21 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    public function family(): BelongsTo
+    {
+        return $this->belongsTo(Family::class);
+    }
+
+    public function scopeInFamily($query)
+    {
+        return $query->where('family_id', app(FamilyContext::class)->id() ?? 0);
+    }
+
+    public function resolveRouteBindingQuery($query, $value, $field = null)
+    {
+        return parent::resolveRouteBindingQuery($query, $value, $field)->where('family_id', app(FamilyContext::class)->id() ?? 0);
+    }
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
@@ -51,6 +67,7 @@ class User extends Authenticatable
     {
         return [
             'is_parent' => 'boolean',
+            'family_id' => 'integer',
             'member_id' => 'integer',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',

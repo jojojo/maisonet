@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Family;
 use App\Models\Member;
 use App\Models\Room;
+use App\Support\FamilyContext;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -11,6 +13,12 @@ class HouseholdSeeder extends Seeder
 {
     public function run(): void
     {
+        $context = app(FamilyContext::class);
+        if (! $context->id()) {
+            $context->run(Family::sole()->id, fn () => $this->run());
+
+            return;
+        }
         DB::transaction(function () {
             foreach ([
                 ['Chambre parents', '🛏️'],

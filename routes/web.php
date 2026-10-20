@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\KioskController;
 use App\Http\Controllers\MemberController;
@@ -15,6 +16,9 @@ Route::redirect('/', '/dashboard')->name('home');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+    Route::get('family', [FamilyController::class, 'index'])->name('family.index');
+    Route::patch('family', [FamilyController::class, 'update'])->name('family.update');
+    Route::post('family/code', [FamilyController::class, 'renewCode'])->middleware('throttle:6,1')->name('family.renew-code');
     Route::get('kiosk', [KioskController::class, 'index'])->name('kiosk.index');
     Route::post('kiosk/enter', [KioskController::class, 'enter'])->name('kiosk.enter');
     Route::post('kiosk/leave', [KioskController::class, 'leave'])->middleware('throttle:6,1')->name('kiosk.leave');
