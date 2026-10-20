@@ -415,7 +415,7 @@ export default function Goals(props: Props) {
                                             Une nouvelle montagne chaque lundi. Tes étoiles restent dans ton sac !
                                         </p>
                                     </div>
-                                    <section className="family-card grid gap-5 rounded-[2rem] border-2 border-amber-200 bg-amber-50/70 p-5 sm:p-6 dark:border-amber-900 dark:bg-amber-950/20">
+                                    <section className="family-card grid gap-5 rounded-[2rem] border-2 border-amber-400 bg-amber-100/80 p-5 sm:p-6 dark:border-amber-900 dark:bg-amber-950/20">
                                         <div className="flex items-center justify-between gap-3">
                                             <h2 className="flex items-center gap-2 font-bold">
                                                 <Backpack className="size-5 text-amber-600" />

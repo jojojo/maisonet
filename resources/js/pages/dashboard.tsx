@@ -55,7 +55,7 @@ export default function Dashboard({ missions, overdue, today, upcoming, stats, r
                     <NewTaskButton />
                 </div>
 
-                <section className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-teal-50 to-sky-50 p-6 dark:border-emerald-900 dark:from-emerald-950 dark:via-teal-950 dark:to-sky-950">
+                <section className="family-card relative overflow-hidden rounded-3xl border-2 border-cyan-500 bg-gradient-to-br from-teal-200 via-cyan-100 to-sky-200 p-6 dark:border-emerald-900 dark:from-emerald-950 dark:via-teal-950 dark:to-sky-950">
                     <div className="flex flex-wrap items-center justify-between gap-5">
                         <div className="max-w-lg">
                             <p className="text-xs font-semibold tracking-widest text-emerald-700 uppercase dark:text-emerald-300">

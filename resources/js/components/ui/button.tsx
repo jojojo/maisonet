@@ -9,10 +9,10 @@ const buttonVariants = cva(
     {
         variants: {
             variant: {
-                default: 'bg-primary text-primary-foreground shadow-[0_3px_0_var(--button-edge)] hover:bg-primary/90 active:translate-y-[2px] active:shadow-none motion-reduce:active:translate-y-0',
-                destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-                outline: 'border border-input bg-card shadow-[0_2px_0_var(--border)] hover:bg-accent hover:text-accent-foreground active:translate-y-px motion-reduce:active:translate-y-0',
-                secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+                default: 'border-2 border-[var(--cartoon-ink)] bg-primary text-primary-foreground shadow-[3px_4px_0_var(--button-edge)] hover:-translate-y-px hover:bg-primary/85 active:translate-x-[2px] active:translate-y-[3px] active:shadow-none motion-reduce:transform-none',
+                destructive: 'border-2 border-[var(--cartoon-ink)] bg-destructive text-destructive-foreground shadow-[3px_4px_0_var(--button-edge)] hover:bg-destructive/85 active:translate-y-[3px] active:shadow-none motion-reduce:transform-none',
+                outline: 'border-2 border-[var(--cartoon-ink)] bg-card shadow-[2px_3px_0_var(--cartoon-shadow)] hover:bg-accent hover:text-accent-foreground active:translate-y-[2px] active:shadow-none motion-reduce:transform-none',
+                secondary: 'border-2 border-[var(--cartoon-ink)] bg-secondary text-secondary-foreground shadow-[3px_4px_0_var(--button-edge)] hover:bg-secondary/85 active:translate-y-[3px] active:shadow-none motion-reduce:transform-none',
                 ghost: 'hover:bg-accent hover:text-accent-foreground',
                 link: 'text-primary underline-offset-4 hover:underline',
             },

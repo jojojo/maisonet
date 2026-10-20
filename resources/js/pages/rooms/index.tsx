@@ -9,11 +9,11 @@ import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Pièces', href: '/rooms' }];
 const roomTints = [
-    'bg-amber-50 dark:bg-amber-950/40',
-    'bg-rose-50 dark:bg-rose-950/40',
-    'bg-sky-50 dark:bg-sky-950/40',
-    'bg-emerald-50 dark:bg-emerald-950/40',
-    'bg-violet-50 dark:bg-violet-950/40',
+    'bg-amber-100 dark:bg-amber-950/40',
+    'bg-rose-100 dark:bg-rose-950/40',
+    'bg-sky-100 dark:bg-sky-950/40',
+    'bg-emerald-100 dark:bg-emerald-950/40',
+    'bg-violet-100 dark:bg-violet-950/40',
 ];
 
 export default function Rooms({ rooms }: { rooms: Room[] }) {

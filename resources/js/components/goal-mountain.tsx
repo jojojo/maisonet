@@ -27,7 +27,7 @@ export function GoalMountain({ name, color, points, target, stars, pending }: Pr
     const complete = progress === 1;
 
     return (
-        <section className="family-card relative isolate overflow-hidden rounded-[2rem] border-2 border-sky-200 bg-[#edf7fa] text-slate-800 dark:border-sky-900 dark:bg-[#152a3d] dark:text-sky-50">
+        <section className="family-card relative isolate overflow-hidden rounded-[2rem] border-2 border-cyan-500 bg-[#ddf5f5] text-slate-800 dark:border-sky-900 dark:bg-[#152a3d] dark:text-sky-50">
             <div className="relative z-10 px-5 pt-5 sm:px-7 sm:pt-6">
                 <div className="flex items-center justify-between gap-3">
                     <p className="text-xs font-bold tracking-[0.16em] text-sky-700 uppercase dark:text-sky-200">L’ascension de {name}</p>
