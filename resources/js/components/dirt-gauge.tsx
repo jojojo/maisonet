@@ -7,8 +7,13 @@ export function DirtGauge({ level, compact = false }: { level: number; compact?:
     return (
         <div className={cn('grid gap-1.5', compact ? 'mt-2' : 'mt-3')}>
             <div className={cn('flex items-center justify-between gap-2 text-xs font-medium', style.text)}>
-                <span>{style.emoji} {style.label}</span>
-                <span>{level} % de saleté</span>
+                <span title={compact ? style.label : undefined}>
+                    {style.emoji}
+                    {!compact && ` ${style.label}`}
+                </span>
+                <span className="shrink-0">
+                    {level} %{!compact && ' de saleté'}
+                </span>
             </div>
             <div
                 role="meter"
@@ -19,7 +24,10 @@ export function DirtGauge({ level, compact = false }: { level: number; compact?:
                 aria-valuetext={`${level} % de saleté : ${style.label}`}
                 className="h-3 overflow-hidden rounded-full bg-black/10 dark:bg-white/10"
             >
-                <div className={cn('h-full rounded-full transition-[width,background-color] duration-700 motion-reduce:transition-none', style.fill)} style={{ width: `${level}%` }} />
+                <div
+                    className={cn('h-full rounded-full transition-[width,background-color] duration-700 motion-reduce:transition-none', style.fill)}
+                    style={{ width: `${level}%` }}
+                />
             </div>
         </div>
     );

@@ -1,11 +1,11 @@
-import { MemberFilter } from '@/components/member-filter';
-import { MemberDot } from '@/components/form-fields';
 import { DirtGauge } from '@/components/dirt-gauge';
 import { EffortBadge } from '@/components/effort-badge';
+import { MemberDot } from '@/components/form-fields';
+import { MemberFilter } from '@/components/member-filter';
+import { TaskCompletionControl } from '@/components/task-completion-control';
 import { NewTaskButton } from '@/components/task-form-dialog';
 import { TaskList } from '@/components/task-item';
 import { Button } from '@/components/ui/button';
-import { TaskCompletionControl } from '@/components/task-completion-control';
 import AppLayout from '@/layouts/app-layout';
 import { formatDate, recurrenceLabel, sortByDirt, todayISO } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
@@ -26,12 +26,17 @@ interface Props {
 
 function DayTask({ task }: { task: Task }) {
     return (
-        <div className={cn('bg-background flex items-start gap-2 rounded-md border p-2 text-sm', task.projected && 'border-dashed opacity-70')}>
-            {!task.projected && (
-                <TaskCompletionControl task={task} className="mt-0.5" />
-            )}
-            <div className="min-w-0 flex-1">
-                <p className="font-medium break-words">{task.title}</p>
+        <div className={cn('bg-background rounded-xl border p-2.5 text-sm', task.projected && 'border-dashed opacity-70')}>
+            <div className="min-w-0 space-y-1.5">
+                <div className="flex items-start gap-2">
+                    {!task.projected && (
+                        <TaskCompletionControl
+                            task={task}
+                            className="size-7 rounded-[8px] border-2 shadow-[1px_2px_0_var(--cartoon-shadow)] [&_svg]:size-5"
+                        />
+                    )}
+                    <p className="min-w-0 flex-1 leading-6 font-semibold break-words">{task.title}</p>
+                </div>
                 <EffortBadge task={task} />
                 <p className="text-muted-foreground text-xs">
                     {task.room?.icon} {task.room?.name} · {recurrenceLabel(task.recurrence, task.interval)}
@@ -85,9 +90,15 @@ export default function Planning({ start, previous, next, days, overdue, filters
                     </section>
                 )}
 
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-7">
                     {days.map((day) => (
-                        <section key={day.date} className={cn('bg-muted/40 flex flex-col gap-2 rounded-lg border p-2', day.date === today && 'border-primary ring-primary/30 ring-2')}>
+                        <section
+                            key={day.date}
+                            className={cn(
+                                'bg-muted/40 flex flex-col gap-2 rounded-lg border p-2',
+                                day.date === today && 'border-primary ring-primary/30 ring-2',
+                            )}
+                        >
                             <h3 className="px-1 text-sm font-semibold capitalize">
                                 {formatDate(day.date, { weekday: 'short', day: 'numeric', month: 'short' })}
                             </h3>
@@ -99,7 +110,9 @@ export default function Planning({ start, previous, next, days, overdue, filters
                         </section>
                     ))}
                 </div>
-                <p className="text-muted-foreground text-xs">Les tâches en pointillés sont des occurrences futures calculées d'après la récurrence.</p>
+                <p className="text-muted-foreground text-xs">
+                    Les tâches en pointillés sont des occurrences futures calculées d'après la récurrence.
+                </p>
             </div>
         </AppLayout>
     );
