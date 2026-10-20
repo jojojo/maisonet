@@ -4,6 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { pointsLabel } from '@/lib/progress';
 import { formatDate, todayISO } from '@/lib/tasks';
+import { cn } from '@/lib/utils';
 import { type SharedData, type Task } from '@/types';
 import { Link, router, useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
@@ -113,10 +114,13 @@ export function TaskCompletionControl({ task, className, onCompleted }: { task: 
     return (
         <>
             <Checkbox
-                className={className}
+                className={cn(
+                    'bg-card hover:bg-accent data-[state=checked]:bg-primary size-12 touch-manipulation rounded-xl border-[3px] border-[var(--cartoon-ink)] shadow-[2px_3px_0_var(--cartoon-shadow)] transition-[background-color,box-shadow,transform] active:translate-y-px active:shadow-none data-[state=checked]:border-[var(--cartoon-ink)] motion-reduce:transform-none motion-reduce:transition-none [&_svg]:size-8 [&_svg]:stroke-[3.5]',
+                    className,
+                )}
                 checked={done}
                 disabled={done && !canUndo}
-                aria-label={label}
+                aria-label={`${label} : ${task.title}`}
                 title={label}
                 onCheckedChange={() => (done ? router.delete(route('tasks.undo', task.id), { preserveScroll: true }) : setOpen(true))}
             />

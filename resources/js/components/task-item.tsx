@@ -25,11 +25,11 @@ export function TaskItem({ task, showRoom = true, onCompleted }: { task: Task; s
     return (
         <div
             className={cn(
-                'family-card bg-card flex items-start gap-3 rounded-2xl border p-4',
+                'family-card bg-card grid grid-cols-[48px_minmax(0,1fr)] items-start gap-x-3 gap-y-2 rounded-2xl border p-4 sm:flex sm:gap-3',
                 task.dirt_level !== null && dirtStyle(task.dirt_level).surface,
             )}
         >
-            <TaskCompletionControl task={task} onCompleted={onCompleted} className="mt-0.5 size-5" />
+            <TaskCompletionControl task={task} onCompleted={onCompleted} className="mt-0.5" />
 
             <div className="min-w-0 flex-1">
                 <p className={cn('font-medium break-words', done && 'text-muted-foreground line-through')}>{task.title}</p>
@@ -60,7 +60,7 @@ export function TaskItem({ task, showRoom = true, onCompleted }: { task: Task; s
                 {task.dirt_level !== null && <DirtGauge level={task.dirt_level} />}
             </div>
 
-            <div className="flex shrink-0">
+            <div className="col-start-2 -mt-1 flex shrink-0 justify-end sm:mt-0">
                 <Button variant="ghost" size="icon" onClick={() => setEditing(true)} aria-label="Modifier">
                     <Pencil />
                 </Button>
