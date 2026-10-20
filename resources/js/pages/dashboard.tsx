@@ -1,6 +1,7 @@
+import { HouseBuddy } from '@/components/house-buddy';
 import { MemberFilter } from '@/components/member-filter';
-import { TaskList } from '@/components/task-item';
 import { NewTaskButton } from '@/components/task-form-dialog';
+import { TaskList } from '@/components/task-item';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
@@ -57,21 +58,34 @@ export default function Dashboard({ missions, overdue, today, upcoming, stats, r
                 <section className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-teal-50 to-sky-50 p-6 dark:border-emerald-900 dark:from-emerald-950 dark:via-teal-950 dark:to-sky-950">
                     <div className="flex flex-wrap items-center justify-between gap-5">
                         <div className="max-w-lg">
-                            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-700 dark:text-emerald-300">La maison, c’est une équipe</p>
+                            <p className="text-xs font-semibold tracking-widest text-emerald-700 uppercase dark:text-emerald-300">
+                                La maison, c’est une équipe
+                            </p>
                             <h1 className="mt-2 text-2xl font-bold">Mission : maison toute propre ✨</h1>
-                            <p className="text-muted-foreground mt-2 text-sm">Choisis une mission rouge, relève le défi et fais-la repasser au vert !</p>
+                            <p className="text-muted-foreground mt-2 text-sm">
+                                Choisis une mission rouge, relève le défi et fais-la repasser au vert !
+                            </p>
                         </div>
-                        {freshness !== null && (
-                            <div className="rounded-2xl border border-white/70 bg-white/70 px-6 py-4 text-center dark:border-white/10 dark:bg-black/20">
-                                <p className="text-4xl font-bold text-emerald-700 dark:text-emerald-300">{freshness} %</p>
-                                <p className="mt-1 text-xs font-medium">de fraîcheur estimée</p>
-                            </div>
-                        )}
+                        <div className="flex items-center gap-3">
+                            <HouseBuddy className="w-28 shrink-0 sm:w-36" />
+                            {freshness !== null && (
+                                <div className="rounded-2xl border border-white/70 bg-white/70 px-6 py-4 text-center dark:border-white/10 dark:bg-black/20">
+                                    <p className="text-4xl font-bold text-emerald-700 dark:text-emerald-300">{freshness} %</p>
+                                    <p className="mt-1 text-xs font-medium">de fraîcheur estimée</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                     <div className="mt-5 flex flex-wrap gap-2 text-xs font-medium">
-                        <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100">✨ {clean} au vert</span>
-                        <span className="rounded-full bg-red-100 px-3 py-1.5 text-red-800 dark:bg-red-900 dark:text-red-100">🧽 {urgent} à bichonner</span>
-                        <span className="rounded-full bg-white/70 px-3 py-1.5 dark:bg-white/10">🏆 {stats.done_this_week} missions accomplies cette semaine</span>
+                        <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100">
+                            ✨ {clean} au vert
+                        </span>
+                        <span className="rounded-full bg-red-100 px-3 py-1.5 text-red-800 dark:bg-red-900 dark:text-red-100">
+                            🧽 {urgent} à bichonner
+                        </span>
+                        <span className="rounded-full bg-white/70 px-3 py-1.5 dark:bg-white/10">
+                            🏆 {stats.done_this_week} missions accomplies cette semaine
+                        </span>
                     </div>
                 </section>
 
@@ -95,7 +109,10 @@ export default function Dashboard({ missions, overdue, today, upcoming, stats, r
                         <h2 className="text-lg font-semibold">Historique récent</h2>
                         <div className="divide-y rounded-lg border">
                             {recent.map((c) => {
-                                const canUndo = !seen.has(c.task.id) && c.task.completion_info?.id === c.id && (auth.user.is_parent || (c.status === 'pending' && c.submitted_by === auth.user.id));
+                                const canUndo =
+                                    !seen.has(c.task.id) &&
+                                    c.task.completion_info?.id === c.id &&
+                                    (auth.user.is_parent || (c.status === 'pending' && c.submitted_by === auth.user.id));
                                 seen.add(c.task.id);
 
                                 return (
@@ -105,7 +122,8 @@ export default function Dashboard({ missions, overdue, today, upcoming, stats, r
                                             <p className="text-muted-foreground text-xs">
                                                 {c.task.room?.icon} {c.task.room?.name} · {formatDate(c.completed_on)}
                                                 {c.member && ` · ${c.member.name}`}
-                                                {c.effort_points !== null && ` · ${c.effort_points} ${c.effort_points === 1 ? 'point' : 'points'} d’effort`}
+                                                {c.effort_points !== null &&
+                                                    ` · ${c.effort_points} ${c.effort_points === 1 ? 'point' : 'points'} d’effort`}
                                                 {c.task.next_due_date && ` · prochaine échéance ${formatDate(c.task.next_due_date)}`}
                                             </p>
                                         </div>

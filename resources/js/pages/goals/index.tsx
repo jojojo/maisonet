@@ -415,7 +415,7 @@ export default function Goals(props: Props) {
                                             Une nouvelle montagne chaque lundi. Tes étoiles restent dans ton sac !
                                         </p>
                                     </div>
-                                    <section className="grid gap-5 rounded-3xl border border-amber-200 bg-amber-50/50 p-5 sm:p-6 dark:border-amber-900 dark:bg-amber-950/20">
+                                    <section className="family-card grid gap-5 rounded-[2rem] border-2 border-amber-200 bg-amber-50/70 p-5 sm:p-6 dark:border-amber-900 dark:bg-amber-950/20">
                                         <div className="flex items-center justify-between gap-3">
                                             <h2 className="flex items-center gap-2 font-bold">
                                                 <Backpack className="size-5 text-amber-600" />
@@ -432,7 +432,7 @@ export default function Goals(props: Props) {
                                         )}
                                         <div className="bg-card rounded-2xl border border-amber-100 p-5 text-center dark:border-amber-900">
                                             <span
-                                                className="mx-auto flex size-20 items-center justify-center rounded-3xl bg-amber-50 text-5xl dark:bg-amber-950"
+                                                className="mx-auto flex size-20 -rotate-6 items-center justify-center rounded-3xl border-2 border-amber-200 bg-amber-50 text-5xl shadow-[3px_4px_0_#f5e6bb] dark:border-amber-800 dark:bg-amber-950 dark:shadow-none"
                                                 aria-hidden
                                             >
                                                 {target?.icon ?? '🎁'}
