@@ -15,11 +15,11 @@ class CompletionService
 {
     public function __construct(private GoalService $goals) {}
 
-    public function complete(Task $task, array $memberIds, ?User $actor = null, ?CarbonInterface $on = null): ?TaskCompletion
+    public function complete(Task $task, array $memberIds, ?User $actor = null, ?CarbonInterface $on = null, bool $requiresReview = false): ?TaskCompletion
     {
         $on = ($on ?? today())->copy()->startOfDay();
 
-        return DB::transaction(function () use ($task, $memberIds, $actor, $on) {
+        return DB::transaction(function () use ($task, $memberIds, $actor, $on, $requiresReview) {
             $locked = Task::lockForUpdate()->findOrFail($task->id);
             if ($locked->next_due_date === null) {
                 return null;
@@ -33,7 +33,7 @@ class CompletionService
             $lastAward = $locked->latestPointAward;
             $eligible = ! $lastAward || ($lastAward->points_next_available_on !== null && $on->gte($lastAward->points_next_available_on));
             $awards = $eligible && ($locked->effort_points ?? 0) > 0 && count($memberIds) > 0;
-            $approved = $actor === null || $actor->is_parent;
+            $approved = ! $requiresReview && ($actor === null || $actor->is_parent);
             $completion = $locked->completions()->create([
                 'member_id' => count($memberIds) === 1 ? $memberIds[0] : null,
                 'completed_on' => $on, 'due_on' => $locked->next_due_date,

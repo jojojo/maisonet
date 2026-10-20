@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoalController;
+use App\Http\Controllers\KioskController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PlanningController;
 use App\Http\Controllers\RewardController;
@@ -14,6 +15,10 @@ Route::redirect('/', '/dashboard')->name('home');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+    Route::get('kiosk', [KioskController::class, 'index'])->name('kiosk.index');
+    Route::post('kiosk/enter', [KioskController::class, 'enter'])->name('kiosk.enter');
+    Route::post('kiosk/leave', [KioskController::class, 'leave'])->middleware('throttle:6,1')->name('kiosk.leave');
+    Route::post('kiosk/tasks/{task}/complete', [KioskController::class, 'complete'])->name('kiosk.complete');
     Route::get('planning', PlanningController::class)->name('planning');
     Route::get('task-templates', [TaskTemplateController::class, 'index'])->name('task-templates.index');
     Route::post('task-templates/import', [TaskTemplateController::class, 'store'])->name('task-templates.store');
