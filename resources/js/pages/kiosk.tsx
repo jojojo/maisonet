@@ -172,7 +172,7 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                 <p className="text-muted-foreground text-sm">Notre tableau de famille</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-3">
                             <div className="text-right">
                                 <p className="text-2xl font-extrabold tabular-nums">
                                     {now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
@@ -184,12 +184,12 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                             {active && (
                                 <Button
                                     variant="outline"
-                                    size="icon"
-                                    className="size-12"
+                                    className="h-12 gap-2 px-4"
                                     aria-label="Quitter le kiosque"
                                     onClick={() => setExit(true)}
                                 >
                                     <LockKeyhole />
+                                    Quitter le kiosque
                                 </Button>
                             )}
                         </div>
