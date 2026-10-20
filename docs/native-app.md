@@ -46,6 +46,12 @@ connexion et conserve une capture. Les artefacts `maisonet-android-debug`
 (APK) et `maisonet-android-launch` (capture) sont disponibles 14 jours dans
 le résultat du workflow. Aucun compte ni secret de production n’est injecté.
 
+La version de test initiale est aussi distribuée depuis
+`https://maisonet.eoloa.net/storage/downloads/Maiso-net-0.1.0-test.apk`.
+Le fichier est conservé dans le volume public persistant du serveur, en dehors
+de Git et de la base de données. Les nouvelles compilations ne remplacent pas
+automatiquement ce fichier : leur validation précède la mise à disposition.
+
 L’APK est une version de test signée avec la clé debug du runner. Cette clé
 n’est pas stable entre les machines de compilation : une nouvelle compilation
 peut demander la désinstallation de l’ancienne version. Pour une distribution

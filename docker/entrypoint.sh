@@ -6,6 +6,7 @@ set -eu
 export DB_DATABASE
 
 mkdir -p storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
+[ -L public/storage ] || php artisan storage:link
 first_start=0
 if [ ! -s "$DB_DATABASE" ]; then
     touch "$DB_DATABASE"
