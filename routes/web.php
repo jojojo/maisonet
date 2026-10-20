@@ -13,6 +13,7 @@ use App\Http\Controllers\TaskTemplateController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard')->name('home');
+Route::view('mobile', 'mobile')->name('mobile');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');

@@ -1,0 +1,42 @@
+export type Member = { id: number; name: string; color: string };
+export type Room = { id: number; name: string; icon: string };
+export type Account = {
+    id: number;
+    name: string;
+    email: string;
+    is_parent: boolean;
+    member_id: number | null;
+    family: { id: number; name: string };
+    members: Member[];
+    rooms: Room[];
+};
+export type Task = {
+    id: number;
+    title: string;
+    notes: string | null;
+    room: Room | null;
+    members: Member[];
+    recurrence: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'once';
+    interval: number;
+    next_due_date: string | null;
+    last_completed_at: string | null;
+    effort_size: string | null;
+    effort_points: number | null;
+    status: 'overdue' | 'today' | 'upcoming' | 'done';
+    dirt_level: number | null;
+    can_earn_points: boolean;
+    points_available_on: string | null;
+    completion_info: { id: number; status: string; completed_on: string; submitted_by: number | null } | null;
+};
+export type Completion = {
+    id: number;
+    task_id: number;
+    task: Task;
+    status: 'pending' | 'approved' | 'rejected';
+    completed_on: string;
+    effort_points: number | null;
+    awards_points: boolean;
+    participants: (Member & { points: number })[];
+};
+export type Page<T> = { data: T[]; meta: { current_page: number; last_page: number; total: number }; links: { next: string | null } };
+export type Session = { token: string; expiresAt: string };

@@ -140,10 +140,34 @@ sont validés dans ce foyer, et la résolution des routes est cloisonnée.
 
 ## Installation et vérification
 
+### Interface de prévisualisation
+
+Ouvrir `/mobile` pour essayer le client React autonome. Un raccourci « Interface
+mobile » est présent dans le menu du site. Le client utilise uniquement cette
+API, sans navigation Inertia. Sa compilation est incluse dans `npm run build`.
+
+Le compte habituel permet de se connecter. L’interface comprend les missions
+du foyer ou du membre, un filtre par pièce, la pagination, le choix des
+participants, la déclaration d’une réalisation, le coin parent et la déconnexion.
+Elle dispose de son propre manifeste pour une ouverture sur `/mobile` depuis
+l’écran d’accueil. Elle nécessite une connexion réseau ; aucun envoi hors ligne
+n’est mis en attente.
+
+Pour ce prototype navigateur, le jeton est conservé dans `sessionStorage`, propre
+à l’onglet, avec repli en mémoire si ce stockage est indisponible. La déconnexion
+révoque le jeton côté serveur avant de l’effacer localement ; une réponse `401`
+efface la session. Le site complet conserve sa connexion web indépendante.
+Avant une distribution native, il faudra remplacer ce stockage par le stockage
+sécurisé du système, configurer le transport vers le serveur et empaqueter le
+client avec Capacitor. Cette prévisualisation n’est pas encore un APK ou une app iOS.
+
+### Commandes
+
 ```sh
 composer install
 php artisan migrate
 php artisan test --compact
+node --experimental-strip-types --test tests/frontend/mobile-api.test.mjs
 ```
 
 La migration ajoute uniquement `personal_access_tokens` aux bases déjà migrées.
