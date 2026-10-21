@@ -7,7 +7,7 @@ Les données nécessitent toujours une connexion à `https://maisonet.eoloa.net`
 ## Projets
 
 - Identifiant Android et iOS : `net.eoloa.maisonet`.
-- Version initiale : `0.1.0`, numéro de build `1`.
+- Version courante : `0.1.1`, numéro de build `2`.
 - Projets natifs : `android/` et `ios/`.
 - Entrée embarquée : `mobile/index.html` et `resources/js/mobile/native-main.tsx`.
 - Sortie Vite : `mobile/dist/`, générée et ignorée par Git.
@@ -47,7 +47,7 @@ connexion et conserve une capture. Les artefacts `maisonet-android-debug`
 le résultat du workflow. Aucun compte ni secret de production n’est injecté.
 
 La version de test initiale est aussi distribuée depuis
-`https://maisonet.eoloa.net/storage/downloads/Maiso-net-0.1.0-test.apk`.
+`https://maisonet.eoloa.net/storage/downloads/Maiso-net-0.1.1-test.apk`.
 Le fichier est conservé dans le volume public persistant du serveur, en dehors
 de Git et de la base de données. Les nouvelles compilations ne remplacent pas
 automatiquement ce fichier : leur validation précède la mise à disposition.
@@ -71,6 +71,25 @@ Choisir un simulateur ou une équipe de signature pour un appareil réel.
 La génération du projet sous Windows ne constitue pas une compilation iOS.
 La distribution TestFlight/App Store demandera une équipe Apple et les réglages
 de signature correspondants. Aucun compte Apple n’est configuré ici.
+
+## Visuels
+
+Les trois images fournies dans `public/Image ChatGPT…` sont conservées telles
+quelles. Le logo horizontal est utilisé via `public/logo.png`, la mascotte avec
+sa liste via `public/mascot.png`, et l’icône simplifiée via `public/icon.png`.
+Le composant `HouseBuddy` partage la mascotte entre le site et l’application.
+La compilation native embarque le logo et la mascotte sans charger ces images
+depuis le serveur.
+
+Pour régénérer les icônes PWA, Android et iOS sous Windows :
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generate-brand-icons.ps1
+```
+
+Le script conserve les originaux, ajuste les marges transparentes pour les
+petites tailles et produit les icônes sur fond opaque, y compris l’icône iOS
+1024×1024. Les rendus générés sont versionnés avec les projets natifs.
 
 ## Connexion et confidentialité
 

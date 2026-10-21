@@ -9,6 +9,9 @@ on:
       - 'mobile/index.html'
       - 'resources/js/mobile/**'
       - 'resources/js/components/house-buddy.tsx'
+      - 'public/logo.png'
+      - 'public/mascot.png'
+      - 'public/icon.png'
       - 'capacitor.config.ts'
       - 'vite.mobile.config.ts'
       - 'tsconfig.mobile.json'
@@ -76,6 +79,7 @@ jobs:
             adb shell uiautomator dump /sdcard/maisonet-ui.xml
             adb pull /sdcard/maisonet-ui.xml android/app/build/maisonet-ui.xml
             grep -q 'Bienvenue chez toi' android/app/build/maisonet-ui.xml
+            adb exec-out screencap -p > android/app/build/maisonet-launch.png
       - uses: actions/upload-artifact@v4
         if: always()
         with:

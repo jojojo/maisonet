@@ -146,7 +146,7 @@ h3 {
     font-size: 13px;
     color: #526d70;
 }
-.mission-hero > svg {
+.mission-hero > img {
     width: 128px;
     flex-shrink: 0;
     margin-right: -8px;
@@ -844,7 +844,7 @@ h3 {
     background: #b9efdf;
     transform: rotate(-12deg);
 }
-.welcome-art svg {
+.welcome-art img {
     width: 186px;
     position: relative;
 }
@@ -943,7 +943,7 @@ h3 {
         padding-left: 32px;
         padding-right: 32px;
     }
-    .mission-hero > svg {
+    .mission-hero > img {
         width: 155px;
     }
     .mission-dialog {
@@ -965,7 +965,7 @@ h3 {
     .brand img {
         width: 115px;
     }
-    .mission-hero > svg {
+    .mission-hero > img {
         width: 100px;
     }
     .mission-hero .eyebrow {

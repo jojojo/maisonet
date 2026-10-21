@@ -11,9 +11,11 @@ export default defineConfig({
     plugins: [
         react(),
         {
-            name: 'maisonet-bundled-logo',
+            name: 'maisonet-bundled-branding',
             generateBundle() {
-                this.emitFile({ type: 'asset', fileName: 'logo.png', source: readFileSync(new URL('./public/logo.png', import.meta.url)) });
+                for (const fileName of ['logo.png', 'mascot.png']) {
+                    this.emitFile({ type: 'asset', fileName, source: readFileSync(new URL(`./public/${fileName}`, import.meta.url)) });
+                }
             },
         },
     ],
