@@ -76,8 +76,7 @@ jobs:
             sleep 12
             adb shell pidof net.eoloa.maisonet
             adb exec-out screencap -p > android/app/build/maisonet-launch.png
-            adb shell uiautomator dump /sdcard/maisonet-ui.xml
-            adb pull /sdcard/maisonet-ui.xml android/app/build/maisonet-ui.xml
+            for attempt in 1 2 3 4 5 6; do adb shell uiautomator dump /sdcard/maisonet-ui.xml && adb pull /sdcard/maisonet-ui.xml android/app/build/maisonet-ui.xml && grep -q 'Bienvenue chez toi' android/app/build/maisonet-ui.xml && break; sleep 3; done
             grep -q 'Bienvenue chez toi' android/app/build/maisonet-ui.xml
             adb exec-out screencap -p > android/app/build/maisonet-launch.png
       - uses: actions/upload-artifact@v4
