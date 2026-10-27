@@ -9,6 +9,7 @@ use App\Http\Controllers\PlanningController;
 use App\Http\Controllers\RewardController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskSkipController;
 use App\Http\Controllers\TaskTemplateController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('kiosk/enter', [KioskController::class, 'enter'])->name('kiosk.enter');
     Route::post('kiosk/leave', [KioskController::class, 'leave'])->middleware('throttle:6,1')->name('kiosk.leave');
     Route::post('kiosk/tasks/{task}/complete', [KioskController::class, 'complete'])->name('kiosk.complete');
+    Route::post('kiosk/tasks/{task}/skip', [TaskSkipController::class, 'store'])->middleware('throttle:6,1')->name('kiosk.skip');
+    Route::delete('kiosk/tasks/{task}/skip', [TaskSkipController::class, 'destroy'])->middleware('throttle:6,1')->name('kiosk.undo-skip');
     Route::get('planning', PlanningController::class)->name('planning');
     Route::get('task-templates', [TaskTemplateController::class, 'index'])->name('task-templates.index');
     Route::post('task-templates/import', [TaskTemplateController::class, 'store'])->name('task-templates.store');
@@ -44,6 +47,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('tasks', TaskController::class)->only(['index', 'store', 'update', 'destroy']);
 
     Route::post('tasks/{task}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
+    Route::post('tasks/{task}/skip', [TaskSkipController::class, 'store'])->name('tasks.skip');
+    Route::delete('tasks/{task}/skip', [TaskSkipController::class, 'destroy'])->name('tasks.undo-skip');
     Route::delete('tasks/{task}/complete', [TaskController::class, 'undo'])->name('tasks.undo');
 });
 

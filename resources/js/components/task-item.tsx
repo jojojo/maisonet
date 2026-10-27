@@ -2,6 +2,7 @@ import { DirtGauge } from '@/components/dirt-gauge';
 import { EffortBadge } from '@/components/effort-badge';
 import { MemberDot } from '@/components/form-fields';
 import { TaskCompletionControl } from '@/components/task-completion-control';
+import { TaskSkipControl } from '@/components/task-skip-control';
 import { TaskFormDialog } from '@/components/task-form-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -58,6 +59,7 @@ export function TaskItem({ task, showRoom = true, onCompleted }: { task: Task; s
                 </div>
                 {task.notes && <p className="text-muted-foreground mt-1 text-xs">{task.notes}</p>}
                 {task.dirt_level !== null && <DirtGauge level={task.dirt_level} />}
+                <TaskSkipControl task={task} />
             </div>
 
             <div className="col-start-2 -mt-1 flex shrink-0 justify-end sm:mt-0">

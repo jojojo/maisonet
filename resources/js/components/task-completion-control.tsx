@@ -107,9 +107,21 @@ function CompletionDialog({ task, onClose, onCompleted }: { task: Task; onClose:
 export function TaskCompletionControl({ task, className, onCompleted }: { task: Task; className?: string; onCompleted?: (title: string) => void }) {
     const { auth } = usePage<SharedData>().props;
     const [open, setOpen] = useState(false);
-    const done = task.status === 'done' || task.last_completed_at === todayISO();
+    const passed = task.completion_info?.status === 'skipped';
+    const done = !passed && (task.status === 'done' || task.last_completed_at === todayISO());
     const canUndo = auth.user.is_parent || (task.completion_info?.status === 'pending' && task.completion_info.submitted_by === auth.user.id);
     const label = done ? (canUndo ? 'Annuler cette réalisation' : 'Réalisation validée par un parent') : 'Déclarer la mission terminée';
+
+    if (passed && task.status === 'done')
+        return (
+            <span
+                className={cn('bg-muted text-muted-foreground flex size-12 items-center justify-center rounded-xl border-2 text-xl', className)}
+                title="Occurrence passée sans réalisation"
+                aria-label="Occurrence passée"
+            >
+                −
+            </span>
+        );
 
     return (
         <>

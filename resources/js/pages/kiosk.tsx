@@ -1,6 +1,7 @@
 import { DirtGauge } from '@/components/dirt-gauge';
 import { EffortBadge } from '@/components/effort-badge';
 import { HouseBuddy } from '@/components/house-buddy';
+import { TaskSkipControl } from '@/components/task-skip-control';
 import { KioskMissionTimer } from '@/components/kiosk-mission-timer';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -407,6 +408,7 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                                     </>
                                                 )}
                                             </Button>
+                                            <TaskSkipControl task={task} kiosk />
                                         </article>
                                     );
                                 })}

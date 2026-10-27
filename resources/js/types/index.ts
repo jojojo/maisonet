@@ -71,13 +71,21 @@ export interface Task {
     dirt_level: number | null;
     points_available_on: string | null;
     can_earn_points: boolean;
-    completion_info: { id: number; status: string; completed_on: string; submitted_by: number | null } | null;
+    completion_info: {
+        id: number;
+        status: string;
+        completed_on: string;
+        submitted_by: number | null;
+        due_on: string | null;
+        skip_reason: string | null;
+    } | null;
     room?: Room;
     members: Member[];
     projected?: boolean;
 }
 
 export interface Completion {
+    skip_reason: string | null;
     id: number;
     completed_on: string;
     effort_points: number | null;

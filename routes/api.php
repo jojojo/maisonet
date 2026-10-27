@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CompletionController;
 use App\Http\Controllers\Api\V1\TaskController;
+use App\Http\Controllers\TaskSkipController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
@@ -16,6 +17,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
         Route::get('tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
         Route::post('tasks/{task}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
+        Route::post('tasks/{task}/skip', [TaskSkipController::class, 'store'])->name('tasks.skip');
+        Route::delete('tasks/{task}/skip', [TaskSkipController::class, 'destroy'])->name('tasks.undo-skip');
         Route::get('completions/pending', [CompletionController::class, 'index'])->name('completions.pending');
         Route::post('completions/{completion}/review', [CompletionController::class, 'review'])->name('completions.review');
     });

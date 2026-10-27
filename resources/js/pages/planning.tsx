@@ -3,6 +3,7 @@ import { EffortBadge } from '@/components/effort-badge';
 import { MemberDot } from '@/components/form-fields';
 import { MemberFilter } from '@/components/member-filter';
 import { TaskCompletionControl } from '@/components/task-completion-control';
+import { TaskSkipControl } from '@/components/task-skip-control';
 import { NewTaskButton } from '@/components/task-form-dialog';
 import { TaskList } from '@/components/task-item';
 import { Button } from '@/components/ui/button';
@@ -47,6 +48,7 @@ function DayTask({ task }: { task: Task }) {
                     </p>
                 ))}
                 {!task.projected && task.dirt_level !== null && <DirtGauge level={task.dirt_level} compact />}
+                {!task.projected && <TaskSkipControl task={task} />}
             </div>
         </div>
     );

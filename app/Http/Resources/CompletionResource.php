@@ -10,7 +10,7 @@ class CompletionResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id, 'task_id' => $this->task_id,
+            'id' => $this->id, 'task_id' => $this->task_id, 'skip_reason' => $this->skip_reason,
             'task' => new TaskResource($this->whenLoaded('task')),
             'status' => $this->status, 'completed_on' => $this->completed_on->toDateString(),
             'effort_points' => $this->effort_points, 'awards_points' => $this->awards_points,

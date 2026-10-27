@@ -7,6 +7,7 @@ use App\Models\PointEntry;
 use App\Models\Task;
 use App\Models\TaskCompletion;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -24,7 +25,7 @@ class CompletionService
             if ($locked->next_due_date === null) {
                 return null;
             }
-            $existing = $locked->completions()->where('status', '!=', 'rejected')->whereDate('completed_on', $on)->first();
+            $existing = $locked->completions()->whereNotIn('status', ['rejected', 'skipped'])->whereDate('completed_on', $on)->first();
             if ($existing) {
                 return $existing;
             }
@@ -100,9 +101,49 @@ class CompletionService
             $last->delete();
             $locked->forceFill([
                 'next_due_date' => $due,
-                'last_completed_at' => $locked->completions()->where('status', '!=', 'rejected')->max('completed_on'),
+                'last_completed_at' => $last->status === 'skipped' ? $locked->last_completed_at : $locked->completions()->whereNotIn('status', ['rejected', 'skipped'])->max('completed_on'),
             ])->save();
             $task->setRawAttributes($locked->getAttributes(), true)->unsetRelations();
+        }, 3);
+    }
+
+    public function skip(Task $task, User $actor, string $dueOn, ?string $reason = null): TaskCompletion
+    {
+        abort_unless($actor->is_parent, 403);
+
+        return DB::transaction(function () use ($task, $actor, $dueOn, $reason) {
+            $locked = Task::lockForUpdate()->findOrFail($task->id);
+            $latest = $locked->latestCompletion;
+            if ($latest?->status === 'skipped' && $latest->due_on?->toDateString() === $dueOn) {
+                return $latest;
+            }
+            abort_if($locked->next_due_date?->toDateString() !== $dueOn, 409, 'Cette échéance a changé. Actualise les missions avant de réessayer.');
+            if ($latest?->status === 'pending') {
+                throw ValidationException::withMessages(['reason' => 'Valide ou refuse d’abord la réalisation en attente.']);
+            }
+            $from = CarbonImmutable::parse($dueOn)->max(CarbonImmutable::today());
+            $record = $locked->completions()->create([
+                'completed_on' => today(), 'due_on' => $dueOn,
+                'status' => 'skipped', 'skip_reason' => $reason,
+                'effort_points' => $locked->effort_points, 'awards_points' => false,
+                'submitted_by' => $actor->id, 'reviewed_by' => $actor->id, 'reviewed_at' => now(),
+            ]);
+            // Passing an occurrence is not a cleaning and never changes last_completed_at.
+            $locked->update(['next_due_date' => $locked->recurrence->advance($from, $locked->interval)]);
+            $task->setRawAttributes($locked->getAttributes(), true)->unsetRelations();
+
+            return $record;
+        }, 3);
+    }
+
+    public function undoSkip(Task $task, User $actor, int $completionId): void
+    {
+        abort_unless($actor->is_parent, 403);
+        DB::transaction(function () use ($task, $actor, $completionId) {
+            $locked = Task::lockForUpdate()->findOrFail($task->id);
+            $latest = $locked->latestCompletion;
+            abort_unless($latest?->id === $completionId && $latest->status === 'skipped', 409, 'Une autre action a eu lieu depuis. Actualise les missions.');
+            $this->undo($locked, $actor);
         }, 3);
     }
 
@@ -149,7 +190,7 @@ class CompletionService
         if (! $newer) {
             $task->forceFill([
                 'next_due_date' => $completion->due_on,
-                'last_completed_at' => $task->completions()->where('status', '!=', 'rejected')->max('completed_on'),
+                'last_completed_at' => $task->completions()->whereNotIn('status', ['rejected', 'skipped'])->max('completed_on'),
             ])->save();
         }
     }

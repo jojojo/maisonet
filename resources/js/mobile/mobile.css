@@ -984,3 +984,32 @@ h3 {
         transition: none !important;
     }
 }
+.skip-section {
+    border-top: 1px solid #d4dfd9;
+    margin-top: 20px;
+    padding-top: 10px;
+}
+.skip-panel {
+    display: grid;
+    gap: 12px;
+    margin: 8px 0;
+    padding: 14px;
+    background: #f1f5ed;
+    border-radius: 13px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+.skip-panel label {
+    display: grid;
+    gap: 6px;
+    font-weight: 700;
+}
+.skip-panel input {
+    min-width: 0;
+    width: 100%;
+    border: 1px solid #a7bdb8;
+    border-radius: 9px;
+    background: white;
+    padding: 11px;
+    font-size: 16px;
+}

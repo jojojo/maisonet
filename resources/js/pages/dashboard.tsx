@@ -122,7 +122,10 @@ export default function Dashboard({ missions, overdue, today, upcoming, stats, r
                                             <p className="text-muted-foreground text-xs">
                                                 {c.task.room?.icon} {c.task.room?.name} · {formatDate(c.completed_on)}
                                                 {c.member && ` · ${c.member.name}`}
-                                                {c.effort_points !== null &&
+                                                {c.status === 'skipped' &&
+                                                    ` · Occurrence passée, sans points${c.skip_reason ? ` : ${c.skip_reason}` : ''}`}
+                                                {c.status !== 'skipped' &&
+                                                    c.effort_points !== null &&
                                                     ` · ${c.effort_points} ${c.effort_points === 1 ? 'point' : 'points'} d’effort`}
                                                 {c.task.next_due_date && ` · prochaine échéance ${formatDate(c.task.next_due_date)}`}
                                             </p>
@@ -132,7 +135,12 @@ export default function Dashboard({ missions, overdue, today, upcoming, stats, r
                                                 variant="ghost"
                                                 size="icon"
                                                 aria-label="Annuler"
-                                                onClick={() => router.delete(route('tasks.undo', c.task.id), { preserveScroll: true })}
+                                                onClick={() =>
+                                                    router.delete(route(c.status === 'skipped' ? 'tasks.undo-skip' : 'tasks.undo', c.task.id), {
+                                                        preserveScroll: true,
+                                                        data: { completion_id: c.id },
+                                                    })
+                                                }
                                             >
                                                 <Undo2 />
                                             </Button>

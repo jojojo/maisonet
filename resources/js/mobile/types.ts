@@ -26,13 +26,21 @@ export type Task = {
     dirt_level: number | null;
     can_earn_points: boolean;
     points_available_on: string | null;
-    completion_info: { id: number; status: string; completed_on: string; submitted_by: number | null } | null;
+    completion_info: {
+        id: number;
+        status: string;
+        completed_on: string;
+        submitted_by: number | null;
+        due_on: string | null;
+        skip_reason: string | null;
+    } | null;
 };
 export type Completion = {
     id: number;
     task_id: number;
     task: Task;
-    status: 'pending' | 'approved' | 'rejected';
+    status: 'pending' | 'approved' | 'rejected' | 'skipped';
+    skip_reason: string | null;
     completed_on: string;
     effort_points: number | null;
     awards_points: boolean;

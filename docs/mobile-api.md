@@ -101,6 +101,31 @@ Une tâche clôturée sans prochaine échéance répond `409`.
 
 ## Validation parentale
 
+### Passer une occurrence sans la faire
+
+Les comptes parents peuvent appeler `POST /tasks/{id}/skip` avec
+`{"due_on":"2026-10-27","reason":"Pas nécessaire cette fois"}`.
+`due_on` est l’échéance affichée par le client ; elle protège contre les doubles
+envois et les modifications concurrentes. `reason` est facultatif (500 caractères).
+La réponse contient la réalisation de statut `skipped`, son `skip_reason`,
+`awards_points: false` et la tâche actualisée. Aucun participant, point ou étoile
+n’est créé. `last_completed_at` reste inchangé.
+
+La prochaine date est calculée depuis l’échéance passée ou depuis aujourd’hui
+si celle-ci est en retard. Une tâche ponctuelle est clôturée comme passée.
+Une réalisation en attente doit être validée ou refusée avant de passer la
+prochaine occurrence. Les statistiques de réalisations excluent les passages.
+
+`DELETE /tasks/{id}/skip` avec `{"completion_id":123}` annule uniquement le
+dernier passage de cette tâche. Un identifiant périmé répond `409` ; la tâche
+actualisée est renvoyée après succès. Le motif et la date de l’occurrence passée
+sont exposés dans `completion_info`. Les actions sont interdites aux enfants.
+
+En kiosque web, les mêmes actions demandent le mot de passe du parent pour
+protéger la tablette partagée. L’API mobile utilise le compte parent authentifié.
+
+### Vérifier une réalisation
+
 | Méthode | Route | Résultat |
 | --- | --- | --- |
 | GET | `/completions/pending` | Liste paginée des réalisations à valider, plus anciennes en premier ; mêmes paramètres de pagination |

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } fro
 import { HouseBuddy } from '../components/house-buddy';
 import { ApiError, MobileApi } from './api';
 import { browserSessionStore, validSession, type SessionStore } from './session-store';
+import { MobileSkipControl } from './skip-control';
 import type { Account, Completion, Member, Page, Session, Task } from './types';
 
 const errorMessage = (error: unknown) => (error instanceof Error ? error.message : 'Une erreur est survenue. Réessaie.');
@@ -177,7 +178,7 @@ function Login({ connect, notice, platform }: { connect: (session: Session) => P
     );
 }
 
-type Selection = { kind: 'complete'; task: Task } | { kind: 'review'; completion: Completion };
+type Selection = { kind: 'complete'; task: Task; skip?: boolean } | { kind: 'review'; completion: Completion };
 function Workspace({
     session,
     disconnect,
@@ -310,14 +311,23 @@ function Workspace({
                 : previous,
         );
         setToast(
-            result.status === 'pending'
-                ? 'Bravo ! Ta mission attend la validation d’un parent.'
-                : result.status === 'rejected'
-                  ? 'Mission refusée. Le planning a été mis à jour.'
-                  : result.awards_points
-                    ? 'Bien joué ! Les points ont été attribués ✨'
-                    : 'Bien joué ! La mission est enregistrée.',
+            result.status === 'skipped'
+                ? 'Occurrence passée, sans points. La prochaine échéance est à jour.'
+                : result.status === 'pending'
+                  ? 'Bravo ! Ta mission attend la validation d’un parent.'
+                  : result.status === 'rejected'
+                    ? 'Mission refusée. Le planning a été mis à jour.'
+                    : result.awards_points
+                      ? 'Bien joué ! Les points ont été attribués ✨'
+                      : 'Bien joué ! La mission est enregistrée.',
         );
+        void refresh();
+    }
+
+    function changed(task: Task, message: string) {
+        setSelection(null);
+        setTasks((previous) => (previous ? { ...previous, data: previous.data.map((item) => (item.id === task.id ? task : item)) } : previous));
+        setToast(message);
         void refresh();
     }
 
@@ -408,7 +418,8 @@ function Workspace({
                                     subtitle="Aujourd’hui et à rattraper"
                                     tasks={urgent}
                                     canComplete={account.is_parent || account.member_id !== null}
-                                    choose={(task) => setSelection({ kind: 'complete', task })}
+                                    canSkip={account.is_parent}
+                                    choose={(task, skip) => setSelection({ kind: 'complete', task, skip })}
                                 />
                                 {!urgent.length && (
                                     <div className="mobile-panel empty">
@@ -422,17 +433,24 @@ function Workspace({
                                     subtitle="Les prochaines missions"
                                     tasks={upcoming}
                                     canComplete={account.is_parent || account.member_id !== null}
-                                    choose={(task) => setSelection({ kind: 'complete', task })}
+                                    canSkip={account.is_parent}
+                                    choose={(task, skip) => setSelection({ kind: 'complete', task, skip })}
                                 />
                                 {done.length > 0 && (
                                     <details className="finished-list">
                                         <summary>
-                                            {done.length} mission{done.length > 1 ? 's' : ''} terminée{done.length > 1 ? 's' : ''}
+                                            {done.length} mission{done.length > 1 ? 's' : ''} clôturée{done.length > 1 ? 's' : ''}
                                         </summary>
                                         {done.map((task) => (
-                                            <p key={task.id}>
-                                                <Check size={16} /> {task.title}
-                                            </p>
+                                            <div key={task.id}>
+                                                <p>
+                                                    {task.completion_info?.status === 'skipped' ? '−' : <Check size={16} />} {task.title}
+                                                    {task.completion_info?.status === 'skipped' ? ' · Occurrence passée' : ''}
+                                                </p>
+                                                {account.is_parent && task.completion_info?.status === 'skipped' && (
+                                                    <MobileSkipControl task={task} api={api} skipped={completed} changed={changed} />
+                                                )}
+                                            </div>
                                         ))}
                                     </details>
                                 )}
@@ -582,6 +600,7 @@ function Workspace({
                     api={api}
                     close={() => setSelection(null)}
                     success={completed}
+                    changed={changed}
                 />
             )}
         </div>
@@ -593,13 +612,15 @@ function TaskGroup({
     subtitle,
     tasks,
     canComplete,
+    canSkip,
     choose,
 }: {
     title: string;
     subtitle: string;
     tasks: Task[];
     canComplete: boolean;
-    choose: (task: Task) => void;
+    canSkip: boolean;
+    choose: (task: Task, skip?: boolean) => void;
 }) {
     if (!tasks.length) return null;
     return (
@@ -643,7 +664,13 @@ function TaskGroup({
                                 {task.effort_size ? `${task.effort_size} · ${pointLabel(task.effort_points ?? 0)}` : 'Petit coup de main'}
                             </span>
                             {task.completion_info?.status === 'pending' && <span className="pending-chip">Validation en attente</span>}
+                            {task.completion_info?.status === 'skipped' && <span className="pending-chip">Occurrence passée, sans points</span>}
                         </div>
+                        {canSkip && (
+                            <button className="text-button" onClick={() => choose(task, true)}>
+                                Pas besoin cette fois
+                            </button>
+                        )}
                         {level !== null && (
                             <div className="dirt-row">
                                 <div
@@ -672,12 +699,14 @@ function MissionDialog({
     api,
     close,
     success,
+    changed,
 }: {
     selection: Selection;
     account: Account;
     api: MobileApi;
     close: () => void;
     success: (completion: Completion) => void;
+    changed: (task: Task, message: string) => void;
 }) {
     const task = selection.kind === 'complete' ? selection.task : selection.completion.task;
     const initial =
@@ -738,68 +767,88 @@ function MissionDialog({
                         <X size={20} />
                     </Dialog.Close>
                     <span className="dialog-emoji">{selection.kind === 'review' ? '🎉' : '🧽'}</span>
-                    <Dialog.Title>{selection.kind === 'review' ? 'Une victoire à valider !' : 'Mission accomplie ?'}</Dialog.Title>
+                    <Dialog.Title>
+                        {selection.kind === 'review'
+                            ? 'Une victoire à valider !'
+                            : selection.skip
+                              ? 'Pas besoin cette fois ?'
+                              : 'Mission accomplie ?'}
+                    </Dialog.Title>
                     <Dialog.Description>
                         {task.title} · {task.room?.name ?? 'À la maison'}
                     </Dialog.Description>
                     {task.notes && <p className="task-notes">{task.notes}</p>}
                     <p className="recurrence-note">{recurrenceLabel(task)}</p>
-                    <fieldset disabled={busy}>
-                        <legend>Qui a donné un coup de main ?</legend>
-                        <div className="participant-options">
-                            {account.members.map((member) => (
-                                <label key={member.id} className={ids.includes(member.id) ? 'selected' : ''}>
-                                    <input
-                                        type="checkbox"
-                                        checked={ids.includes(member.id)}
-                                        disabled={!account.is_parent && member.id === account.member_id}
-                                        onChange={() => toggle(member)}
-                                    />
-                                    <span className="member-dot" style={{ background: member.color }}>
-                                        {member.name.charAt(0)}
-                                    </span>
-                                    {member.name}
-                                </label>
-                            ))}
-                        </div>
-                    </fieldset>
-                    <p className="points-note">
-                        <Star size={19} />
-                        {selection.kind === 'review'
-                            ? selection.completion.awards_points
-                                ? `${pointLabel(selection.completion.effort_points ?? 0)} à partager entre les participants.`
-                                : 'Cette réalisation ne rapporte pas de nouveaux points.'
-                            : task.can_earn_points
-                              ? `${pointLabel(task.effort_points ?? 0)} à partager${account.is_parent ? '.' : ' après validation d’un parent.'}`
-                              : 'Un coup de main utile ! Aucun nouveau point disponible pour cette réalisation.'}
-                    </p>
-                    {error && (
-                        <p className="message error" role="alert">
-                            {error}
-                        </p>
-                    )}
-                    {reject ? (
-                        <div className="reject-confirm">
-                            <p>Refuser cette réalisation ? La tâche pourra être remise à faire.</p>
-                            <button className="action danger" disabled={busy} onClick={() => void submit('reject')}>
-                                Oui, refuser
-                            </button>
-                            <button className="text-button" disabled={busy} onClick={() => setReject(false)}>
-                                Revenir
-                            </button>
-                        </div>
-                    ) : (
+                    {!(selection.kind === 'complete' && selection.skip) && (
                         <>
-                            <button className="action primary" disabled={busy || ids.length === 0} onClick={() => void submit()}>
-                                {busy ? <LoaderCircle className="spin" /> : <Check />}
-                                {busy ? 'Enregistrement…' : selection.kind === 'review' ? 'Valider la mission' : 'Oui, c’est fait !'}
-                            </button>
-                            {selection.kind === 'review' && (
-                                <button className="text-button reject-button" disabled={busy} onClick={() => setReject(true)}>
-                                    Refuser cette réalisation
-                                </button>
+                            <fieldset disabled={busy}>
+                                <legend>Qui a donné un coup de main ?</legend>
+                                <div className="participant-options">
+                                    {account.members.map((member) => (
+                                        <label key={member.id} className={ids.includes(member.id) ? 'selected' : ''}>
+                                            <input
+                                                type="checkbox"
+                                                checked={ids.includes(member.id)}
+                                                disabled={!account.is_parent && member.id === account.member_id}
+                                                onChange={() => toggle(member)}
+                                            />
+                                            <span className="member-dot" style={{ background: member.color }}>
+                                                {member.name.charAt(0)}
+                                            </span>
+                                            {member.name}
+                                        </label>
+                                    ))}
+                                </div>
+                            </fieldset>
+                            <p className="points-note">
+                                <Star size={19} />
+                                {selection.kind === 'review'
+                                    ? selection.completion.awards_points
+                                        ? `${pointLabel(selection.completion.effort_points ?? 0)} à partager entre les participants.`
+                                        : 'Cette réalisation ne rapporte pas de nouveaux points.'
+                                    : task.can_earn_points
+                                      ? `${pointLabel(task.effort_points ?? 0)} à partager${account.is_parent ? '.' : ' après validation d’un parent.'}`
+                                      : 'Un coup de main utile ! Aucun nouveau point disponible pour cette réalisation.'}
+                            </p>
+                            {error && (
+                                <p className="message error" role="alert">
+                                    {error}
+                                </p>
+                            )}
+                            {reject ? (
+                                <div className="reject-confirm">
+                                    <p>Refuser cette réalisation ? La tâche pourra être remise à faire.</p>
+                                    <button className="action danger" disabled={busy} onClick={() => void submit('reject')}>
+                                        Oui, refuser
+                                    </button>
+                                    <button className="text-button" disabled={busy} onClick={() => setReject(false)}>
+                                        Revenir
+                                    </button>
+                                </div>
+                            ) : (
+                                <>
+                                    <button className="action primary" disabled={busy || ids.length === 0} onClick={() => void submit()}>
+                                        {busy ? <LoaderCircle className="spin" /> : <Check />}
+                                        {busy ? 'Enregistrement…' : selection.kind === 'review' ? 'Valider la mission' : 'Oui, c’est fait !'}
+                                    </button>
+                                    {selection.kind === 'review' && (
+                                        <button className="text-button reject-button" disabled={busy} onClick={() => setReject(true)}>
+                                            Refuser cette réalisation
+                                        </button>
+                                    )}
+                                </>
                             )}
                         </>
+                    )}
+                    {selection.kind === 'complete' && account.is_parent && (
+                        <MobileSkipControl
+                            task={task}
+                            api={api}
+                            skipped={success}
+                            changed={changed}
+                            busyChanged={setBusy}
+                            initiallyOpen={selection.kind === 'complete' && selection.skip}
+                        />
                     )}
                 </Dialog.Content>
             </Dialog.Portal>

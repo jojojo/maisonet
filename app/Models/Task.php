@@ -87,6 +87,8 @@ class Task extends Model
             'id' => $this->latestCompletion->id, 'status' => $this->latestCompletion->status,
             'completed_on' => $this->latestCompletion->completed_on->toDateString(),
             'submitted_by' => $this->latestCompletion->submitted_by,
+            'due_on' => $this->latestCompletion->due_on?->toDateString(),
+            'skip_reason' => $this->latestCompletion->skip_reason,
         ] : null);
     }
 

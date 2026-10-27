@@ -28,7 +28,7 @@ class MemberController extends Controller
                 ->get()
                 ->each(fn (Member $m) => $m->setAttribute(
                     'done_this_week',
-                    TaskCompletion::where('status', '!=', 'rejected')->where(fn ($q) => $q->where('member_id', $m->id)->orWhereHas('participants', fn ($q) => $q->where('members.id', $m->id)))->where('completed_on', '>=', $weekStart)->count(),
+                    TaskCompletion::whereNotIn('status', ['rejected', 'skipped'])->where(fn ($q) => $q->where('member_id', $m->id)->orWhereHas('participants', fn ($q) => $q->where('members.id', $m->id)))->where('completed_on', '>=', $weekStart)->count(),
                 )),
         ]);
     }

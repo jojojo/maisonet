@@ -21,7 +21,7 @@ class KioskController extends Controller
         return Inertia::render('kiosk', [
             'active' => $active,
             'tasks' => $active ? Task::with(['room', 'members'])->whereNotNull('next_due_date')->orderBy('next_due_date')->orderBy('title')->get() : [],
-            'completedToday' => $active ? TaskCompletion::whereDate('completed_on', today())->where('status', '!=', 'rejected')->count() : 0,
+            'completedToday' => $active ? TaskCompletion::whereDate('completed_on', today())->whereNotIn('status', ['rejected', 'skipped'])->count() : 0,
         ]);
     }
 
