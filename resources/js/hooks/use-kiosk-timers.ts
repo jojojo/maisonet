@@ -1,13 +1,13 @@
-import { elapsedAt, parseTimer, pauseTimer, resumeTimer, type KioskTimer } from '@/lib/kiosk-timer';
+import { elapsedAt, parseTimers, pauseTaskTimer, removeTaskTimer, resumeTaskTimer, startTaskTimer, type KioskTimer } from '@/lib/kiosk-timer';
 import { useCallback, useEffect, useState } from 'react';
 
-export function useKioskTimer(userId: number) {
+export function useKioskTimers(userId: number) {
     const key = `maisonet:kiosk-timer:${userId}`;
-    const [timer, setTimer] = useState<KioskTimer | null>(() => {
+    const [timers, setTimers] = useState<KioskTimer[]>(() => {
         try {
-            return parseTimer(localStorage.getItem(key));
+            return parseTimers(localStorage.getItem(key));
         } catch {
-            return null;
+            return [];
         }
     });
     const [now, setNow] = useState(Date.now());
@@ -15,16 +15,16 @@ export function useKioskTimer(userId: number) {
 
     useEffect(() => {
         try {
-            if (timer) localStorage.setItem(key, JSON.stringify(timer));
+            if (timers.length) localStorage.setItem(key, JSON.stringify(timers));
             else localStorage.removeItem(key);
             setStorageError(false);
         } catch {
             setStorageError(true);
         }
-    }, [key, timer]);
+    }, [key, timers]);
 
     useEffect(() => {
-        if (timer?.startedAt === null || !timer) return;
+        if (!timers.some((timer) => timer.startedAt !== null)) return;
         const tick = () => setNow(Date.now());
         const interval = window.setInterval(tick, 1000);
         document.addEventListener('visibilitychange', tick);
@@ -32,12 +32,12 @@ export function useKioskTimer(userId: number) {
             window.clearInterval(interval);
             document.removeEventListener('visibilitychange', tick);
         };
-    }, [timer]);
+    }, [timers]);
 
     useEffect(() => {
         const sync = (event: StorageEvent) => {
             if (event.key === key || event.key === null) {
-                setTimer(event.key === null ? null : parseTimer(event.newValue));
+                setTimers(event.key === null ? [] : parseTimers(event.newValue));
                 setNow(Date.now());
             }
         };
@@ -48,19 +48,19 @@ export function useKioskTimer(userId: number) {
     const start = (taskId: number, memberId: number | null, completionId: number | null) => {
         const date = Date.now();
         setNow(date);
-        setTimer({ taskId, memberId, completionId, startedAt: date, elapsedMs: 0 });
+        setTimers((values) => startTaskTimer(values, { taskId, memberId, completionId, startedAt: date, elapsedMs: 0 }));
     };
-    const pause = () => {
+    const pause = (taskId: number) => {
         const date = Date.now();
         setNow(date);
-        setTimer((value) => (value ? pauseTimer(value, date) : null));
+        setTimers((values) => pauseTaskTimer(values, taskId, date));
     };
-    const resume = () => {
+    const resume = (taskId: number) => {
         const date = Date.now();
         setNow(date);
-        setTimer((value) => (value ? resumeTimer(value, date) : null));
+        setTimers((values) => resumeTaskTimer(values, taskId, date));
     };
-    const clear = useCallback(() => setTimer(null), []);
+    const clear = useCallback((taskId: number) => setTimers((values) => removeTaskTimer(values, taskId)), []);
 
-    return { timer, elapsedMs: timer ? elapsedAt(timer, now) : 0, storageError, start, pause, resume, clear };
+    return { timers, elapsedMs: (timer: KioskTimer) => elapsedAt(timer, now), storageError, start, pause, resume, clear };
 }

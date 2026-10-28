@@ -44,6 +44,38 @@ export function parseTimer(raw: string | null): KioskTimer | null {
     }
 }
 
+export function parseTimers(raw: string | null): KioskTimer[] {
+    try {
+        const stored: unknown = JSON.parse(raw ?? 'null');
+        // Accept the previous single-timer format so an ongoing mission survives the upgrade.
+        const values = Array.isArray(stored) ? stored : [stored];
+        const timers: KioskTimer[] = [];
+        for (const value of values) {
+            const timer = parseTimer(JSON.stringify(value));
+            if (timer && !timers.some((existing) => existing.taskId === timer.taskId)) timers.push(timer);
+        }
+        return timers;
+    } catch {
+        return [];
+    }
+}
+
+export function startTaskTimer(timers: KioskTimer[], timer: KioskTimer): KioskTimer[] {
+    return timers.some((existing) => existing.taskId === timer.taskId) ? timers : [...timers, timer];
+}
+
+export function pauseTaskTimer(timers: KioskTimer[], taskId: number, now: number): KioskTimer[] {
+    return timers.map((timer) => (timer.taskId === taskId ? pauseTimer(timer, now) : timer));
+}
+
+export function resumeTaskTimer(timers: KioskTimer[], taskId: number, now: number): KioskTimer[] {
+    return timers.map((timer) => (timer.taskId === taskId ? resumeTimer(timer, now) : timer));
+}
+
+export function removeTaskTimer(timers: KioskTimer[], taskId: number): KioskTimer[] {
+    return timers.filter((timer) => timer.taskId !== taskId);
+}
+
 export function formatElapsed(milliseconds: number): string {
     const seconds = Math.floor(Math.max(0, milliseconds) / 1000);
     const parts = [Math.floor(seconds / 60) % 60, seconds % 60];

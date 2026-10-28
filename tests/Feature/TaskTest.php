@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Tasks\CompleteTask;
 use App\Models\Member;
 use App\Models\Room;
 use App\Models\Task;
@@ -76,7 +77,7 @@ class TaskTest extends TestCase
         Carbon::setTestNow('2026-01-31');
         $task = $this->makeTask(['recurrence' => 'monthly', 'interval' => 1, 'next_due_date' => '2026-01-31']);
 
-        $task->complete();
+        CompleteTask::run($task, []);
 
         $this->assertSame('2026-02-28', $task->fresh()->next_due_date->toDateString());
     }

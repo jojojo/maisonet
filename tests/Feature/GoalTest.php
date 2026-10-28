@@ -2,6 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Rewards\RequestReward;
+use App\Actions\Rewards\ReviewRewardRequest;
+use App\Actions\Tasks\CompleteTask;
+use App\Actions\Tasks\ReviewTaskCompletion;
+use App\Actions\Tasks\UndoTaskCompletion;
 use App\Models\Member;
 use App\Models\PointEntry;
 use App\Models\Reward;
@@ -9,9 +14,7 @@ use App\Models\Room;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\WeeklyGoal;
-use App\Services\CompletionService;
 use App\Services\GoalService;
-use App\Services\RewardRequestService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -42,7 +45,7 @@ class GoalTest extends TestCase
 
     private function complete(?User $actor = null, ?array $ids = null)
     {
-        return app(CompletionService::class)->complete($this->task, $ids ?? [$this->member->id], $actor ?? $this->parent);
+        return CompleteTask::run($this->task, $ids ?? [$this->member->id], $actor ?? $this->parent);
     }
 
     private function reward(): Reward
@@ -94,7 +97,7 @@ class GoalTest extends TestCase
     public function test_refusal_restores_schedule_and_releases_point_eligibility(): void
     {
         $completion = $this->complete($this->child);
-        app(CompletionService::class)->review($completion, $this->parent, false);
+        ReviewTaskCompletion::run($completion, $this->parent, false);
         $this->assertSame('2026-10-19', $this->task->fresh()->next_due_date->toDateString());
         $this->assertTrue($this->complete()->awards_points);
         $this->assertSame(5.0, app(GoalService::class)->points($this->member));
@@ -103,7 +106,7 @@ class GoalTest extends TestCase
     public function test_undo_removes_points_and_stars_and_redo_earns_once(): void
     {
         $this->complete();
-        app(CompletionService::class)->undo($this->task, $this->parent);
+        UndoTaskCompletion::run($this->task, $this->parent);
         $this->assertSame(0.0, app(GoalService::class)->points($this->member));
         $this->assertSame(0, app(GoalService::class)->balance($this->member));
         $this->assertTrue(PointEntry::first()->is_void);
@@ -116,14 +119,13 @@ class GoalTest extends TestCase
     {
         $this->complete();
         $reward = $this->reward();
-        $service = app(RewardRequestService::class);
-        $request = $service->request($this->member, $reward, $this->child);
+        $request = RequestReward::run($this->member, $reward, $this->child);
         $this->assertSame(0, app(GoalService::class)->balance($this->member));
         $reward->update(['star_cost' => 9]);
-        $service->review($request, $this->parent, 'approve');
+        ReviewRewardRequest::run($request, $this->parent, 'approve');
         $this->assertSame(0, app(GoalService::class)->balance($this->member));
-        $service->review($request, $this->parent, 'reject');
-        $service->review($request, $this->parent, 'reject');
+        ReviewRewardRequest::run($request, $this->parent, 'reject');
+        ReviewRewardRequest::run($request, $this->parent, 'reject');
         $this->assertSame(1, app(GoalService::class)->balance($this->member));
         $this->assertSame(1, $request->fresh()->star_cost);
         $this->assertDatabaseCount('star_transactions', 3);
@@ -132,10 +134,9 @@ class GoalTest extends TestCase
     public function test_fulfilment_does_not_charge_twice_and_is_final(): void
     {
         $this->complete();
-        $service = app(RewardRequestService::class);
-        $request = $service->request($this->member, $this->reward(), $this->child);
+        $request = RequestReward::run($this->member, $this->reward(), $this->child);
         foreach (['approve', 'fulfil', 'fulfil', 'reject', 'cancel'] as $action) {
-            $service->review($request, $this->parent, $action);
+            ReviewRewardRequest::run($request, $this->parent, $action);
         }
         $this->assertSame('fulfilled', $request->fresh()->status);
         $this->assertSame(0, app(GoalService::class)->balance($this->member));
@@ -145,11 +146,11 @@ class GoalTest extends TestCase
     public function test_spent_stars_then_undo_creates_debt_and_blocks_new_request(): void
     {
         $this->complete();
-        $request = app(RewardRequestService::class)->request($this->member, $this->reward(), $this->child);
-        app(CompletionService::class)->undo($this->task, $this->parent);
+        $request = RequestReward::run($this->member, $this->reward(), $this->child);
+        UndoTaskCompletion::run($this->task, $this->parent);
         $this->assertSame(-1, app(GoalService::class)->balance($this->member));
         $this->actingAs($this->child)->post(route('goals.request-reward'), ['member_id' => $this->member->id, 'reward_id' => $this->reward()->id])->assertSessionHasErrors('reward_id');
-        app(RewardRequestService::class)->review($request, $this->child, 'cancel');
+        ReviewRewardRequest::run($request, $this->child, 'cancel');
         $this->assertSame(0, app(GoalService::class)->balance($this->member));
     }
 
@@ -170,7 +171,7 @@ class GoalTest extends TestCase
         $completion = $this->complete($this->child);
         $this->travel(7)->days();
         $this->member->forceFill(['weekly_target' => 50])->save();
-        app(CompletionService::class)->review($completion, $this->parent, true, [$this->member->id]);
+        ReviewTaskCompletion::run($completion, $this->parent, true, [$this->member->id]);
         $this->assertSame(0.0, app(GoalService::class)->points($this->member, today()));
         $this->assertSame(1, app(GoalService::class)->balance($this->member));
     }

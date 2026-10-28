@@ -3,11 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CompleteTaskRequest;
-use App\Http\Resources\CompletionResource;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
-use App\Services\CompletionService;
 use App\Support\FamilyContext;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -42,13 +39,5 @@ class TaskController extends Controller
     public function show(Task $task): TaskResource
     {
         return new TaskResource($task->load(['room', 'members']));
-    }
-
-    public function complete(CompleteTaskRequest $request, Task $task, CompletionService $service): CompletionResource
-    {
-        $completion = $service->complete($task, $request->participantIds($task), $request->user());
-        abort_if($completion === null, 409, 'Cette tâche est déjà terminée.');
-
-        return new CompletionResource($completion->load(['participants', 'task.room', 'task.members']));
     }
 }

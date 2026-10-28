@@ -2,12 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Tasks\CompleteTask;
+use App\Actions\Tasks\SkipTaskOccurrence;
+use App\Actions\Tasks\UndoSkippedOccurrence;
+use App\Actions\Tasks\UndoTaskCompletion;
 use App\Models\Family;
 use App\Models\Member;
 use App\Models\Room;
 use App\Models\Task;
 use App\Models\User;
-use App\Services\CompletionService;
 use App\Support\FamilyContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -49,17 +52,16 @@ class SkipOccurrenceTest extends TestCase
             $this->assertDatabaseCount($table, 0);
         }
         $this->get('/dashboard')->assertOk()->assertInertia(fn (Assert $page) => $page->where('stats.done_this_week', 0)->where('recent.0.status', 'skipped')->where('recent.0.skip_reason', 'Terre humide'));
-        app(CompletionService::class)->undoSkip($task, $this->parent, $record->id);
+        UndoSkippedOccurrence::run($task, $this->parent, $record->id);
         $this->assertSame('2026-10-20', $task->fresh()->last_completed_at->toDateString());
     }
 
     public function test_overdue_resumes_from_today_and_future_occurrence_advances_from_its_date(): void
     {
-        $service = app(CompletionService::class);
         $this->task->update(['next_due_date' => '2026-10-01']);
-        $service->skip($this->task, $this->parent, '2026-10-01');
+        SkipTaskOccurrence::run($this->task, $this->parent, '2026-10-01');
         $this->assertSame('2026-11-03', $this->task->fresh()->next_due_date->toDateString());
-        $service->skip($this->task, $this->parent, '2026-11-03');
+        SkipTaskOccurrence::run($this->task, $this->parent, '2026-11-03');
         $this->assertSame('2026-11-10', $this->task->fresh()->next_due_date->toDateString());
     }
 
@@ -67,32 +69,30 @@ class SkipOccurrenceTest extends TestCase
     {
         $this->travelTo(now()->setDate(2026, 1, 31));
         $this->task->update(['recurrence' => 'monthly', 'next_due_date' => '2026-01-31']);
-        $service = app(CompletionService::class);
-        $record = $service->skip($this->task, $this->parent, '2026-01-31');
+        $record = SkipTaskOccurrence::run($this->task, $this->parent, '2026-01-31');
         $this->assertSame('2026-02-28', $this->task->fresh()->next_due_date->toDateString());
-        $service->undoSkip($this->task, $this->parent, $record->id);
+        UndoSkippedOccurrence::run($this->task, $this->parent, $record->id);
         $this->assertSame('2026-01-31', $this->task->fresh()->next_due_date->toDateString());
         $this->task->update(['recurrence' => 'once']);
-        $record = $service->skip($this->task, $this->parent, '2026-01-31');
+        $record = SkipTaskOccurrence::run($this->task, $this->parent, '2026-01-31');
         $this->assertNull($this->task->fresh()->next_due_date);
         $this->assertNull($this->task->fresh()->last_completed_at);
-        $service->undoSkip($this->task, $this->parent, $record->id);
+        UndoSkippedOccurrence::run($this->task, $this->parent, $record->id);
         $this->assertSame('2026-01-31', $this->task->fresh()->next_due_date->toDateString());
     }
 
     public function test_real_completion_after_skip_can_earn_and_undo_does_not_turn_skip_into_cleaning(): void
     {
         $member = Member::create(['name' => 'Parent', 'color' => '#123456']);
-        $service = app(CompletionService::class);
-        $record = $service->skip($this->task, $this->parent, '2026-10-27');
-        $completion = $service->complete($this->task, [$member->id], $this->parent);
+        $record = SkipTaskOccurrence::run($this->task, $this->parent, '2026-10-27');
+        $completion = CompleteTask::run($this->task, [$member->id], $this->parent);
         $this->assertNotSame($record->id, $completion->id);
         $this->assertTrue($completion->awards_points);
         $this->actingAs($this->parent)->delete(route('tasks.undo-skip', $this->task), ['completion_id' => $record->id])->assertConflict();
-        $service->undo($this->task, $this->parent);
+        UndoTaskCompletion::run($this->task, $this->parent);
         $this->assertNull($this->task->fresh()->last_completed_at);
         $this->assertSame('2026-11-03', $this->task->fresh()->next_due_date->toDateString());
-        $service->undoSkip($this->task, $this->parent, $record->id);
+        UndoSkippedOccurrence::run($this->task, $this->parent, $record->id);
         $this->assertSame('2026-10-27', $this->task->fresh()->next_due_date->toDateString());
     }
 
@@ -100,7 +100,7 @@ class SkipOccurrenceTest extends TestCase
     {
         $this->actingAs($this->parent)->post(route('tasks.skip', $this->task), ['due_on' => '2026-10-26'])->assertConflict();
         $child = User::factory()->create();
-        app(CompletionService::class)->complete($this->task, [], $child);
+        CompleteTask::run($this->task, [], $child);
         $this->post(route('tasks.skip', $this->task), ['due_on' => '2026-11-03'])->assertSessionHasErrors('reason');
         $this->assertSame(1, $this->task->completions()->count());
     }

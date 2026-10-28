@@ -5,8 +5,6 @@ namespace App\Models;
 use App\Enums\EffortSize;
 use App\Enums\Recurrence;
 use App\Models\Concerns\BelongsToFamily;
-use App\Services\CompletionService;
-use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -141,17 +139,5 @@ class Task extends Model
 
             return (int) round(max(0, min(100, $elapsed / $duration * 100)));
         });
-    }
-
-    /** Record a completion and compute the next due date from the completion day. */
-    public function complete(?int $memberId = null, ?CarbonInterface $on = null): void
-    {
-        app(CompletionService::class)->complete($this, $memberId ? [$memberId] : $this->members()->pluck('members.id')->all(), null, $on);
-    }
-
-    /** Cancel the latest completion and restore the previous schedule. */
-    public function undoLastCompletion(): void
-    {
-        app(CompletionService::class)->undo($this);
     }
 }

@@ -1,22 +1,8 @@
 name: Android APK
 
 on:
+  # Mobile builds are paused; run this workflow manually when work resumes.
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'android/**'
-      - 'mobile/index.html'
-      - 'resources/js/mobile/**'
-      - 'resources/js/components/house-buddy.tsx'
-      - 'public/logo.png'
-      - 'public/mascot.png'
-      - 'public/icon.png'
-      - 'capacitor.config.ts'
-      - 'vite.mobile.config.ts'
-      - 'tsconfig.mobile.json'
-      - 'package*.json'
-      - '.github/workflows/android.yml'
 
 permissions:
   contents: read

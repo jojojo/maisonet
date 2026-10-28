@@ -1,13 +1,13 @@
 import { DirtGauge } from '@/components/dirt-gauge';
 import { EffortBadge } from '@/components/effort-badge';
 import { HouseBuddy } from '@/components/house-buddy';
-import { TaskSkipControl } from '@/components/task-skip-control';
 import { KioskMissionTimer } from '@/components/kiosk-mission-timer';
+import { TaskSkipControl } from '@/components/task-skip-control';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useKioskScreen } from '@/hooks/use-kiosk-screen';
-import { useKioskTimer } from '@/hooks/use-kiosk-timer';
+import { useKioskTimers } from '@/hooks/use-kiosk-timers';
 import { formatElapsed } from '@/lib/kiosk-timer';
 import { dirtStyle, dueLabel, sortByDirt, todayISO } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
@@ -132,19 +132,24 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
     const [refreshing, setRefreshing] = useState(false);
     const screen = useKioskScreen();
     const {
-        timer,
+        timers,
         elapsedMs,
         storageError,
         start: startTimer,
         pause: pauseChrono,
         resume: resumeChrono,
         clear: clearTimer,
-    } = useKioskTimer(auth.user.id);
-    const [timerFocused, setTimerFocused] = useState(true);
+    } = useKioskTimers(auth.user.id);
+    const [focusedTaskId, setFocusedTaskId] = useState<number | null>(null);
+    const timer = timers.find((timer) => timer.taskId === focusedTaskId);
     const timerTask = active && timer ? tasks.find((task) => task.id === timer.taskId) : undefined;
     useEffect(() => {
-        if (active && timer && (!timerTask || (timerTask.completion_info?.id ?? null) !== timer.completionId)) clearTimer();
-    }, [active, timer, timerTask, clearTimer]);
+        if (!active) return;
+        for (const timer of timers) {
+            const task = tasks.find((task) => task.id === timer.taskId);
+            if (!task || (task.completion_info?.id ?? null) !== timer.completionId) clearTimer(timer.taskId);
+        }
+    }, [active, timers, tasks, clearTimer]);
     const { start: startPolling, stop: stopPolling } = usePoll(
         60000,
         () => ({ only: ['tasks', 'completedToday', 'members'], preserveScroll: true }),
@@ -236,22 +241,26 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                 Retour au tableau de bord
                             </Link>
                         </section>
-                    ) : timerTask && timer && timerFocused ? (
+                    ) : timerTask && timer ? (
                         <KioskMissionTimer
+                            key={timer.taskId}
                             task={timerTask}
                             member={members.find((member) => member.id === timer.memberId)}
-                            elapsedMs={elapsedMs}
+                            elapsedMs={elapsedMs(timer)}
                             paused={timer.startedAt === null}
                             awake={screen.awake}
                             storageError={storageError}
                             screenMessage={screen.message}
-                            onPause={pauseChrono}
-                            onResume={resumeChrono}
-                            onBack={() => setTimerFocused(false)}
-                            onCancel={clearTimer}
+                            onPause={() => pauseChrono(timer.taskId)}
+                            onResume={() => resumeChrono(timer.taskId)}
+                            onBack={() => setFocusedTaskId(null)}
+                            onCancel={() => {
+                                clearTimer(timer.taskId);
+                                setFocusedTaskId(null);
+                            }}
                             onAwake={() => void screen.toggleAwake()}
                             onFinish={() => {
-                                pauseChrono();
+                                pauseChrono(timer.taskId);
                                 setDeclaring(timerTask);
                             }}
                         />
@@ -267,17 +276,44 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                     {completedToday} coup(s) de main aujourd’hui
                                 </p>
                             </section>
-                            {timerTask && timer && (
-                                <section className="family-card bg-secondary flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-cyan-500 p-4">
-                                    <div className="flex min-w-0 items-center gap-3">
-                                        <Timer className="shrink-0" />
-                                        <p className="font-bold break-words">
-                                            {timerTask.title}
-                                            <span className="ml-3 font-extrabold tabular-nums">{formatElapsed(elapsedMs)}</span>
-                                            <span className="ml-2 text-xs">{timer.startedAt === null ? 'En pause' : 'En cours'}</span>
+                            {timers.length > 0 && (
+                                <section aria-label="Chronomètres des missions" className="grid gap-3 md:grid-cols-2">
+                                    {timers.map((timer) => {
+                                        const task = tasks.find((task) => task.id === timer.taskId);
+                                        if (!task) return null;
+                                        const member = members.find((member) => member.id === timer.memberId);
+                                        return (
+                                            <div
+                                                key={timer.taskId}
+                                                className="family-card bg-secondary flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-cyan-500 p-4"
+                                            >
+                                                <div className="flex min-w-0 flex-1 items-start gap-3">
+                                                    <Timer className="mt-1 shrink-0" />
+                                                    <div className="min-w-0">
+                                                        <h3 className="font-bold break-words">{task.title}</h3>
+                                                        {member && <p className="text-muted-foreground text-sm">{member.name}</p>}
+                                                        <p className="mt-1 flex flex-wrap items-center gap-2">
+                                                            <span className="text-xl font-extrabold tabular-nums">
+                                                                {formatElapsed(elapsedMs(timer))}
+                                                            </span>
+                                                            <span className="text-xs">{timer.startedAt === null ? 'En pause' : 'En cours'}</span>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <Button
+                                                    aria-label={`Afficher le chrono : ${task.title}`}
+                                                    onClick={() => setFocusedTaskId(timer.taskId)}
+                                                >
+                                                    Afficher le chrono
+                                                </Button>
+                                            </div>
+                                        );
+                                    })}
+                                    {storageError && (
+                                        <p role="status" className="text-sm text-amber-800 dark:text-amber-200">
+                                            La sauvegarde des chronomètres sur cet appareil est indisponible.
                                         </p>
-                                    </div>
-                                    <Button onClick={() => setTimerFocused(true)}>Afficher le chrono</Button>
+                                    )}
                                 </section>
                             )}
                             <nav aria-label="Choisir un membre" className="flex flex-wrap gap-3">
@@ -337,6 +373,7 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                             <section aria-label="Missions de la famille" className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
                                 {visible.map((task) => {
                                     const doneToday = task.last_completed_at === todayISO();
+                                    const taskTimer = timers.find((timer) => timer.taskId === task.id);
                                     return (
                                         <article
                                             key={task.id}
@@ -374,18 +411,17 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                             {!doneToday && (
                                                 <Button
                                                     className="h-14 w-full rounded-2xl text-base"
-                                                    disabled={!!timer}
                                                     onClick={() => {
                                                         startTimer(
                                                             task.id,
                                                             memberId ?? (task.members.length === 1 ? task.members[0].id : null),
                                                             task.completion_info?.id ?? null,
                                                         );
-                                                        setTimerFocused(true);
+                                                        setFocusedTaskId(task.id);
                                                     }}
                                                 >
                                                     <Play />
-                                                    {timer ? 'Un chrono est déjà en cours' : 'Je commence'}
+                                                    {taskTimer ? 'Revoir le chrono' : 'Je commence'}
                                                 </Button>
                                             )}
                                             <Button
@@ -454,10 +490,11 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                 {declaring && (
                     <Declare
                         task={declaring}
-                        memberId={timer?.taskId === declaring.id ? timer.memberId : memberId}
+                        memberId={timers.find((timer) => timer.taskId === declaring.id)?.memberId ?? memberId}
                         close={() => setDeclaring(null)}
                         onRecorded={() => {
-                            if (timer?.taskId === declaring.id) clearTimer();
+                            clearTimer(declaring.id);
+                            if (focusedTaskId === declaring.id) setFocusedTaskId(null);
                         }}
                     />
                 )}

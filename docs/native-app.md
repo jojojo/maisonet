@@ -40,17 +40,16 @@ Installation sur un téléphone connecté en mode débogage USB :
 adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Le workflow GitHub Actions **Android APK** construit également le paquet et
+La génération automatique des APK est temporairement suspendue. Le workflow
+GitHub Actions **Android APK** reste disponible sur déclenchement manuel : il construit le paquet et
 le lance sur un émulateur Android 35. Il vérifie l’ouverture de l’écran de
 connexion et conserve une capture. Les artefacts `maisonet-android-debug`
 (APK) et `maisonet-android-launch` (capture) sont disponibles 14 jours dans
 le résultat du workflow. Aucun compte ni secret de production n’est injecté.
 
-La version de test initiale est aussi distribuée depuis
-`https://maisonet.eoloa.net/storage/downloads/Maiso-net-0.1.2-test.apk`.
-Le fichier est conservé dans le volume public persistant du serveur, en dehors
-de Git et de la base de données. Les nouvelles compilations ne remplacent pas
-automatiquement ce fichier : leur validation précède la mise à disposition.
+Les téléchargements publics des APK de test sont suspendus. Les fichiers
+existants sont archivés dans le volume privé du serveur, en dehors de Git
+et de la base de données, pour pouvoir reprendre la distribution plus tard.
 
 L’APK est une version de test signée avec la clé debug du runner. Cette clé
 n’est pas stable entre les machines de compilation : une nouvelle compilation

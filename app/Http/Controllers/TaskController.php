@@ -2,13 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CompleteTaskRequest;
-use App\Http\Requests\TaskRequest;
 use App\Models\Task;
-use App\Services\CompletionService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -39,56 +34,5 @@ class TaskController extends Controller
             'tasks' => $tasks,
             'filters' => $filters,
         ]);
-    }
-
-    public function store(TaskRequest $request): RedirectResponse
-    {
-        DB::transaction(function () use ($request) {
-            $task = Task::create($request->taskData());
-            $this->assignMembers($request, $task);
-        });
-
-        return back();
-    }
-
-    public function update(TaskRequest $request, Task $task): RedirectResponse
-    {
-        DB::transaction(function () use ($request, $task) {
-            $task->update($request->taskData());
-            $this->assignMembers($request, $task);
-        });
-
-        return back();
-    }
-
-    public function destroy(Task $task): RedirectResponse
-    {
-        $task->delete();
-
-        return back();
-    }
-
-    private function assignMembers(TaskRequest $request, Task $task): void
-    {
-        $data = $request->validated();
-        if (array_key_exists('member_ids', $data) || array_key_exists('member_id', $data)) {
-            $ids = $data['member_ids'] ?? (isset($data['member_id']) ? [$data['member_id']] : []);
-            $task->members()->sync($ids);
-            $task->update(['member_id' => count($ids) === 1 ? $ids[0] : null]);
-        }
-    }
-
-    public function complete(CompleteTaskRequest $request, Task $task): RedirectResponse
-    {
-        app(CompletionService::class)->complete($task, $request->participantIds($task), $request->user());
-
-        return back();
-    }
-
-    public function undo(Task $task): RedirectResponse
-    {
-        app(CompletionService::class)->undo($task, request()->user());
-
-        return back();
     }
 }

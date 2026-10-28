@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Rewards\RequestReward;
+use App\Actions\Tasks\CompleteTask;
 use App\Models\Family;
 use App\Models\Member;
 use App\Models\PointEntry;
@@ -10,8 +12,6 @@ use App\Models\RewardRequest;
 use App\Models\Room;
 use App\Models\Task;
 use App\Models\User;
-use App\Services\CompletionService;
-use App\Services\RewardRequestService;
 use App\Support\FamilyContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -42,9 +42,9 @@ class FamilyIsolationTest extends TestCase
             $member->forceFill(['weekly_target' => 5])->save();
             $task = Task::create(['room_id' => $room->id, 'title' => "Task $name", 'recurrence' => 'daily', 'interval' => 1, 'effort_size' => 'L', 'next_due_date' => today()]);
             $task->members()->sync([$member->id]);
-            $completion = app(CompletionService::class)->complete($task, [$member->id], $user);
+            $completion = CompleteTask::run($task, [$member->id], $user);
             $reward = Reward::create(['template_key' => 'shared-template', 'title' => "Reward $name", 'category' => 'together', 'icon' => 'G', 'star_cost' => 1, 'is_active' => true, 'audience' => 'family']);
-            $request = app(RewardRequestService::class)->request($member, $reward, $user);
+            $request = RequestReward::run($member, $reward, $user);
 
             return compact('family', 'user', 'room', 'member', 'task', 'completion', 'reward', 'request');
         });

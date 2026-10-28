@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Room;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -35,36 +33,6 @@ class RoomController extends Controller
                 ->orderByRaw('next_due_date is null')
                 ->orderBy('next_due_date')
                 ->get(),
-        ]);
-    }
-
-    public function store(Request $request): RedirectResponse
-    {
-        Room::create($this->validated($request));
-
-        return back();
-    }
-
-    public function update(Request $request, Room $room): RedirectResponse
-    {
-        $room->update($this->validated($request));
-
-        return back();
-    }
-
-    public function destroy(Room $room): RedirectResponse
-    {
-        $room->delete();
-
-        return to_route('rooms.index');
-    }
-
-    /** @return array<string, mixed> */
-    private function validated(Request $request): array
-    {
-        return $request->validate([
-            'name' => ['required', 'string', 'max:60'],
-            'icon' => ['required', 'string', 'max:16'],
         ]);
     }
 }
