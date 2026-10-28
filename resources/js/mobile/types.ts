@@ -36,6 +36,9 @@ export type Task = {
     } | null;
 };
 export type Completion = {
+    awarded_points: number | null;
+    points_total: number;
+    review_note: string | null;
     id: number;
     task_id: number;
     task: Task;

@@ -2,6 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { Check, ChevronRight, ClipboardCheck, Home, LoaderCircle, LogOut, RefreshCw, ShieldCheck, Sparkles, Star, UserRound, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { HouseBuddy } from '../components/house-buddy';
+import { PointAdjustment } from '../components/point-adjustment';
 import { ApiError, MobileApi } from './api';
 import { browserSessionStore, validSession, type SessionStore } from './session-store';
 import { MobileSkipControl } from './skip-control';
@@ -723,13 +724,26 @@ function MissionDialog({
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
     const [reject, setReject] = useState(false);
+    const [awardedPoints, setAwardedPoints] = useState(String(selection.kind === 'review' ? (selection.completion.effort_points ?? 0) : 0));
+    const [reviewNote, setReviewNote] = useState('');
+    const adjustsPoints = selection.kind === 'review' && selection.completion.awards_points;
+    const validPoints = awardedPoints !== '' && Number.isInteger(Number(awardedPoints)) && Number(awardedPoints) >= 0 && Number(awardedPoints) <= 100;
     async function submit(decision: 'approve' | 'reject' = 'approve') {
         setBusy(true);
         setError('');
         try {
             const path = selection.kind === 'complete' ? `/tasks/${task.id}/complete` : `/completions/${selection.completion.id}/review`;
             const result = await api.request<{ data: Completion }>(path, {
-                body: { member_ids: ids, ...(selection.kind === 'review' ? { decision } : {}) },
+                body: {
+                    member_ids: ids,
+                    ...(selection.kind === 'review'
+                        ? {
+                              decision,
+                              awarded_points: decision === 'approve' && adjustsPoints ? Number(awardedPoints) : null,
+                              review_note: reviewNote,
+                          }
+                        : {}),
+                },
             });
             success(result.data);
         } catch (error) {
@@ -804,12 +818,22 @@ function MissionDialog({
                                 <Star size={19} />
                                 {selection.kind === 'review'
                                     ? selection.completion.awards_points
-                                        ? `${pointLabel(selection.completion.effort_points ?? 0)} à partager entre les participants.`
+                                        ? `${pointLabel(Number(awardedPoints))} à partager entre les participants.`
                                         : 'Cette réalisation ne rapporte pas de nouveaux points.'
                                     : task.can_earn_points
                                       ? `${pointLabel(task.effort_points ?? 0)} à partager${account.is_parent ? '.' : ' après validation d’un parent.'}`
                                       : 'Un coup de main utile ! Aucun nouveau point disponible pour cette réalisation.'}
                             </p>
+                            {selection.kind === 'review' && adjustsPoints && (
+                                <PointAdjustment
+                                    basePoints={selection.completion.effort_points ?? 0}
+                                    value={awardedPoints}
+                                    onChange={setAwardedPoints}
+                                    note={reviewNote}
+                                    onNoteChange={setReviewNote}
+                                    disabled={busy}
+                                />
+                            )}
                             {error && (
                                 <p className="message error" role="alert">
                                     {error}
@@ -827,7 +851,11 @@ function MissionDialog({
                                 </div>
                             ) : (
                                 <>
-                                    <button className="action primary" disabled={busy || ids.length === 0} onClick={() => void submit()}>
+                                    <button
+                                        className="action primary"
+                                        disabled={busy || ids.length === 0 || (adjustsPoints && !validPoints)}
+                                        onClick={() => void submit()}
+                                    >
                                         {busy ? <LoaderCircle className="spin" /> : <Check />}
                                         {busy ? 'Enregistrement…' : selection.kind === 'review' ? 'Valider la mission' : 'Oui, c’est fait !'}
                                     </button>

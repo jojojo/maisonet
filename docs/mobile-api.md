@@ -2,8 +2,8 @@
 
 Première tranche : connexion avec un compte existant, lecture des tâches,
 déclaration de réalisation et validation parentale. L’application web utilise
-toujours Inertia. Les deux interfaces appellent les mêmes `CompletionService`
-et `GoalService` ; elles partagent la validation des participants et des décisions.
+toujours Inertia. Les deux interfaces appellent les mêmes Actions métier
+et partagent la validation des participants et des décisions.
 
 Base : `https://maisonet.eoloa.net/api/v1` (ou l’URL locale du serveur Laravel).
 Toutes les réponses, y compris les erreurs, sont en JSON, sans redirection vers
@@ -137,6 +137,14 @@ Ces deux routes sont réservées aux parents. Pour valider :
 {"decision": "approve", "member_ids": [3, 4]}
 ```
 
+Les parents peuvent ajouter `awarded_points` (entier de 0 à 100) et
+`review_note` (motif facultatif, 500 caractères maximum) lors de l’approbation.
+Ce total remplace les points pour cette réalisation uniquement, puis est
+partagé entre les participants. Sans ce champ, la cotation initiale s’applique.
+Il ne permet pas de contourner une réalisation sans points (tâche non cotée
+ou délai entre deux gains non atteint). Une nouvelle validation ne modifie
+pas une décision déjà traitée.
+
 Indiquer les participants effectifs ; ils sont obligatoires si des points doivent
 être attribués. Pour refuser : `{"decision":"reject"}`. Le refus rouvre la tâche
 si aucune réalisation plus récente ne la remplace. Une décision déjà traitée
@@ -144,7 +152,8 @@ n’est pas appliquée une seconde fois. Les points sont partagés entre partici
 et les étoiles hebdomadaires sont calculées par les services existants.
 
 Une réalisation contient `id`, `task_id`, `task`, `status`, `completed_on`,
-`effort_points`, `awards_points`, `submitted_by`, `reviewed_by`, `reviewed_at`,
+`effort_points` (base), `awarded_points` (ajustement éventuel), `points_total`
+(total effectif), `review_note`, `awards_points`, `submitted_by`, `reviewed_by`, `reviewed_at`,
 `participants` (id, name, color, points). `points` est la part prévue ; elle
 n’est créditée qu’après approbation lorsque `awards_points` vaut `true`.
 

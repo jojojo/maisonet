@@ -14,6 +14,7 @@ class CompletionResource extends JsonResource
             'task' => new TaskResource($this->whenLoaded('task')),
             'status' => $this->status, 'completed_on' => $this->completed_on->toDateString(),
             'effort_points' => $this->effort_points, 'awards_points' => $this->awards_points,
+            'awarded_points' => $this->awarded_points, 'points_total' => $this->points_total, 'review_note' => $this->review_note,
             'submitted_by' => $this->submitted_by, 'reviewed_by' => $this->reviewed_by,
             'reviewed_at' => $this->reviewed_at?->toIso8601String(),
             'participants' => $this->participants->map(fn ($member) => [

@@ -126,9 +126,12 @@ export default function Dashboard({ missions, overdue, today, upcoming, stats, r
                                                     ` · Occurrence passée, sans points${c.skip_reason ? ` : ${c.skip_reason}` : ''}`}
                                                 {c.status !== 'skipped' &&
                                                     c.effort_points !== null &&
-                                                    ` · ${c.effort_points} ${c.effort_points === 1 ? 'point' : 'points'} d’effort`}
+                                                    ` · ${c.points_total} ${c.points_total === 1 ? 'point' : 'points'}${c.status === 'pending' ? ' à valider' : ''}${c.awarded_points !== null && c.awarded_points !== c.effort_points ? ` (base : ${c.effort_points})` : ''}`}
                                                 {c.task.next_due_date && ` · prochaine échéance ${formatDate(c.task.next_due_date)}`}
                                             </p>
+                                            {c.review_note && (
+                                                <p className="text-muted-foreground mt-1 text-xs break-words">Mot du parent : {c.review_note}</p>
+                                            )}
                                         </div>
                                         {canUndo && (
                                             <Button

@@ -16,6 +16,8 @@ class ReviewCompletionRequest extends FormRequest
     {
         return [
             'decision' => ['required', 'in:approve,reject'],
+            'awarded_points' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'review_note' => ['nullable', 'string', 'max:500'],
             'member_ids' => ['sometimes', 'array', 'max:100'],
             'member_ids.*' => ['required', 'integer', 'distinct', FamilyContext::exists('members')],
         ];

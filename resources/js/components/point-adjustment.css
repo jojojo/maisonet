@@ -1,0 +1,83 @@
+.point-adjustment,
+.mission-dialog fieldset.point-adjustment {
+    min-width: 0;
+    margin: 0;
+    padding: 16px;
+    border: 2px solid #a1d5cc;
+    border-radius: 18px;
+    background: #edf9f5;
+    color: #23454b;
+}
+.point-adjustment legend {
+    padding: 0 6px;
+    font-weight: 800;
+    font-size: 14px;
+}
+.point-adjustment-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+.point-adjustment-stepper button {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border: 2px solid #23454b;
+    border-radius: 14px;
+    background: #fff;
+    color: #23454b;
+    box-shadow: 0 3px 0 #23454b;
+    cursor: pointer;
+}
+.point-adjustment-stepper button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+.point-adjustment-stepper label {
+    display: grid;
+    gap: 4px;
+    text-align: center;
+    font-size: 12px;
+}
+.point-adjustment input {
+    font: inherit;
+    border: 1px solid #8db9af;
+    border-radius: 12px;
+    background: #fff;
+    color: #23454b;
+    min-width: 0;
+}
+.point-adjustment-stepper input {
+    width: 90px;
+    padding: 6px;
+    font-size: 26px;
+    font-weight: 900;
+    text-align: center;
+}
+.point-adjustment p {
+    margin: 14px 0;
+    font-size: 12px;
+    line-height: 1.5;
+}
+.point-adjustment-note {
+    display: grid;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+}
+.point-adjustment-note span {
+    font-weight: 400;
+}
+.point-adjustment-note input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 400;
+}
+.point-adjustment :focus-visible {
+    outline: 3px solid #1c807d;
+    outline-offset: 3px;
+}

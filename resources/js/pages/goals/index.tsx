@@ -1,5 +1,6 @@
 import { NativeSelect } from '@/components/form-fields';
 import { GoalMountain } from '@/components/goal-mountain';
+import { PointAdjustment } from '@/components/point-adjustment';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -139,9 +140,23 @@ function Settings({ member }: { member: Progress }) {
 }
 
 function Review({ completion, members }: { completion: Pending; members: Member[] }) {
-    const form = useForm({ decision: 'approve', member_ids: completion.participants.map((member) => member.id) });
+    const form = useForm({
+        decision: 'approve',
+        member_ids: completion.participants.map((member) => member.id),
+        awarded_points: String(completion.effort_points ?? 0),
+        review_note: '',
+    });
+    const validPoints =
+        form.data.awarded_points !== '' &&
+        Number.isInteger(Number(form.data.awarded_points)) &&
+        Number(form.data.awarded_points) >= 0 &&
+        Number(form.data.awarded_points) <= 100;
     const submit = (decision: string) => {
-        form.transform((data) => ({ ...data, decision }));
+        form.transform((data) => ({
+            ...data,
+            decision,
+            awarded_points: decision === 'approve' && completion.awards_points ? Number(data.awarded_points) : null,
+        }));
         form.post(route('goals.review-completion', completion.id), { preserveScroll: true });
     };
     return (
@@ -154,7 +169,7 @@ function Review({ completion, members }: { completion: Pending; members: Member[
             </div>
             <p className="text-sm">
                 {completion.awards_points
-                    ? `${completion.effort_points} points à partager entre les participants réels.`
+                    ? `${form.data.awarded_points || '0'} points à partager entre les participants réels.`
                     : 'Réalisation sans points : tâche non cotée ou délai entre deux gains non atteint.'}
             </p>
             <fieldset className="flex flex-wrap gap-3">
@@ -175,13 +190,26 @@ function Review({ completion, members }: { completion: Pending; members: Member[
                     </label>
                 ))}
             </fieldset>
+            {completion.awards_points && (
+                <PointAdjustment
+                    basePoints={completion.effort_points ?? 0}
+                    value={form.data.awarded_points}
+                    onChange={(value) => form.setData('awarded_points', value)}
+                    note={form.data.review_note}
+                    onNoteChange={(value) => form.setData('review_note', value)}
+                    disabled={form.processing}
+                />
+            )}
             {Object.values(form.errors).map((error) => (
                 <p role="alert" key={error} className="text-destructive text-sm">
                     {error}
                 </p>
             ))}
             <div className="flex flex-wrap gap-2">
-                <Button disabled={form.processing || (completion.awards_points && !form.data.member_ids.length)} onClick={() => submit('approve')}>
+                <Button
+                    disabled={form.processing || (completion.awards_points && (!form.data.member_ids.length || !validPoints))}
+                    onClick={() => submit('approve')}
+                >
                     Valider
                 </Button>
                 <Button variant="outline" disabled={form.processing} onClick={() => submit('reject')}>

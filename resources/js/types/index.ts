@@ -85,6 +85,9 @@ export interface Task {
 }
 
 export interface Completion {
+    awarded_points: number | null;
+    points_total: number;
+    review_note: string | null;
     skip_reason: string | null;
     id: number;
     completed_on: string;
