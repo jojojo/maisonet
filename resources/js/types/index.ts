@@ -1,3 +1,4 @@
+import type { KioskGameId } from '@/lib/kiosk-games';
 import { LucideIcon } from 'lucide-react';
 
 export interface Auth {
@@ -27,8 +28,13 @@ export interface SharedData {
     auth: Auth;
     rooms: Room[];
     members: Member[];
-    flash?: { success: string | null };
+    flash?: { success: string | null; kiosk_mini_game?: KioskMiniGameOffer | null };
     [key: string]: unknown;
+}
+
+export interface KioskMiniGameOffer {
+    game: KioskGameId;
+    completion_id: number;
 }
 
 export type Recurrence = 'once' | 'daily' | 'weekly' | 'monthly' | 'yearly';

@@ -27,8 +27,9 @@ class CompleteKioskTask
             'member_ids' => ['required', 'array', 'min:1'],
             'member_ids.*' => ['required', 'integer', 'distinct', FamilyContext::exists('members')],
         ]);
-        $this->handle($task, $data['member_ids'], $request->user());
+        $completion = $this->handle($task, $data['member_ids'], $request->user());
+        $miniGame = $completion ? ProposeMiniGame::run($completion, $request->session()) : null;
 
-        return back()->with('success', 'Bravo ! Mission envoyée aux parents pour validation.');
+        return back()->with('success', 'Bravo ! Mission envoyée aux parents pour validation.')->with('kiosk_mini_game', $miniGame);
     }
 }

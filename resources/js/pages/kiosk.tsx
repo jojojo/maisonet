@@ -1,6 +1,7 @@
 import { DirtGauge } from '@/components/dirt-gauge';
 import { EffortBadge } from '@/components/effort-badge';
 import { HouseBuddy } from '@/components/house-buddy';
+import { KioskMiniGame } from '@/components/kiosk-mini-game';
 import { KioskMissionTimer } from '@/components/kiosk-mission-timer';
 import { TaskSkipControl } from '@/components/task-skip-control';
 import { Button } from '@/components/ui/button';
@@ -11,19 +12,29 @@ import { useKioskTimers } from '@/hooks/use-kiosk-timers';
 import { formatElapsed } from '@/lib/kiosk-timer';
 import { dirtStyle, dueLabel, sortByDirt, todayISO } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
-import { type SharedData, type Task } from '@/types';
+import { type KioskMiniGameOffer, type SharedData, type Task } from '@/types';
 import { Head, Link, router, useForm, usePage, usePoll } from '@inertiajs/react';
 import { Check, Clock3, LockKeyhole, Maximize, Play, RefreshCw, Sun, Tablet, Timer, Trophy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-function Declare({ task, memberId, close, onRecorded }: { task: Task; memberId: number | null; close: () => void; onRecorded?: () => void }) {
+function Declare({
+    task,
+    memberId,
+    close,
+    onRecorded,
+}: {
+    task: Task;
+    memberId: number | null;
+    close: () => void;
+    onRecorded: (offer: KioskMiniGameOffer | null) => void;
+}) {
     const { members } = usePage<SharedData>().props;
     const form = useForm({ member_ids: memberId ? [memberId] : task.members.length === 1 ? [task.members[0].id] : ([] as number[]) });
     return (
         <Dialog
             open
             onOpenChange={(open) => {
-                if (!open) close();
+                if (!open && !form.processing) close();
             }}
         >
             <DialogContent>
@@ -37,9 +48,9 @@ function Declare({ task, memberId, close, onRecorded }: { task: Task; memberId: 
                         event.preventDefault();
                         form.post(route('kiosk.complete', task.id), {
                             preserveScroll: true,
-                            onSuccess: () => {
-                                onRecorded?.();
+                            onSuccess: (page) => {
                                 close();
+                                onRecorded((page.props as unknown as SharedData).flash?.kiosk_mini_game ?? null);
                             },
                         });
                     }}
@@ -128,6 +139,7 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
     const [period, setPeriod] = useState<'today' | 'all'>('today');
     const [declaring, setDeclaring] = useState<Task | null>(null);
     const [exit, setExit] = useState(false);
+    const [miniGame, setMiniGame] = useState<KioskMiniGameOffer | null>(null);
     const [now, setNow] = useState(new Date());
     const [refreshing, setRefreshing] = useState(false);
     const screen = useKioskScreen();
@@ -156,10 +168,10 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
         { autoStart: false },
     );
     useEffect(() => {
-        if (active && !declaring && !exit) startPolling();
+        if (active && !declaring && !exit && !miniGame) startPolling();
         else stopPolling();
         return stopPolling;
-    }, [active, declaring, exit, startPolling, stopPolling]);
+    }, [active, declaring, exit, miniGame, startPolling, stopPolling]);
     useEffect(() => {
         const timer = window.setInterval(() => setNow(new Date()), 30000);
         return () => window.clearInterval(timer);
@@ -492,13 +504,15 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                         task={declaring}
                         memberId={timers.find((timer) => timer.taskId === declaring.id)?.memberId ?? memberId}
                         close={() => setDeclaring(null)}
-                        onRecorded={() => {
+                        onRecorded={(offer) => {
                             clearTimer(declaring.id);
                             if (focusedTaskId === declaring.id) setFocusedTaskId(null);
+                            setMiniGame(offer);
                         }}
                     />
                 )}
                 {exit && <Exit close={() => setExit(false)} />}
+                {active && miniGame && <KioskMiniGame key={miniGame.completion_id} offer={miniGame} close={() => setMiniGame(null)} />}
             </main>
         </>
     );

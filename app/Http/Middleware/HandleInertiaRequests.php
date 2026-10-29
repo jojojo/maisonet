@@ -40,7 +40,10 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
-            'flash' => ['success' => fn () => $request->session()->get('success')],
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'kiosk_mini_game' => fn () => $request->routeIs('kiosk.*') ? $request->session()->get('kiosk_mini_game') : null,
+            ],
             'auth' => [
                 'user' => $request->user(),
             ],
