@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, CalendarDays, Gift, Home, LayoutGrid, ListChecks, Smartphone, Tablet, Target, Users } from 'lucide-react';
+import { BookOpen, CalendarDays, Gamepad2, Gift, Home, LayoutGrid, ListChecks, Smartphone, Tablet, Target, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -34,14 +34,27 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={auth.user.is_parent ? [...mainNavItems, { title: 'Mode kiosque', url: '/kiosk', icon: Tablet }] : mainNavItems} />
+                <NavMain
+                    items={
+                        auth.user.is_parent
+                            ? [
+                                  ...mainNavItems,
+                                  { title: 'Espace parents', url: '/parents/games', icon: Gamepad2 },
+                                  { title: 'Mode kiosque', url: '/kiosk', icon: Tablet },
+                              ]
+                            : mainNavItems
+                    }
+                />
             </SidebarContent>
 
             <SidebarFooter>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild tooltip="Interface mobile">
-                            <a href="/mobile"><Smartphone /><span>Interface mobile</span></a>
+                            <a href="/mobile">
+                                <Smartphone />
+                                <span>Interface mobile</span>
+                            </a>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

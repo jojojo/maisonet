@@ -33,6 +33,7 @@ use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\KioskController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\ParentGameController;
 use App\Http\Controllers\PlanningController;
 use App\Http\Controllers\RewardController;
 use App\Http\Controllers\RoomController;
@@ -54,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('kiosk/tasks/{task}/complete', CompleteKioskTask::class)->name('kiosk.complete');
     Route::post('kiosk/tasks/{task}/skip', SkipTaskOccurrence::class)->middleware('throttle:6,1')->name('kiosk.skip');
     Route::delete('kiosk/tasks/{task}/skip', UndoSkippedOccurrence::class)->middleware('throttle:6,1')->name('kiosk.undo-skip');
+    Route::get('parents/games', ParentGameController::class)->name('parents.games');
     Route::get('planning', PlanningController::class)->name('planning');
     Route::get('task-templates', [TaskTemplateController::class, 'index'])->name('task-templates.index');
     Route::post('task-templates/import', ImportTaskTemplates::class)->name('task-templates.store');

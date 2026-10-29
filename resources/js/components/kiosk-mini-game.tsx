@@ -33,13 +33,27 @@ class GameBoundary extends Component<{ children: ReactNode }, { failed: boolean 
         return { failed: true };
     }
     render() {
-        return this.state.failed ? <p role="status">Le jeu fait une petite pause. Ta mission est bien enregistrée !</p> : this.props.children;
+        return this.state.failed ? (
+            <p role="status">Le jeu fait une petite pause. Tu peux fermer cette fenêtre et réessayer.</p>
+        ) : (
+            this.props.children
+        );
     }
 }
 
-export function KioskMiniGame({ offer, close }: { offer: KioskMiniGameOffer; close: () => void }) {
+export function KioskMiniGame({
+    offer,
+    close,
+    mode = 'surprise',
+}: {
+    offer: Pick<KioskMiniGameOffer, 'game'>;
+    close: () => void;
+    mode?: 'surprise' | 'library';
+}) {
+    const library = mode === 'library';
+    const returnLabel = library ? 'Retour à la bibliothèque' : 'Retour aux missions';
     const Game = games[offer.game];
-    const [phase, setPhase] = useState<'invite' | 'playing' | 'finished'>('invite');
+    const [phase, setPhase] = useState<'invite' | 'playing' | 'finished'>(library ? 'playing' : 'invite');
     const [deadline, setDeadline] = useState<number | null>(null);
     const [remaining, setRemaining] = useState(90);
     const finish = useCallback(() => setPhase('finished'), []);
@@ -72,7 +86,11 @@ export function KioskMiniGame({ offer, close }: { offer: KioskMiniGameOffer; clo
                         <Gamepad2 />
                         {phase === 'invite' ? 'Une petite surprise !' : phase === 'finished' ? 'Bien joué !' : titles[offer.game]}
                     </DialogTitle>
-                    <DialogDescription>Ta mission est enregistrée. Les parents valideront les points.</DialogDescription>
+                    <DialogDescription>
+                        {library
+                            ? 'Une petite pause en famille, sans gagner ni perdre de points.'
+                            : 'Ta mission est enregistrée. Les parents valideront les points.'}
+                    </DialogDescription>
                 </DialogHeader>
                 {phase === 'invite' ? (
                     <div className="grid justify-items-center gap-4 text-center">
@@ -94,10 +112,10 @@ export function KioskMiniGame({ offer, close }: { offer: KioskMiniGameOffer; clo
                         <span className="text-5xl" aria-hidden>
                             🎉
                         </span>
-                        <p className="text-lg font-bold">Merci pour ton coup de main !</p>
+                        <p className="text-lg font-bold">{library ? 'Une jolie pause en famille !' : 'Merci pour ton coup de main !'}</p>
                         <p className="text-muted-foreground text-sm">La pause est terminée. On retrouve la famille ?</p>
                         <Button className="h-12 w-full rounded-2xl" onClick={close}>
-                            Retour aux missions
+                            {returnLabel}
                         </Button>
                     </div>
                 ) : (
@@ -124,7 +142,7 @@ export function KioskMiniGame({ offer, close }: { offer: KioskMiniGameOffer; clo
                             </Suspense>
                         </GameBoundary>
                         <Button variant="outline" className="h-12 w-full rounded-2xl" onClick={close}>
-                            Retour aux missions
+                            {returnLabel}
                         </Button>
                     </>
                 )}
