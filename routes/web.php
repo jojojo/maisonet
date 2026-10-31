@@ -28,6 +28,7 @@ use App\Actions\Tasks\SkipTaskOccurrence;
 use App\Actions\Tasks\UndoSkippedOccurrence;
 use App\Actions\Tasks\UndoTaskCompletion;
 use App\Actions\Tasks\UpdateTask;
+use App\Http\Controllers\CompatibleKioskController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\GoalController;
@@ -43,8 +44,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard')->name('home');
 Route::view('mobile', 'mobile')->name('mobile');
+Route::get('compatible/login', [CompatibleKioskController::class, 'login'])->middleware('guest')->name('compatibility.login');
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('kiosk/compatible', [CompatibleKioskController::class, 'index'])->name('kiosk.compatibility.index');
+    Route::post('kiosk/compatible/enter', EnterKiosk::class)->name('kiosk.compatibility.enter');
+    Route::post('kiosk/compatible/leave', LeaveKiosk::class)->middleware('throttle:6,1')->name('kiosk.compatibility.leave');
+    Route::post('kiosk/compatible/tasks/{task}/complete', CompleteKioskTask::class)->name('kiosk.compatibility.complete');
     Route::get('dashboard', DashboardController::class)->name('dashboard');
     Route::get('family', [FamilyController::class, 'index'])->name('family.index');
     Route::patch('family', UpdateFamily::class)->name('family.update');

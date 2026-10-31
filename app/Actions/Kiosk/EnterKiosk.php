@@ -22,6 +22,6 @@ class EnterKiosk
         abort_unless($request->user()->is_parent, 403);
         $this->handle($request->session());
 
-        return redirect()->route('kiosk.index');
+        return redirect()->route($request->routeIs('kiosk.compatibility.*') ? 'kiosk.compatibility.index' : 'kiosk.index');
     }
 }

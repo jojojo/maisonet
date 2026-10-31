@@ -22,6 +22,6 @@ class LeaveKiosk
         $request->validate(['password' => ['required', 'current_password']]);
         $this->handle($request->session());
 
-        return redirect()->route('dashboard');
+        return redirect()->route($request->routeIs('kiosk.compatibility.*') ? 'kiosk.compatibility.index' : 'dashboard');
     }
 }

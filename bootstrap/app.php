@@ -3,6 +3,7 @@
 use App\Http\Middleware\ApiJson;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RestrictKiosk;
+use App\Http\Middleware\UseCompatibleKiosk;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: env('TRUSTED_PROXIES', []));
         $middleware->api(prepend: [ApiJson::class]);
         $middleware->web(append: [
+            UseCompatibleKiosk::class,
             HandleInertiaRequests::class,
             RestrictKiosk::class,
             AddLinkHeadersForPreloadedAssets::class,
