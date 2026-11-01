@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client';
+import '../lib/browser-compat';
 import { MobileApp } from './mobile-app';
 import './mobile.css';
 

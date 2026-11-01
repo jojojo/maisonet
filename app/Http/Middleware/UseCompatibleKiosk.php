@@ -14,7 +14,7 @@ class UseCompatibleKiosk
         $oldIos = preg_match('/(?:CPU (?:iPhone )?OS|iPhone OS) (\d+)[_\.](\d+)/i', $request->userAgent() ?? '', $matches)
             && ((int) $matches[1] < 16 || ((int) $matches[1] === 16 && (int) $matches[2] < 4));
 
-        if ($oldIos && $request->isMethod('GET')) {
+        if ($oldIos && ! $request->session()->get('full_interface_trial') && $request->isMethod('GET')) {
             if ($request->routeIs('login')) {
                 return redirect()->route('compatibility.login');
             }

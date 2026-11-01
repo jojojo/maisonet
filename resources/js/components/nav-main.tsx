@@ -24,13 +24,13 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                         <SidebarMenuButton
                             asChild
                             tooltip={item.title}
-                            className="h-12 rounded-2xl border-2 border-transparent px-2 font-bold group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:p-0! data-[active=true]:border-[var(--cartoon-ink)] data-[active=true]:shadow-[2px_3px_0_var(--cartoon-shadow)]"
+                            className="h-12 rounded-2xl border-2 border-transparent px-2 font-bold data-[active=true]:border-[var(--cartoon-ink)] data-[active=true]:shadow-[2px_3px_0_var(--cartoon-shadow)] group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:!p-0"
                             isActive={page.url === item.url || page.url.startsWith(`${item.url}/`) || page.url.startsWith(`${item.url}?`)}
                         >
                             <Link href={item.url} prefetch>
                                 {item.icon && (
                                     <span
-                                        className={`flex size-8 shrink-0 items-center justify-center rounded-xl border border-current/20 ${iconColors[index % iconColors.length]}`}
+                                        className={`border-current/20 flex size-8 shrink-0 items-center justify-center rounded-xl border ${iconColors[index % iconColors.length]}`}
                                     >
                                         <item.icon className="size-[18px]" strokeWidth={2} />
                                     </span>

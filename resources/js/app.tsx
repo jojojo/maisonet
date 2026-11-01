@@ -1,4 +1,5 @@
 import '../css/app.css';
+import './lib/browser-compat';
 
 import { createInertiaApp } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
@@ -10,6 +11,7 @@ declare global {
 }
 
 const appName = import.meta.env.VITE_APP_NAME || "Maiso'net";
+Object.assign(window, { route: routeFn });
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

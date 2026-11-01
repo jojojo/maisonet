@@ -23,5 +23,10 @@
     </head>
     <body class="font-sans antialiased">
         @inertia
+        @if(session('full_interface_trial'))
+            <aside style="position:fixed;right:8px;bottom:8px;z-index:1000;padding:6px 10px;border:1px solid #225466;border-radius:10px;background:white;color:#225466;font:12px sans-serif">
+                Essai iPad · <a href="{{ route(auth()->check() ? 'kiosk.compatibility.index' : 'compatibility.login') }}" style="color:#225466;text-decoration:underline">Version de secours</a>
+            </aside>
+        @endif
     </body>
 </html>

@@ -5,6 +5,7 @@
  */
 'use client';
 
+import { bindGamePointer, type GamePointer } from '@/lib/game-input';
 import { cn } from '@/lib/utils';
 import * as React from 'react';
 
@@ -888,17 +889,17 @@ export function FruitNinja({
             if (gs.trail.length > 24) gs.trail.shift();
         };
 
-        const onPointerDown = (e: PointerEvent) => {
+        const onPointerDown = (e: GamePointer) => {
             if (statusRef.current !== 'playing') return;
             down = true;
-            canvas.setPointerCapture?.(e.pointerId);
+
             const p = toLogical(e.clientX, e.clientY);
             lastX = p.x;
             lastY = p.y;
             pushTrail(p.x, p.y);
         };
 
-        const onPointerMove = (e: PointerEvent) => {
+        const onPointerMove = (e: GamePointer) => {
             if (!down || statusRef.current !== 'playing') return;
             const p = toLogical(e.clientX, e.clientY);
             pushTrail(p.x, p.y);
@@ -907,21 +908,11 @@ export function FruitNinja({
             lastY = p.y;
         };
 
-        const onPointerUp = (e: PointerEvent) => {
+        const onPointerUp = () => {
             down = false;
-            canvas.releasePointerCapture?.(e.pointerId);
         };
 
-        canvas.addEventListener('pointerdown', onPointerDown);
-        canvas.addEventListener('pointermove', onPointerMove);
-        canvas.addEventListener('pointerup', onPointerUp);
-        canvas.addEventListener('pointercancel', onPointerUp);
-        return () => {
-            canvas.removeEventListener('pointerdown', onPointerDown);
-            canvas.removeEventListener('pointermove', onPointerMove);
-            canvas.removeEventListener('pointerup', onPointerUp);
-            canvas.removeEventListener('pointercancel', onPointerUp);
-        };
+        return bindGamePointer(canvas, { down: onPointerDown, move: onPointerMove, up: onPointerUp });
     }, []);
 
     // Keyboard — start / restart only (gameplay is pointer-driven).
@@ -956,14 +947,14 @@ export function FruitNinja({
             aria-label="Jeu de découpe de fruits"
             style={width ? { maxWidth: width } : undefined}
             className={cn(
-                'relative flex w-full flex-col gap-2 outline-none select-none',
-                !captureGlobalKeys && 'focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2',
+                'relative flex w-full select-none flex-col gap-2 outline-none',
+                !captureGlobalKeys && 'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                 className,
             )}
         >
             {/* Score bar */}
             <div className="flex items-center justify-between gap-3 text-sm">
-                <span className="bg-secondary text-secondary-foreground inline-flex items-center rounded-md border px-2 py-0.5 font-medium tabular-nums">
+                <span className="inline-flex items-center rounded-md border bg-secondary px-2 py-0.5 font-medium tabular-nums text-secondary-foreground">
                     Score {score}
                 </span>
                 <span
@@ -974,7 +965,7 @@ export function FruitNinja({
                 >
                     {timeLeft}s
                 </span>
-                <span className="text-muted-foreground tabular-nums">Record {high}</span>
+                <span className="tabular-nums text-muted-foreground">Record {high}</span>
             </div>
 
             {/* aria-live region */}
@@ -987,17 +978,17 @@ export function FruitNinja({
             </div>
 
             {/* Canvas container */}
-            <div ref={playfieldRef} className="bg-background relative aspect-[3/4] w-full overflow-hidden rounded-lg border">
+            <div ref={playfieldRef} className="relative aspect-[3/4] w-full overflow-hidden rounded-lg border bg-background">
                 <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full cursor-crosshair touch-none" />
 
                 {/* Overlays */}
                 {status !== 'playing' && (
-                    <div className="bg-background/80 absolute inset-0 grid place-items-center backdrop-blur-[1px]">
+                    <div className="absolute inset-0 grid place-items-center bg-background/80 backdrop-blur-[1px]">
                         <div className="flex flex-col items-center gap-3 px-6 text-center">
                             {isOver ? (
                                 <>
                                     <p className="text-lg font-semibold">Temps écoulé !</p>
-                                    <p className="text-muted-foreground text-sm">
+                                    <p className="text-sm text-muted-foreground">
                                         Ton score : {score}
                                         {score >= high && score > 0 ? ' — nouveau record !' : ''}
                                     </p>
@@ -1005,15 +996,15 @@ export function FruitNinja({
                             ) : (
                                 <>
                                     <p className="text-lg font-semibold">Découpe de fruits</p>
-                                    <p className="text-muted-foreground text-sm">Glisse ton doigt pour découper les fruits. Évite les bombes !</p>
+                                    <p className="text-sm text-muted-foreground">Glisse ton doigt pour découper les fruits. Évite les bombes !</p>
                                 </>
                             )}
                             <button
                                 type="button"
                                 onClick={start}
                                 className={cn(
-                                    'border-primary bg-primary text-primary-foreground inline-flex h-12 items-center justify-center rounded-xl border-2 px-6 text-base font-bold',
-                                    'hover:bg-primary/90 focus-visible:ring-ring transition-colors focus-visible:ring-2 focus-visible:outline-none',
+                                    'inline-flex h-12 items-center justify-center rounded-xl border-2 border-primary bg-primary px-6 text-base font-bold text-primary-foreground',
+                                    'transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                                 )}
                             >
                                 {isOver ? 'Rejouer' : 'Jouer'}

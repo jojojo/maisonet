@@ -1,161 +1,157 @@
-@import 'tailwindcss';
-
-@plugin 'tailwindcss-animate';
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-
-@custom-variant dark (&:is(.dark *));
-
-@theme {
-    --font-sans:
-        'Nunito', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-        'Noto Color Emoji';
-
-    --radius-lg: var(--radius);
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-sm: calc(var(--radius) - 4px);
-
-    --color-background: var(--background);
-    --color-foreground: var(--foreground);
-
-    --color-card: var(--card);
-    --color-card-foreground: var(--card-foreground);
-
-    --color-popover: var(--popover);
-    --color-popover-foreground: var(--popover-foreground);
-
-    --color-primary: var(--primary);
-    --color-primary-foreground: var(--primary-foreground);
-
-    --color-secondary: var(--secondary);
-    --color-secondary-foreground: var(--secondary-foreground);
-
-    --color-muted: var(--muted);
-    --color-muted-foreground: var(--muted-foreground);
-
-    --color-accent: var(--accent);
-    --color-accent-foreground: var(--accent-foreground);
-
-    --color-destructive: var(--destructive);
-    --color-destructive-foreground: var(--destructive-foreground);
-
-    --color-border: var(--border);
-    --color-input: var(--input);
-    --color-ring: var(--ring);
-
-    --color-chart-1: var(--chart-1);
-    --color-chart-2: var(--chart-2);
-    --color-chart-3: var(--chart-3);
-    --color-chart-4: var(--chart-4);
-    --color-chart-5: var(--chart-5);
-
-    --color-sidebar: var(--sidebar-background);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-ring: var(--sidebar-ring);
-}
-
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-    *,
-    ::after,
-    ::before,
-    ::backdrop,
-    ::file-selector-button {
-        border-color: var(--color-gray-200, currentColor);
-    }
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
     --background: hsl(177, 45%, 96%);
+    --background-rgb: 240, 249, 249;
     --foreground: hsl(195, 48%, 23%);
+    --foreground-rgb: 30, 73, 87;
     --card: hsl(0, 0%, 100%);
+    --card-rgb: 255, 255, 255;
     --card-foreground: hsl(174, 28%, 22%);
+    --card-foreground-rgb: 40, 72, 69;
     --popover: hsl(0, 0%, 100%);
+    --popover-rgb: 255, 255, 255;
     --popover-foreground: hsl(174, 28%, 22%);
+    --popover-foreground-rgb: 40, 72, 69;
     --primary: hsl(182, 57%, 57%);
+    --primary-rgb: 83, 204, 208;
     --primary-foreground: hsl(195, 65%, 16%);
+    --primary-foreground-rgb: 14, 54, 67;
     --secondary: hsl(44, 100%, 72%);
+    --secondary-rgb: 255, 217, 112;
     --secondary-foreground: hsl(28, 60%, 20%);
+    --secondary-foreground-rgb: 82, 49, 20;
     --muted: hsl(40, 28%, 93%);
+    --muted-rgb: 242, 239, 232;
     --muted-foreground: hsl(173, 12%, 41%);
+    --muted-foreground-rgb: 92, 117, 114;
     --accent: hsl(179, 57%, 87%);
+    --accent-rgb: 203, 241, 240;
     --accent-foreground: hsl(195, 65%, 19%);
+    --accent-foreground-rgb: 17, 64, 80;
     --destructive: hsl(9, 89%, 74%);
+    --destructive-rgb: 248, 147, 130;
     --destructive-foreground: hsl(5, 60%, 20%);
+    --destructive-foreground-rgb: 82, 25, 20;
     --border: hsl(36, 24%, 86%);
+    --border-rgb: 228, 221, 211;
     --input: hsl(36, 24%, 81%);
+    --input-rgb: 218, 209, 195;
     --ring: hsl(188, 68%, 33%);
+    --ring-rgb: 27, 126, 141;
     --button-edge: hsl(195, 48%, 23%);
+    --button-edge-rgb: 30, 73, 87;
     --cartoon-ink: hsl(195, 48%, 23%);
+    --cartoon-ink-rgb: 30, 73, 87;
     --cartoon-shadow: hsl(185, 27%, 76%);
+    --cartoon-shadow-rgb: 177, 208, 210;
     --chart-1: hsl(12, 76%, 61%);
+    --chart-1-rgb: 231, 110, 80;
     --chart-2: hsl(173, 58%, 39%);
+    --chart-2-rgb: 42, 157, 144;
     --chart-3: hsl(197, 37%, 24%);
+    --chart-3-rgb: 39, 71, 84;
     --chart-4: hsl(43, 74%, 66%);
+    --chart-4-rgb: 232, 196, 104;
     --chart-5: hsl(27, 87%, 67%);
+    --chart-5-rgb: 244, 164, 98;
     --radius: 1.125rem;
     --sidebar-background: hsl(178, 51%, 91%);
+    --sidebar-background-rgb: 220, 244, 243;
     --sidebar-foreground: hsl(174, 28%, 25%);
+    --sidebar-foreground-rgb: 46, 82, 78;
     --sidebar-primary: hsl(165, 44%, 30%);
+    --sidebar-primary-rgb: 43, 110, 93;
     --sidebar-primary-foreground: hsl(40, 70%, 98%);
+    --sidebar-primary-foreground-rgb: 253, 251, 246;
     --sidebar-accent: hsl(180, 55%, 73%);
+    --sidebar-accent-rgb: 148, 224, 224;
     --sidebar-accent-foreground: hsl(165, 45%, 23%);
+    --sidebar-accent-foreground-rgb: 32, 85, 72;
     --sidebar-border: hsl(36, 24%, 86%);
+    --sidebar-border-rgb: 228, 221, 211;
     --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
+    --sidebar-ring-rgb: 59, 130, 246;
 }
 
 .dark {
     --background: hsl(171, 23%, 10%);
+    --background-rgb: 20, 31, 30;
     --foreground: hsl(40, 30%, 93%);
+    --foreground-rgb: 243, 239, 232;
     --card: hsl(171, 19%, 14%);
+    --card-rgb: 29, 42, 40;
     --card-foreground: hsl(0, 0%, 98%);
+    --card-foreground-rgb: 250, 250, 250;
     --popover: hsl(171, 19%, 14%);
+    --popover-rgb: 29, 42, 40;
     --popover-foreground: hsl(0, 0%, 98%);
+    --popover-foreground-rgb: 250, 250, 250;
     --primary: hsl(182, 57%, 65%);
+    --primary-rgb: 115, 213, 217;
     --primary-foreground: hsl(171, 35%, 15%);
+    --primary-foreground-rgb: 25, 52, 48;
     --secondary: hsl(44, 85%, 68%);
+    --secondary-rgb: 243, 206, 104;
     --secondary-foreground: hsl(28, 60%, 20%);
+    --secondary-foreground-rgb: 82, 49, 20;
     --muted: hsl(171, 17%, 19%);
+    --muted-rgb: 40, 57, 54;
     --muted-foreground: hsl(160, 13%, 69%);
+    --muted-foreground-rgb: 166, 186, 179;
     --accent: hsl(165, 22%, 23%);
+    --accent-rgb: 46, 72, 65;
     --accent-foreground: hsl(0, 0%, 98%);
+    --accent-foreground-rgb: 250, 250, 250;
     --destructive: hsl(9, 89%, 74%);
+    --destructive-rgb: 248, 147, 130;
     --destructive-foreground: hsl(5, 60%, 20%);
+    --destructive-foreground-rgb: 82, 25, 20;
     --border: hsl(167, 16%, 27%);
+    --border-rgb: 58, 80, 75;
     --input: hsl(167, 16%, 34%);
+    --input-rgb: 73, 101, 95;
     --button-edge: hsl(175, 30%, 7%);
+    --button-edge-rgb: 12, 23, 22;
     --cartoon-ink: hsl(169, 43%, 72%);
+    --cartoon-ink-rgb: 153, 214, 203;
     --cartoon-shadow: hsl(175, 30%, 7%);
+    --cartoon-shadow-rgb: 12, 23, 22;
     --ring: hsl(0, 0%, 83.1%);
+    --ring-rgb: 212, 212, 212;
     --chart-1: hsl(220, 70%, 50%);
+    --chart-1-rgb: 38, 98, 217;
     --chart-2: hsl(160, 60%, 45%);
+    --chart-2-rgb: 46, 184, 138;
     --chart-3: hsl(30, 80%, 55%);
+    --chart-3-rgb: 232, 140, 48;
     --chart-4: hsl(280, 65%, 60%);
+    --chart-4-rgb: 175, 87, 219;
     --chart-5: hsl(340, 75%, 55%);
+    --chart-5-rgb: 226, 54, 112;
     --sidebar-background: hsl(171, 24%, 12%);
+    --sidebar-background-rgb: 23, 38, 36;
     --sidebar-foreground: hsl(0, 0%, 80%);
+    --sidebar-foreground-rgb: 204, 204, 204;
     --sidebar-primary: hsl(360, 100%, 100%);
+    --sidebar-primary-rgb: 255, 255, 255;
     --sidebar-primary-foreground: hsl(0, 0%, 100%);
+    --sidebar-primary-foreground-rgb: 255, 255, 255;
     --sidebar-accent: hsl(165, 22%, 23%);
+    --sidebar-accent-rgb: 46, 72, 65;
     --sidebar-accent-foreground: hsl(240, 4.8%, 95.9%);
+    --sidebar-accent-foreground-rgb: 244, 244, 245;
     --sidebar-border: hsl(167, 16%, 27%);
+    --sidebar-border-rgb: 58, 80, 75;
     --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
+    --sidebar-ring-rgb: 59, 130, 246;
 }
 
 @layer base {
     * {
+        --compat-gap: 0px;
         @apply border-border;
     }
 
@@ -195,4 +191,18 @@
             transform: none;
         }
     }
+}
+
+/* Safari 12 understands Grid gap, but not flex gap. */
+.no-flex-gap .flex > * + * {
+    margin-left: var(--compat-gap, 0px);
+}
+.no-flex-gap .flex.flex-col > * + * {
+    margin-left: 0;
+    margin-top: var(--compat-gap, 0px);
+}
+.no-flex-gap .flex.flex-wrap > * {
+    margin-left: 0;
+    margin-right: var(--compat-gap, 0px);
+    margin-bottom: var(--compat-gap, 0px);
 }

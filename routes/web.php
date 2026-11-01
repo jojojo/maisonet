@@ -9,6 +9,7 @@ use App\Actions\Goals\UpdateGoalSettings;
 use App\Actions\Kiosk\CompleteKioskTask;
 use App\Actions\Kiosk\EnterKiosk;
 use App\Actions\Kiosk\LeaveKiosk;
+use App\Actions\Kiosk\TryFullInterface;
 use App\Actions\Members\CreateMember;
 use App\Actions\Members\DeleteMember;
 use App\Actions\Members\UpdateMember;
@@ -43,6 +44,7 @@ use App\Http\Controllers\TaskTemplateController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard')->name('home');
+Route::get('essai-ipad', TryFullInterface::class)->name('kiosk.compatibility.trial');
 Route::view('mobile', 'mobile')->name('mobile');
 Route::get('compatible/login', [CompatibleKioskController::class, 'login'])->middleware('guest')->name('compatibility.login');
 

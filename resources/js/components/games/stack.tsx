@@ -5,6 +5,7 @@
  */
 'use client';
 
+import { bindGamePointer } from '@/lib/game-input';
 import { cn } from '@/lib/utils';
 import * as React from 'react';
 
@@ -691,8 +692,7 @@ export function Stack({
         const onPointerDown = () => {
             if (statusRef.current === 'playing') dropRef.current();
         };
-        canvas.addEventListener('pointerdown', onPointerDown);
-        return () => canvas.removeEventListener('pointerdown', onPointerDown);
+        return bindGamePointer(canvas, { down: onPointerDown });
     }, []);
 
     // Keyboard — Space/Enter/Up drop the block (or start a run).
@@ -728,17 +728,17 @@ export function Stack({
             aria-label="Jeu de la tour"
             style={width ? { maxWidth: width } : undefined}
             className={cn(
-                'relative flex w-full flex-col gap-2 outline-none select-none',
-                !captureGlobalKeys && 'focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2',
+                'relative flex w-full select-none flex-col gap-2 outline-none',
+                !captureGlobalKeys && 'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                 className,
             )}
         >
             {/* Score bar */}
             <div className="flex items-center justify-between gap-3 text-sm">
-                <span className="bg-secondary text-secondary-foreground inline-flex items-center rounded-md border px-2 py-0.5 font-medium tabular-nums">
+                <span className="inline-flex items-center rounded-md border bg-secondary px-2 py-0.5 font-medium tabular-nums text-secondary-foreground">
                     Hauteur {score}
                 </span>
-                <span className="text-muted-foreground tabular-nums">Record {high}</span>
+                <span className="tabular-nums text-muted-foreground">Record {high}</span>
             </div>
 
             {/* aria-live region */}
@@ -751,17 +751,17 @@ export function Stack({
             </div>
 
             {/* Canvas container */}
-            <div ref={playfieldRef} className="bg-background relative aspect-[3/4] w-full overflow-hidden rounded-lg border">
+            <div ref={playfieldRef} className="relative aspect-[3/4] w-full overflow-hidden rounded-lg border bg-background">
                 <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full touch-none" />
 
                 {/* Overlays */}
                 {status !== 'playing' && (
-                    <div className="bg-background/80 absolute inset-0 grid place-items-center backdrop-blur-[1px]">
+                    <div className="absolute inset-0 grid place-items-center bg-background/80 backdrop-blur-[1px]">
                         <div className="flex flex-col items-center gap-3 px-6 text-center">
                             {isOver ? (
                                 <>
                                     <p className="text-lg font-semibold">La tour est tombée !</p>
-                                    <p className="text-muted-foreground text-sm">
+                                    <p className="text-sm text-muted-foreground">
                                         Hauteur {score}
                                         {score >= high && score > 0 ? ' — nouveau record !' : ''}
                                     </p>
@@ -769,7 +769,7 @@ export function Stack({
                             ) : (
                                 <>
                                     <p className="text-lg font-semibold">La tour</p>
-                                    <p className="text-muted-foreground text-sm">
+                                    <p className="text-sm text-muted-foreground">
                                         Touche pour poser le bloc. Aligne les étages pour construire une grande tour.
                                     </p>
                                 </>
@@ -778,8 +778,8 @@ export function Stack({
                                 type="button"
                                 onClick={start}
                                 className={cn(
-                                    'border-primary bg-primary text-primary-foreground inline-flex h-12 items-center justify-center rounded-xl border-2 px-6 text-base font-bold',
-                                    'hover:bg-primary/90 focus-visible:ring-ring transition-colors focus-visible:ring-2 focus-visible:outline-none',
+                                    'inline-flex h-12 items-center justify-center rounded-xl border-2 border-primary bg-primary px-6 text-base font-bold text-primary-foreground',
+                                    'transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                                 )}
                             >
                                 {isOver ? 'Rejouer' : 'Jouer'}

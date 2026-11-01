@@ -39,6 +39,19 @@ class CompatibleKioskTest extends TestCase
             ->get('/login')->assertRedirect(route('compatibility.login'));
     }
 
+    public function test_old_ipad_can_opt_into_the_full_interface_without_removing_the_fallback(): void
+    {
+        $this->withHeader('User-Agent', self::IPAD)->get('/essai-ipad')
+            ->assertRedirect(route('login'))->assertSessionHas('full_interface_trial', true);
+        $this->get('/login')->assertOk()->assertViewIs('app')->assertSee('Version de secours');
+        $this->get('/compatible/login')->assertOk()->assertViewIs('compatibility.login');
+        $this->actingAs(User::factory()->create(['is_parent' => true]))->withSession(['kiosk' => true]);
+        $this->get('/essai-ipad')->assertRedirect(route('kiosk.index'));
+        $this->get('/kiosk')->assertOk()->assertViewIs('app');
+        $this->get('/parents/games')->assertRedirect(route('kiosk.index'));
+        $this->get('/kiosk/compatible')->assertOk()->assertViewIs('compatibility.kiosk');
+    }
+
     public function test_modern_safari_keeps_the_existing_interface(): void
     {
         $this->withHeader('User-Agent', str_replace('12_5_7', '16_4', self::IPAD))

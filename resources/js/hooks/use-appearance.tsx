@@ -12,13 +12,22 @@ const applyTheme = (appearance: Appearance) => {
 
 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
+const readAppearance = (): Appearance => {
+    try {
+        const value = localStorage.getItem('appearance');
+        return value === 'dark' || value === 'light' ? value : 'system';
+    } catch {
+        return 'system';
+    }
+};
+
 const handleSystemThemeChange = () => {
-    const currentAppearance = localStorage.getItem('appearance') as Appearance;
+    const currentAppearance = readAppearance();
     applyTheme(currentAppearance || 'system');
 };
 
 export function initializeTheme() {
-    const savedAppearance = (localStorage.getItem('appearance') as Appearance) || 'system';
+    const savedAppearance = readAppearance();
 
     applyTheme(savedAppearance);
 
@@ -31,15 +40,17 @@ export function useAppearance() {
 
     const updateAppearance = (mode: Appearance) => {
         setAppearance(mode);
-        localStorage.setItem('appearance', mode);
+        try {
+            localStorage.setItem('appearance', mode);
+        } catch {
+            /* Some private sessions disable storage. */
+        }
         applyTheme(mode);
     };
 
     useEffect(() => {
-        const savedAppearance = localStorage.getItem('appearance') as Appearance | null;
+        const savedAppearance = readAppearance();
         updateAppearance(savedAppearance || 'system');
-
-        return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
     }, []);
 
     return { appearance, updateAppearance };
