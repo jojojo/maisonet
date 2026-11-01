@@ -22,6 +22,11 @@ class StarTransaction extends Model
         return $this->belongsTo(WeeklyGoal::class);
     }
 
+    public function mountainGoal(): BelongsTo
+    {
+        return $this->belongsTo(MountainGoal::class);
+    }
+
     public function rewardRequest(): BelongsTo
     {
         return $this->belongsTo(RewardRequest::class);

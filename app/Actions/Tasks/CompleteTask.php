@@ -2,7 +2,7 @@
 
 namespace App\Actions\Tasks;
 
-use App\Actions\Goals\SyncWeeklyGoal;
+use App\Actions\Goals\SyncMountainProgress;
 use App\Http\Requests\CompleteTaskRequest;
 use App\Http\Resources\CompletionResource;
 use App\Models\Member;
@@ -47,9 +47,9 @@ class CompleteTask
                 'reviewed_by' => $approved ? $actor?->id : null, 'reviewed_at' => $approved ? now() : null,
             ]);
             AllocateCompletionPoints::run($completion, $memberIds);
-            // Freeze each participant's weekly rules even if approval arrives next week.
+            // Freeze the current mountain rules while the realization awaits approval.
             foreach (Member::whereIn('id', $memberIds)->orderBy('id')->lockForUpdate()->get() as $member) {
-                SyncWeeklyGoal::run($member, $on);
+                SyncMountainProgress::run($member);
             }
             if ($approved) {
                 CreditCompletionPoints::run($completion, $locked->title);

@@ -2,7 +2,7 @@
 
 namespace App\Actions\Tasks;
 
-use App\Actions\Goals\SyncWeeklyGoal;
+use App\Actions\Goals\SyncMountainProgress;
 use App\Models\PointEntry;
 use App\Models\TaskCompletion;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -22,7 +22,7 @@ class CreditCompletionPoints
                 'task_title' => $title, 'completed_on' => $completion->completed_on,
                 'points' => $member->pivot->points, 'is_void' => false,
             ]);
-            SyncWeeklyGoal::run($member, $completion->completed_on);
+            SyncMountainProgress::run($member);
         }
     }
 }

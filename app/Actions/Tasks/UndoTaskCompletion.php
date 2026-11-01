@@ -2,7 +2,7 @@
 
 namespace App\Actions\Tasks;
 
-use App\Actions\Goals\SyncWeeklyGoal;
+use App\Actions\Goals\SyncMountainProgress;
 use App\Models\Member;
 use App\Models\PointEntry;
 use App\Models\Task;
@@ -29,7 +29,7 @@ class UndoTaskCompletion
             $members = Member::whereIn('id', $entries->pluck('member_id'))->orderBy('id')->lockForUpdate()->get();
             PointEntry::where('task_completion_id', $last->id)->update(['is_void' => true]);
             foreach ($members as $member) {
-                SyncWeeklyGoal::run($member, $last->completed_on);
+                SyncMountainProgress::run($member);
             }
             $due = $last->due_on;
             $last->delete();

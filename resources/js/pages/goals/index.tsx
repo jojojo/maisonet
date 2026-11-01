@@ -20,14 +20,17 @@ interface Reward {
     audience: string;
 }
 interface Progress extends Member {
-    weekly_target: number;
-    weekly_stars: number;
-    week_points: number;
+    target_points: number;
+    next_target_points: number;
+    reward_stars: number;
+    next_reward_stars: number;
+    mountain_points: number;
+    ascent_number: number;
+    summits: number;
     pending_points: number;
     total_points: number;
     star_balance: number;
     progress: number;
-    achieved: boolean;
     target_reward: Reward | null;
 }
 interface Account {
@@ -59,8 +62,6 @@ interface Props {
     canManage: boolean;
     members: Progress[];
     selectedMemberId: number | null;
-    weekStart: string;
-    weekEnd: string;
     familyProgress: { points: number; target: number };
     accounts: Account[];
     rewards: Reward[];
@@ -68,7 +69,14 @@ interface Props {
     pendingCount: number;
     requests: Claim[];
     pointHistory: { id: number; task_title: string; completed_on: string; points: string; is_void: boolean }[];
-    starHistory: { id: number; amount: number; type: string; weekly_goal: { week_start: string } | null; reward_request: { title: string } | null }[];
+    starHistory: {
+        id: number;
+        amount: number;
+        type: string;
+        weekly_goal: { week_start: string } | null;
+        mountain_goal: { sequence: number } | null;
+        reward_request: { title: string } | null;
+    }[];
 }
 const date = (value: string) => new Date(value.slice(0, 10) + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
 const panel = 'min-w-0 rounded-2xl border bg-card p-5 sm:p-6';
@@ -89,7 +97,7 @@ function Meter({ value, label }: { value: number; label: string }) {
 }
 
 function Settings({ member }: { member: Progress }) {
-    const form = useForm({ weekly_target: member.weekly_target, weekly_stars: member.weekly_stars });
+    const form = useForm({ target_points: member.next_target_points, reward_stars: member.next_reward_stars });
     return (
         <form
             className="mt-4 grid gap-3 border-t pt-4"
@@ -110,8 +118,8 @@ function Settings({ member }: { member: Progress }) {
                         min={1}
                         max={1000}
                         required
-                        value={form.data.weekly_target}
-                        onChange={(e) => form.setData('weekly_target', Number(e.target.value))}
+                        value={form.data.target_points}
+                        onChange={(e) => form.setData('target_points', Number(e.target.value))}
                     />
                 </label>
                 <label className="grid gap-1 text-sm">
@@ -121,12 +129,14 @@ function Settings({ member }: { member: Progress }) {
                         min={1}
                         max={10}
                         required
-                        value={form.data.weekly_stars}
-                        onChange={(e) => form.setData('weekly_stars', Number(e.target.value))}
+                        value={form.data.reward_stars}
+                        onChange={(e) => form.setData('reward_stars', Number(e.target.value))}
                     />
                 </label>
             </div>
-            <p className="text-muted-foreground text-xs">S’applique à cette semaine et aux suivantes. Les semaines passées restent inchangées.</p>
+            <p className="text-muted-foreground text-xs">
+                S’applique aux prochaines ascensions. La montagne en cours garde son objectif et ses étoiles.
+            </p>
             {Object.values(form.errors).map((error) => (
                 <p role="alert" key={error} className="text-destructive text-sm">
                     {error}
@@ -341,7 +351,7 @@ export default function Goals(props: Props) {
                 <header className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <p className="text-muted-foreground text-xs font-medium">
-                            Du {date(props.weekStart)} au {date(props.weekEnd)}
+                            Ascension n° {selected?.ascent_number ?? 1} · {selected?.summits ?? 0} sommet(s) atteint(s)
                         </p>
                         <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
                             À toi le sommet ! <span aria-hidden>🏔️</span>
@@ -427,9 +437,9 @@ export default function Goals(props: Props) {
                                             key={selected.id}
                                             name={selected.name}
                                             color={selected.color}
-                                            points={selected.week_points}
-                                            target={selected.weekly_target}
-                                            stars={selected.weekly_stars}
+                                            points={selected.mountain_points}
+                                            target={selected.target_points}
+                                            stars={selected.reward_stars}
                                             pending={selected.pending_points}
                                         />
                                         <Button asChild className="h-12 rounded-2xl text-base">
@@ -440,7 +450,8 @@ export default function Goals(props: Props) {
                                             </Link>
                                         </Button>
                                         <p className="text-muted-foreground text-center text-xs">
-                                            Une nouvelle montagne chaque lundi. Tes étoiles restent dans ton sac !
+                                            Chaque sommet donne ses étoiles, puis la montagne repart à zéro, sans report du dépassement. Aucun retour
+                                            à zéro le lundi.
                                         </p>
                                     </div>
                                     <section className="family-card grid gap-5 rounded-[2rem] border-2 border-amber-400 bg-amber-100/80 p-5 sm:p-6 dark:border-amber-900 dark:bg-amber-950/20">
@@ -567,8 +578,10 @@ export default function Goals(props: Props) {
                                                 {props.starHistory.map((entry) => (
                                                     <li key={entry.id} className="flex justify-between gap-3 py-2 text-sm">
                                                         <span>
-                                                            {entry.type === 'goal'
-                                                                ? `Sommet du ${date(entry.weekly_goal?.week_start ?? props.weekStart)}`
+                                                            {entry.type === 'goal' || entry.type === 'mountain'
+                                                                ? entry.mountain_goal
+                                                                    ? `Sommet n° ${entry.mountain_goal.sequence}${entry.amount === 0 ? ' · annulé' : ''}`
+                                                                    : `Ancien objectif du ${date(entry.weekly_goal?.week_start ?? '')}`
                                                                 : `${entry.type === 'refund' ? 'Étoiles rendues' : 'Trésor demandé'} : ${entry.reward_request?.title ?? 'Récompense'}`}
                                                         </span>
                                                         <span className="shrink-0">
@@ -632,8 +645,8 @@ export default function Goals(props: Props) {
                             <details className={panel}>
                                 <summary className="cursor-pointer font-semibold">La progression de la famille</summary>
                                 <p className="text-muted-foreground mt-3 mb-3 text-sm">
-                                    {pointsLabel(props.familyProgress.points)} / {props.familyProgress.target} points cette semaine. Chacun à son
-                                    rythme.
+                                    {pointsLabel(props.familyProgress.points)} / {props.familyProgress.target} points sur les montagnes en cours.
+                                    Chacun à son rythme.
                                 </p>
                                 <Meter
                                     value={props.familyProgress.target ? (props.familyProgress.points / props.familyProgress.target) * 100 : 0}

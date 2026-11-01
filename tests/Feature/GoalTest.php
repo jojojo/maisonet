@@ -8,12 +8,12 @@ use App\Actions\Tasks\CompleteTask;
 use App\Actions\Tasks\ReviewTaskCompletion;
 use App\Actions\Tasks\UndoTaskCompletion;
 use App\Models\Member;
+use App\Models\MountainGoal;
 use App\Models\PointEntry;
 use App\Models\Reward;
 use App\Models\Room;
 use App\Models\Task;
 use App\Models\User;
-use App\Models\WeeklyGoal;
 use App\Services\GoalService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -63,8 +63,8 @@ class GoalTest extends TestCase
         $this->assertSame(5.0, $goals->points($this->member, today()));
         $this->assertSame(1, $goals->balance($this->member));
         $this->actingAs($this->parent)->get(route('goals.index'))->assertInertia(fn (Assert $page) => $page
-            ->where('members.0.week_points', 5)->where('members.0.total_points', 5)
-            ->where('members.0.achieved', true)->where('familyProgress.points', 5));
+            ->where('members.0.mountain_points', 0)->where('members.0.total_points', 5)
+            ->where('members.0.summits', 1)->where('familyProgress.points', 0));
         $this->travel(1)->days();
         $this->assertSame(0.0, $goals->points($this->member, today()));
         $this->assertSame(5.0, $goals->points($this->member, today()->subDay()));
@@ -75,7 +75,7 @@ class GoalTest extends TestCase
         $this->travelTo(now()->setDate(2026, 10, 25)->endOfDay());
         $completion = $this->complete($this->child);
         $this->actingAs($this->parent)->get(route('goals.index'))->assertInertia(fn (Assert $page) => $page
-            ->where('members.0.pending_points', 5)->where('members.0.week_points', 0));
+            ->where('members.0.pending_points', 5)->where('members.0.mountain_points', 0));
         $this->travel(1)->days();
         ReviewTaskCompletion::run($completion, $this->parent, true, [$this->member->id]);
 
@@ -197,16 +197,16 @@ class GoalTest extends TestCase
         $this->assertSame(0, app(GoalService::class)->balance($this->member));
     }
 
-    public function test_next_week_resets_progress_but_preserves_stars_and_old_goal(): void
+    public function test_next_week_keeps_current_mountain_and_settings_only_affect_future_ascents(): void
     {
         $this->complete();
         $this->travel(7)->days();
-        $this->actingAs($this->parent)->patch(route('goals.settings', $this->member), ['weekly_target' => 8, 'weekly_stars' => 2])->assertRedirect();
+        $this->actingAs($this->parent)->patch(route('goals.settings', $this->member), ['target_points' => 8, 'reward_stars' => 2])->assertRedirect();
         $goals = app(GoalService::class);
         $this->assertSame(0.0, $goals->points($this->member, today()));
         $this->assertSame(1, $goals->balance($this->member));
-        $this->assertSame(5, WeeklyGoal::oldest('week_start')->first()->target_points);
-        $this->actingAs($this->child)->get(route('goals.index'))->assertOk()->assertInertia(fn (Assert $page) => $page->component('goals/index')->where('members.0.week_points', 0)->where('members.0.star_balance', 1)->where('members.0.weekly_target', 8));
+        $this->assertSame(5, MountainGoal::oldest('sequence')->first()->target_points);
+        $this->actingAs($this->child)->get(route('goals.index'))->assertOk()->assertInertia(fn (Assert $page) => $page->component('goals/index')->where('members.0.mountain_points', 0)->where('members.0.star_balance', 1)->where('members.0.target_points', 5)->where('members.0.next_target_points', 8));
     }
 
     public function test_late_approval_credits_original_week(): void

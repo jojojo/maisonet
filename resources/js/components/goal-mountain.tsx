@@ -147,7 +147,7 @@ export function GoalMountain({ name, color, points, target, stars, pending }: Pr
             <div className="relative flex flex-wrap items-center justify-between gap-2 border-t border-emerald-900/10 bg-white/75 px-5 py-4 text-sm sm:px-7 dark:bg-slate-950/30">
                 <p>
                     <strong className="text-lg">{pointsLabel(points)}</strong> / {target} points{' '}
-                    <span className="text-slate-500 dark:text-sky-200">cette semaine</span>
+                    <span className="text-slate-500 dark:text-sky-200">sur cette ascension</span>
                 </p>
                 {pending > 0 && (
                     <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900">+{pointsLabel(pending)} à valider</span>

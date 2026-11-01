@@ -3,8 +3,6 @@
 namespace App\Actions\Goals;
 
 use App\Models\Member;
-use App\Models\WeeklyGoal;
-use App\Services\GoalService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,12 +17,8 @@ class UpdateGoalSettings
     {
         DB::transaction(function () use ($member, $data) {
             $member = Member::lockForUpdate()->findOrFail($member->id);
-            $member->forceFill($data)->save();
-            $goal = WeeklyGoal::firstOrCreate(['member_id' => $member->id, 'week_start' => app(GoalService::class)->week()->toDateString()], [
-                'target_points' => $data['weekly_target'], 'reward_stars' => $data['weekly_stars'],
-            ]);
-            $goal->update(['target_points' => $data['weekly_target'], 'reward_stars' => $data['weekly_stars']]);
-            SyncWeeklyGoal::run($member);
+            SyncMountainProgress::run($member);
+            $member->forceFill(['weekly_target' => $data['target_points'], 'weekly_stars' => $data['reward_stars']])->save();
         }, 3);
     }
 
@@ -32,11 +26,11 @@ class UpdateGoalSettings
     {
         Gate::authorize('manage-goals');
         $data = $request->validate([
-            'weekly_target' => ['required', 'integer', 'min:1', 'max:1000'],
-            'weekly_stars' => ['required', 'integer', 'min:1', 'max:10'],
+            'target_points' => ['required', 'integer', 'min:1', 'max:1000'],
+            'reward_stars' => ['required', 'integer', 'min:1', 'max:10'],
         ]);
         $this->handle($member, $data);
 
-        return back()->with('success', 'Objectif ajusté pour cette semaine et les suivantes.');
+        return back()->with('success', 'Les réglages sont enregistrés pour les prochaines ascensions.');
     }
 }

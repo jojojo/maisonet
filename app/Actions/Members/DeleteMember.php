@@ -22,6 +22,7 @@ class DeleteMember
                     throw ValidationException::withMessages(['member' => 'Ce membre possède un compte lié ou un historique de progression. Sa suppression n’est pas possible.']);
                 }
             }
+            DB::table('mountain_goals')->where('member_id', $member->id)->delete();
             DB::table('weekly_goals')->where('member_id', $member->id)->delete();
             $member->delete();
         }, 3);

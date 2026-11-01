@@ -1,0 +1,9 @@
+# Montagnes sans remise à zéro hebdomadaire
+
+Une ascension conserve ses points jusqu’au sommet, sans date limite. Chaque sommet donne ses étoiles puis ouvre une montagne à zéro. Une réalisation est indivisible : avec 18 points sur 20, une réalisation de 5 points rapporte une fois les étoiles du sommet et laisse la montagne suivante à zéro. Les 23 points restent visibles dans le cumul historique. Plusieurs réalisations peuvent permettre plusieurs sommets dans une même semaine.
+
+`SyncMountainProgress` synchronise les ascensions sous verrou du membre. Il rejoue les écritures de points valides dans leur ordre de crédit (identifiant), avec les objectifs et récompenses figés pour chaque ascension. Une approbation tardive fait avancer la montagne au moment où ses points sont crédités. Les déclarations en attente ne font pas progresser la montagne. Une annulation recalcule la progression et les étoiles ; une récompense déjà dépensée peut donc créer une dette, comme auparavant. Chaque ascension possède au plus une transaction d’étoiles, mise à jour plutôt que dupliquée.
+
+Les réglages parent s’appliquent à la prochaine ascension. Ils ne changent ni la montagne en cours ni les récompenses des sommets précédents. Les colonnes historiques `members.weekly_target` et `weekly_stars` servent désormais de réglages par défaut des futures ascensions ; les requêtes de réglage utilisent `target_points` et `reward_stars`.
+
+La migration transforme les semaines ayant déjà donné des étoiles en sommets historiques. Leurs transactions sont conservées avec le même montant et les points de ces semaines sont rattachés à ces sommets pour éviter une seconde récompense. Les autres points restent disponibles pour la progression continue. Les tables hebdomadaires sont conservées comme archives ; aucun nouveau calcul d’étoiles ne dépend des semaines. Le cumul de points et l’historique des récompenses ne sont pas supprimés.

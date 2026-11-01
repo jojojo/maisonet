@@ -149,7 +149,7 @@ Indiquer les participants effectifs ; ils sont obligatoires si des points doiven
 être attribués. Pour refuser : `{"decision":"reject"}`. Le refus rouvre la tâche
 si aucune réalisation plus récente ne la remplace. Une décision déjà traitée
 n’est pas appliquée une seconde fois. Les points sont partagés entre participants
-et les étoiles hebdomadaires sont calculées par les services existants.
+et les étoiles sont attribuées à chaque sommet atteint. La progression ne dépend plus des semaines : une réalisation qui atteint l’objectif termine une ascension, sans reporter le dépassement sur la suivante.
 
 Une réalisation contient `id`, `task_id`, `task`, `status`, `completed_on`,
 `effort_points` (base), `awarded_points` (ajustement éventuel), `points_total`
