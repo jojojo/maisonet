@@ -32,7 +32,8 @@ class GoalController extends Controller
             $points = $goals->points($member, $week);
             $pending = DB::table('completion_participants')->join('task_completions', 'task_completions.id', '=', 'completion_participants.task_completion_id')
                 ->where('task_completions.family_id', $member->family_id)->where('completion_participants.member_id', $member->id)->where('status', 'pending')
-                ->whereBetween('completed_on', [$week->toDateString(), $week->addDays(6)->toDateString()])->sum('points');
+                ->where('completed_on', '>=', $week->toDateString())
+                ->where('completed_on', '<', $week->addWeek()->toDateString())->sum('points');
 
             return [
                 'id' => $member->id, 'name' => $member->name, 'color' => $member->color,

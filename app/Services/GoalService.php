@@ -20,7 +20,9 @@ class GoalService
         $query = PointEntry::where('member_id', $member->id)->where('is_void', false);
         if ($week) {
             $start = $this->week($week);
-            $query->whereBetween('completed_on', [$start->toDateString(), $start->addDays(6)->toDateString()]);
+            // Include all of Sunday, for both date-only and timestamp values.
+            $query->where('completed_on', '>=', $start->toDateString())
+                ->where('completed_on', '<', $start->addWeek()->toDateString());
         }
 
         return round((float) $query->sum('points'), 2);

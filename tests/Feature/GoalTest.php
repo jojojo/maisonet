@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Models\WeeklyGoal;
 use App\Services\GoalService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -51,6 +52,48 @@ class GoalTest extends TestCase
     private function reward(): Reward
     {
         return Reward::create(['title' => 'Film du vendredi', 'icon' => 'F', 'category' => 'custom', 'star_cost' => 1, 'audience' => 'family', 'is_active' => true]);
+    }
+
+    public function test_sunday_points_reach_the_mountain_and_award_the_weekly_star(): void
+    {
+        $this->travelTo(now()->setDate(2026, 10, 25)->endOfDay());
+        $this->complete();
+        $goals = app(GoalService::class);
+
+        $this->assertSame(5.0, $goals->points($this->member, today()));
+        $this->assertSame(1, $goals->balance($this->member));
+        $this->actingAs($this->parent)->get(route('goals.index'))->assertInertia(fn (Assert $page) => $page
+            ->where('members.0.week_points', 5)->where('members.0.total_points', 5)
+            ->where('members.0.achieved', true)->where('familyProgress.points', 5));
+        $this->travel(1)->days();
+        $this->assertSame(0.0, $goals->points($this->member, today()));
+        $this->assertSame(5.0, $goals->points($this->member, today()->subDay()));
+    }
+
+    public function test_sunday_pending_points_are_visible_and_late_approval_keeps_the_original_week(): void
+    {
+        $this->travelTo(now()->setDate(2026, 10, 25)->endOfDay());
+        $completion = $this->complete($this->child);
+        $this->actingAs($this->parent)->get(route('goals.index'))->assertInertia(fn (Assert $page) => $page
+            ->where('members.0.pending_points', 5)->where('members.0.week_points', 0));
+        $this->travel(1)->days();
+        ReviewTaskCompletion::run($completion, $this->parent, true, [$this->member->id]);
+
+        $goals = app(GoalService::class);
+        $this->assertSame(0.0, $goals->points($this->member, today()));
+        $this->assertSame(5.0, $goals->points($this->member, today()->subDay()));
+        $this->assertSame(1, $goals->balance($this->member));
+    }
+
+    public function test_week_includes_monday_through_sunday_without_neighbouring_weeks(): void
+    {
+        foreach ([['2026-10-18 23:59:59', 8], ['2026-10-19', 1], ['2026-10-25 00:00:00', 2], ['2026-10-25 23:59:59', 3], ['2026-10-26 00:00:00', 16]] as [$date, $points]) {
+            $entry = PointEntry::create(['member_id' => $this->member->id, 'task_title' => 'Boundary mission', 'completed_on' => $date, 'points' => $points, 'is_void' => false]);
+            // Retain both legacy date-only strings and timestamp values in SQLite.
+            DB::table('point_entries')->where('id', $entry->id)->update(['completed_on' => $date]);
+        }
+        $this->assertSame(6.0, app(GoalService::class)->points($this->member, today()));
+        $this->assertSame(30.0, app(GoalService::class)->points($this->member));
     }
 
     public function test_child_points_wait_for_review_and_duplicate_review_is_safe(): void
