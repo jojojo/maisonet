@@ -52,6 +52,19 @@ class CompatibleKioskTest extends TestCase
         $this->get('/kiosk/compatible')->assertOk()->assertViewIs('compatibility.kiosk');
     }
 
+    public function test_full_interface_switch_is_available_before_login_and_in_locked_kiosk(): void
+    {
+        $this->withHeader('User-Agent', self::IPAD)->get('/compatible/login')
+            ->assertSee(route('kiosk.compatibility.trial'))->assertSee('Passer à l’interface complète');
+        $this->prepareBoard();
+        $this->get('/kiosk/compatible')->assertSee(route('kiosk.compatibility.trial'));
+        $this->get('/essai-ipad')->assertRedirect(route('kiosk.index'))
+            ->assertSessionHas('full_interface_trial', true)->assertSessionHas('kiosk', true);
+        $this->post(route('kiosk.leave'), ['password' => 'password'])
+            ->assertRedirect(route('dashboard'))->assertSessionMissing('kiosk');
+        $this->get('/dashboard')->assertOk()->assertViewIs('app');
+    }
+
     public function test_modern_safari_keeps_the_existing_interface(): void
     {
         $this->withHeader('User-Agent', str_replace('12_5_7', '16_4', self::IPAD))

@@ -19,6 +19,14 @@
         <div><strong>Maiso’net</strong><p>Les petites missions de la famille</p></div>
         <span class="badge">Kiosque compatible</span>
     </header>
+    <section class="card" aria-label="Choix de l’interface">
+        <strong>Vous utilisez la version compatible.</strong>
+        <p>Retrouvez l’interface complète, les montagnes et les mini-jeux.</p>
+        <a class="button" href="{{ route('kiosk.compatibility.trial') }}">Passer à l’interface complète</a>
+        @if(session('kiosk'))
+            <p class="muted">Le kiosque restera verrouillé. Pour accéder à l’espace parent, quittez ensuite le kiosque avec votre mot de passe.</p>
+        @endif
+    </section>
     @if(session('success'))<p class="notice" role="status">{{ session('success') }}</p>@endif
     @if($errors->any())
         <div class="notice error" role="alert"><strong>Un petit détail à vérifier</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>

@@ -1,5 +1,7 @@
 # Essai de l’interface commune sur iOS 12
 
+Le bouton « Passer à l’interface complète » est disponible en haut de toutes les pages compatibles, même avant connexion. Il conserve le verrouillage du kiosque : pour ouvrir l’espace parent, quitter ensuite le kiosque avec le mot de passe habituel.
+
 Ouvrir `/essai-ipad` sur l’appareil. Cette route active un choix d’affichage dans la session, sans changer les autorisations. La connexion et les écrans React/Inertia habituels sont utilisés, y compris les jeux. Le lien « Version de secours », rendu en HTML sans JavaScript, permet de retrouver la connexion ou le kiosque simplifié si l’essai ne démarre pas. Une déconnexion supprime le choix d’essai. Sans ce choix, les anciens iPad gardent leur redirection vers le kiosque simplifié.
 
 Une seule interface React est compilée pour tous les navigateurs avec une cible Safari/iOS 12. Tailwind 3.4 et PostCSS produisent le CSS commun, sans couches CSS, couleurs OKLCH, `color-mix`, `:is` ou `:where` dans le résultat. Les couleurs personnalisées conservent leurs variables HSL pour les canvas et disposent de canaux RGB pour les utilitaires avec opacité. Les classes d’importance utilisent la syntaxe Tailwind 3. Les styles définis dans les fichiers `.ts` sont inclus dans la détection des classes.
