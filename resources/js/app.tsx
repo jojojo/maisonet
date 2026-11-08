@@ -5,15 +5,17 @@ import { createInertiaApp } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
 import { route as routeFn } from 'ziggy-js';
 import { initializeTheme } from './hooks/use-appearance';
+import { makeBrowserRoute, type BrowserRouteConfig } from './lib/routes';
 
 declare global {
     const route: typeof routeFn;
     interface Window {
+        maisonetRoutes: BrowserRouteConfig;
         maisonetShowError?: (error: unknown, kind?: 'runtime' | 'module' | 'render' | 'promise') => void;
     }
 }
 
-Object.assign(window, { route: routeFn });
+Object.assign(window, { route: makeBrowserRoute(window.maisonetRoutes) });
 
 const appName = import.meta.env.VITE_APP_NAME || "Maiso'net";
 

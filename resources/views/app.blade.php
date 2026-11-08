@@ -55,7 +55,8 @@
         @endif
 
 
-        @routes
+        @php($browserRoutes = (new \Tighten\Ziggy\Ziggy)->toArray())
+        <script>window.maisonetRoutes = {{ \Illuminate\Support\Js::from($browserRoutes) }};</script>
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         @inertiaHead
