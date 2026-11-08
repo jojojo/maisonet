@@ -37,9 +37,13 @@
                         }
                         if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
                         try {
+                            var headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+                            var xsrf = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]*)/);
+                            if (xsrf) headers['X-XSRF-TOKEN'] = decodeURIComponent(xsrf[1]);
+                            else headers['X-CSRF-TOKEN'] = @json(csrf_token());
                             fetch(@json(route('kiosk.diagnostics')), {
                                 method: 'POST', credentials: 'same-origin',
-                                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': @json(csrf_token()) },
+                                headers: headers,
                                 body: JSON.stringify({ message: message, stack: stack, kind: kind || 'runtime' })
                             }).catch(function () {});
                         } catch (ignored) {}
