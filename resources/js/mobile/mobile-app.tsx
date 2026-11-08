@@ -3,6 +3,7 @@ import { Check, ChevronRight, ClipboardCheck, Home, LoaderCircle, LogOut, Refres
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { HouseBuddy } from '../components/house-buddy';
 import { PointAdjustment } from '../components/point-adjustment';
+import { dayPeriodLabel } from '../lib/day-periods';
 import { ApiError, MobileApi } from './api';
 import { browserSessionStore, validSession, type SessionStore } from './session-store';
 import { MobileSkipControl } from './skip-control';
@@ -660,6 +661,7 @@ function TaskGroup({
                             </button>
                         </div>
                         <div className="task-footer">
+                            <span className="effort-chip">{dayPeriodLabel(task.day_period)}</span>
                             <span className="effort-chip">
                                 <Star size={13} />
                                 {task.effort_size ? `${task.effort_size} · ${pointLabel(task.effort_points ?? 0)}` : 'Petit coup de main'}

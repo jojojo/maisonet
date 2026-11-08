@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\DayPeriod;
 use App\Enums\EffortSize;
 use App\Enums\Recurrence;
 use App\Models\Concerns\BelongsToFamily;
@@ -18,8 +19,10 @@ class Task extends Model
 
     protected $fillable = [
         'room_id', 'member_id', 'title', 'notes', 'effort_size', 'template_key',
-        'recurrence', 'interval', 'next_due_date', 'last_completed_at',
+        'recurrence', 'interval', 'next_due_date', 'last_completed_at', 'day_period',
     ];
+
+    protected $attributes = ['day_period' => 'all_day'];
 
     protected $appends = ['status', 'dirt_level', 'effort_points', 'points_available_on', 'can_earn_points', 'completion_info'];
 
@@ -30,6 +33,7 @@ class Task extends Model
     protected function casts(): array
     {
         return [
+            'day_period' => DayPeriod::class,
             'recurrence' => Recurrence::class,
             'effort_size' => EffortSize::class,
             'interval' => 'integer',

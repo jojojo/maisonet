@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\DayPeriod;
 use App\Enums\EffortSize;
 use App\Enums\Recurrence;
 use App\Support\FamilyContext;
@@ -20,6 +21,7 @@ class TaskRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:120'],
+            'day_period' => ['sometimes', 'required', Rule::enum(DayPeriod::class)],
             'notes' => ['nullable', 'string', 'max:1000'],
             'effort_size' => ['nullable', Rule::enum(EffortSize::class)],
             'room_id' => ['required', 'integer', FamilyContext::exists('rooms')],

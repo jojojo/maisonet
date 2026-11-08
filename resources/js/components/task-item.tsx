@@ -1,9 +1,10 @@
+import { DayPeriodBadge } from '@/components/day-period-badge';
 import { DirtGauge } from '@/components/dirt-gauge';
 import { EffortBadge } from '@/components/effort-badge';
 import { MemberDot } from '@/components/form-fields';
 import { TaskCompletionControl } from '@/components/task-completion-control';
-import { TaskSkipControl } from '@/components/task-skip-control';
 import { TaskFormDialog } from '@/components/task-form-dialog';
+import { TaskSkipControl } from '@/components/task-skip-control';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { dirtStyle, dueLabel, formatDate, recurrenceLabel, sortByDirt, statusStyles } from '@/lib/tasks';
@@ -42,6 +43,7 @@ export function TaskItem({ task, showRoom = true, onCompleted }: { task: Task; s
                     )}
                     <span className={cn('font-medium', statusStyles[task.status])}>{dueLabel(task)}</span>
                     <EffortBadge task={task} />
+                    <DayPeriodBadge period={task.day_period} />
                     {task.completion_info?.status === 'pending' && (
                         <Badge variant="outline" className="text-amber-700 dark:text-amber-300">
                             Points à valider

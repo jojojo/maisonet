@@ -11,6 +11,7 @@ class TaskResource extends JsonResource
     {
         return [
             'id' => $this->id, 'title' => $this->title, 'notes' => $this->notes,
+            'day_period' => $this->day_period->value,
             'room' => $this->room?->only(['id', 'name', 'icon']),
             'members' => $this->members->map->only(['id', 'name', 'color']),
             'recurrence' => $this->recurrence->value, 'interval' => $this->interval,

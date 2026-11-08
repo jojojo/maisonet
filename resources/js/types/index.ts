@@ -1,3 +1,4 @@
+import type { DayPeriod } from '@/lib/day-periods';
 import type { KioskGameId } from '@/lib/kiosk-games';
 import { LucideIcon } from 'lucide-react';
 
@@ -62,6 +63,7 @@ export interface Member {
 }
 
 export interface Task {
+    day_period: DayPeriod;
     id: number;
     room_id: number;
     member_id: number | null;

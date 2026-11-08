@@ -30,6 +30,7 @@
         @endphp
         <article class="card mission {{ $tone }}" data-task="{{ $task->id }}" data-completion="{{ $task->completion_info['id'] ?? '' }}" data-today="{{ $task->next_due_date->lte(today()) ? '1' : '0' }}" data-members="{{ $task->members->pluck('id')->implode(',') }}" data-pending="{{ $pending ? '1' : '0' }}">
             <div class="mission-heading"><span class="room-icon" aria-hidden="true">{{ $task->room?->icon }}</span><div><h2>{{ $task->title }}</h2><p class="muted">{{ $task->room?->name }} · {{ $task->next_due_date->lt(today()) ? 'En retard' : ($task->next_due_date->isToday() ? 'Aujourd’hui' : 'Le '.$task->next_due_date->format('d/m')) }}</p></div></div>
+            <p class="muted">{{ $task->day_period->label() }}</p>
             @if($task->notes)<p>{{ $task->notes }}</p>@endif
             @if($level !== null)<div class="gauge" role="meter" aria-label="Jauge de saleté" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $level }}"><span style="width:{{ $level }}%"></span></div><p class="muted">{{ $level }} % de saleté</p>@endif
             @if($pending)

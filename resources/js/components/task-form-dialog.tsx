@@ -2,9 +2,10 @@ import { Field, NativeSelect } from '@/components/form-fields';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { dayPeriodOptions, type DayPeriod } from '@/lib/day-periods';
 import { recurrenceOptions, todayISO } from '@/lib/tasks';
-import { type EffortSize, type Recurrence, type SharedData, type Task } from '@/types';
 import { cn } from '@/lib/utils';
+import { type EffortSize, type Recurrence, type SharedData, type Task } from '@/types';
 import { useForm, usePage } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { FormEvent, useState } from 'react';
@@ -43,6 +44,7 @@ function TaskForm({ task, defaultRoomId, onDone }: { task?: Task; defaultRoomId?
 
     const form = useForm({
         title: task?.title ?? '',
+        day_period: task?.day_period ?? ('all_day' as DayPeriod),
         notes: task?.notes ?? '',
         effort_size: task?.effort_size ?? ('' as EffortSize | ''),
         room_id: String(task?.room_id ?? defaultRoomId ?? rooms[0]?.id ?? ''),
@@ -68,33 +70,60 @@ function TaskForm({ task, defaultRoomId, onDone }: { task?: Task; defaultRoomId?
     return (
         <form onSubmit={submit} className="grid gap-4">
             <Field label="Titre" error={form.errors.title}>
-                <Input value={form.data.title} onChange={(e) => form.setData('title', e.target.value)} placeholder="Passer l'aspirateur" autoFocus required />
+                <Input
+                    value={form.data.title}
+                    onChange={(e) => form.setData('title', e.target.value)}
+                    placeholder="Passer l'aspirateur"
+                    autoFocus
+                    required
+                />
             </Field>
 
             <fieldset className="grid gap-2">
                 <legend className="mb-2 text-sm font-medium">Taille d’effort</legend>
                 <div className="grid grid-cols-5 gap-2">
                     {effortOptions.map((option) => (
-                        <label key={option.size} title={option.label} className={cn(
-                            'relative flex cursor-pointer flex-col items-center gap-1 rounded-lg border p-2 text-center has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-violet-500',
-                            form.data.effort_size === option.size
-                                ? 'border-violet-500 bg-violet-50 text-violet-800 dark:bg-violet-950 dark:text-violet-200'
-                                : 'hover:bg-muted',
-                        )}>
-                            <input type="radio" name="effort_size" value={option.size} checked={form.data.effort_size === option.size}
-                                onChange={() => form.setData('effort_size', option.size)} className="sr-only" />
+                        <label
+                            key={option.size}
+                            title={option.label}
+                            className={cn(
+                                'relative flex cursor-pointer flex-col items-center gap-1 rounded-lg border p-2 text-center has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-violet-500',
+                                form.data.effort_size === option.size
+                                    ? 'border-violet-500 bg-violet-50 text-violet-800 dark:bg-violet-950 dark:text-violet-200'
+                                    : 'hover:bg-muted',
+                            )}
+                        >
+                            <input
+                                type="radio"
+                                name="effort_size"
+                                value={option.size}
+                                checked={form.data.effort_size === option.size}
+                                onChange={() => form.setData('effort_size', option.size)}
+                                className="sr-only"
+                            />
                             <span className="font-semibold">{option.size}</span>
-                            <span className="text-xs">{option.points} {option.points === 1 ? 'pt' : 'pts'}</span>
+                            <span className="text-xs">
+                                {option.points} {option.points === 1 ? 'pt' : 'pts'}
+                            </span>
                         </label>
                     ))}
                 </div>
                 <label className="text-muted-foreground flex items-center gap-2 text-xs">
-                    <input type="radio" name="effort_size" value="" checked={form.data.effort_size === ''}
-                        onChange={() => form.setData('effort_size', '')} />
+                    <input
+                        type="radio"
+                        name="effort_size"
+                        value=""
+                        checked={form.data.effort_size === ''}
+                        onChange={() => form.setData('effort_size', '')}
+                    />
                     Non cotée
                 </label>
                 <p className="text-muted-foreground text-xs">De XS (très léger) à XL (très important), selon le temps et l’énergie nécessaires.</p>
-                {form.errors.effort_size && <p role="alert" className="text-destructive text-xs">{form.errors.effort_size}</p>}
+                {form.errors.effort_size && (
+                    <p role="alert" className="text-destructive text-xs">
+                        {form.errors.effort_size}
+                    </p>
+                )}
             </fieldset>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -117,18 +146,27 @@ function TaskForm({ task, defaultRoomId, onDone }: { task?: Task; defaultRoomId?
                             <input
                                 type="checkbox"
                                 checked={form.data.member_ids.includes(member.id)}
-                                onChange={(event) => form.setData('member_ids', event.target.checked
-                                    ? [...form.data.member_ids, member.id]
-                                    : form.data.member_ids.filter((id) => id !== member.id))}
+                                onChange={(event) =>
+                                    form.setData(
+                                        'member_ids',
+                                        event.target.checked
+                                            ? [...form.data.member_ids, member.id]
+                                            : form.data.member_ids.filter((id) => id !== member.id),
+                                    )
+                                }
                             />
                             {member.name}
                         </label>
                     ))}
                 </div>
                 <p className="text-muted-foreground text-xs">Coche une ou plusieurs personnes. Aucune sélection : tâche non attribuée.</p>
-                {Object.entries(form.errors).filter(([key]) => key === 'member_ids' || key.startsWith('member_ids.')).map(([key, error]) => (
-                    <p key={key} role="alert" className="text-destructive text-xs">{error}</p>
-                ))}
+                {Object.entries(form.errors)
+                    .filter(([key]) => key === 'member_ids' || key.startsWith('member_ids.'))
+                    .map(([key, error]) => (
+                        <p key={key} role="alert" className="text-destructive text-xs">
+                            {error}
+                        </p>
+                    ))}
             </fieldset>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -155,17 +193,23 @@ function TaskForm({ task, defaultRoomId, onDone }: { task?: Task; defaultRoomId?
             </div>
 
             <Field label={task ? 'Prochaine échéance' : 'Première échéance'} error={form.errors.next_due_date}>
-                <Input
-                    type="date"
-                    value={form.data.next_due_date}
-                    onChange={(e) => form.setData('next_due_date', e.target.value)}
-                    required={!task}
-                />
+                <Input type="date" value={form.data.next_due_date} onChange={(e) => form.setData('next_due_date', e.target.value)} required={!task} />
+            </Field>
+
+            <Field label="Moment de la journée" error={form.errors.day_period}>
+                <NativeSelect value={form.data.day_period} onChange={(e) => form.setData('day_period', e.target.value as DayPeriod)}>
+                    {dayPeriodOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                            {option.emoji} {option.label}
+                        </option>
+                    ))}
+                </NativeSelect>
+                <p className="text-muted-foreground mt-1 text-xs">Un seul créneau, conservé à chaque récurrence.</p>
             </Field>
 
             <Field label="Notes" error={form.errors.notes}>
                 <textarea
-                    className="border-input bg-background min-h-20 w-full rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                    className="border-input bg-background focus-visible:ring-ring/50 min-h-20 w-full rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
                     value={form.data.notes}
                     onChange={(e) => form.setData('notes', e.target.value)}
                 />

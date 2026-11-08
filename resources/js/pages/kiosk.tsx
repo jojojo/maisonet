@@ -1,3 +1,4 @@
+import { DayPeriodBadge } from '@/components/day-period-badge';
 import { DirtGauge } from '@/components/dirt-gauge';
 import { EffortBadge } from '@/components/effort-badge';
 import { HouseBuddy } from '@/components/house-buddy';
@@ -410,6 +411,7 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                             </div>
                                             <div className="flex flex-wrap items-center gap-2">
                                                 <EffortBadge task={task} />
+                                                <DayPeriodBadge period={task.day_period} />
                                                 {task.members.map((member) => (
                                                     <span key={member.id} className="bg-card rounded-full px-2.5 py-1 text-xs font-semibold">
                                                         {member.name}

@@ -1,3 +1,5 @@
+import type { DayPeriod } from '../lib/day-periods';
+
 export type Member = { id: number; name: string; color: string };
 export type Room = { id: number; name: string; icon: string };
 export type Account = {
@@ -11,6 +13,7 @@ export type Account = {
     rooms: Room[];
 };
 export type Task = {
+    day_period: DayPeriod;
     id: number;
     title: string;
     notes: string | null;

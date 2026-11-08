@@ -3,11 +3,12 @@ import { EffortBadge } from '@/components/effort-badge';
 import { MemberDot } from '@/components/form-fields';
 import { MemberFilter } from '@/components/member-filter';
 import { TaskCompletionControl } from '@/components/task-completion-control';
-import { TaskSkipControl } from '@/components/task-skip-control';
 import { NewTaskButton } from '@/components/task-form-dialog';
 import { TaskList } from '@/components/task-item';
+import { TaskSkipControl } from '@/components/task-skip-control';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
+import { dayPeriodOptions } from '@/lib/day-periods';
 import { formatDate, recurrenceLabel, sortByDirt, todayISO } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData, type Task } from '@/types';
@@ -107,7 +108,20 @@ export default function Planning({ start, previous, next, days, overdue, filters
                             {day.tasks.length === 0 ? (
                                 <p className="text-muted-foreground px-1 text-xs">Rien de prévu</p>
                             ) : (
-                                sortByDirt(day.tasks).map((t) => <DayTask key={`${t.id}-${day.date}`} task={t} />)
+                                dayPeriodOptions.map((period) => {
+                                    const tasks = day.tasks.filter((task) => (task.day_period ?? 'all_day') === period.value);
+                                    if (!tasks.length) return null;
+                                    return (
+                                        <div key={period.value} className="grid gap-2">
+                                            <h4 className="text-muted-foreground px-1 pt-2 text-xs font-semibold">
+                                                <span aria-hidden>{period.emoji}</span> {period.label}
+                                            </h4>
+                                            {sortByDirt(tasks).map((task) => (
+                                                <DayTask key={`${task.id}-${day.date}`} task={task} />
+                                            ))}
+                                        </div>
+                                    );
+                                })
                             )}
                         </section>
                     ))}
