@@ -49,6 +49,7 @@ Route::view('mobile', 'mobile')->name('mobile');
 Route::get('compatible/login', [CompatibleKioskController::class, 'login'])->middleware('guest')->name('compatibility.login');
 
 Route::middleware(['auth'])->group(function () {
+    Route::post('kiosk/diagnostics', \App\Actions\Kiosk\RecordKioskDiagnostic::class)->middleware('throttle:6,1')->name('kiosk.diagnostics');
     Route::get('kiosk/compatible', [CompatibleKioskController::class, 'index'])->name('kiosk.compatibility.index');
     Route::post('kiosk/compatible/enter', EnterKiosk::class)->name('kiosk.compatibility.enter');
     Route::post('kiosk/compatible/leave', LeaveKiosk::class)->middleware('throttle:6,1')->name('kiosk.compatibility.leave');
