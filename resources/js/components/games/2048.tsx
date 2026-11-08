@@ -225,15 +225,16 @@ function usePrefersReducedMotion(): boolean {
 /* -------------------------------------------------------------------------- */
 
 function tileClasses(value: number, fresh: boolean, merged: boolean, reduce: boolean): string {
-    const base = 'absolute inset-0 flex items-center justify-center rounded-md font-bold tabular-nums select-none transition-all';
+    const base =
+        'position-absolute top-0 bottom-0 start-0 end-0 d-flex align-items-center justify-content-center rounded-2 fw-bold numeric user-select-none';
 
     let colorClass: string;
     if (value <= 4) {
-        colorClass = 'bg-secondary text-secondary-foreground';
+        colorClass = 'bg-warning-subtle text-warning-emphasis';
     } else if (value <= 32) {
-        colorClass = 'bg-accent text-accent-foreground';
+        colorClass = 'bg-primary-subtle text-primary-emphasis';
     } else {
-        colorClass = 'bg-primary text-primary-foreground';
+        colorClass = 'bg-primary text-dark';
     }
 
     const ringClass = !reduce && (fresh || merged) ? 'ring-2 ring-ring ring-offset-1 ring-offset-background' : '';
@@ -242,12 +243,7 @@ function tileClasses(value: number, fresh: boolean, merged: boolean, reduce: boo
 
     // Text sizing: use container-query units so font scales with tile size.
     // 4-digit values (1024, 2048, 4096…) get a smaller clamp.
-    const textClass =
-        value >= 1024
-            ? 'text-[clamp(0.6rem,8cqi,1.5rem)]'
-            : value >= 128
-              ? 'text-[clamp(0.75rem,9cqi,1.75rem)]'
-              : 'text-[clamp(0.875rem,11cqi,2rem)]';
+    const textClass = value >= 1024 ? 'mn-type-1-5rem' : value >= 128 ? 'mn-type-1-5rem' : 'mn-type-1-5rem';
 
     return cn(base, colorClass, textClass, ringClass, animClass);
 }
@@ -508,41 +504,41 @@ export function Game2048({
             aria-label="Jeu 2048"
             style={width ? { maxWidth: width } : undefined}
             className={cn(
-                'relative flex w-full max-w-sm flex-col gap-2 outline-none select-none',
+                'position-relative d-flex w-100 mn-content-sm flex-column gap-2 user-select-none',
                 // Focus ring only matters when keys are focus-scoped; global capture hides it.
-                !captureGlobalKeys && 'focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2',
+                !captureGlobalKeys && '',
                 className,
             )}
         >
             {/* Score row */}
-            <div className="flex items-center justify-between gap-3 text-sm">
+            <div className="d-flex align-items-center justify-content-between gap-3 small">
                 <span
-                    className="bg-secondary text-secondary-foreground inline-flex items-center rounded-md border px-2 py-0.5 font-medium tabular-nums"
+                    className="bg-warning-subtle text-warning-emphasis d-inline-flex align-items-center rounded-2 border px-2 py-1 fw-medium numeric"
                     aria-live="polite"
                     aria-atomic="true"
                 >
                     Score {score}
                 </span>
-                <span className="text-muted-foreground tabular-nums">Record {high}</span>
+                <span className="text-body-secondary numeric">Record {high}</span>
             </div>
 
             {/* Hidden aria-live region for game state announcements */}
-            <div aria-live="polite" aria-atomic="true" className="sr-only">
+            <div aria-live="polite" aria-atomic="true" className="visually-hidden">
                 {announcement}
             </div>
 
             {/* Board */}
-            <div className="bg-muted relative rounded-lg border p-2">
+            <div className="bg-body-tertiary position-relative rounded-3 border p-2">
                 {/* Inject pop keyframe animation */}
                 <style>{`@keyframes pop{0%{transform:scale(.8);opacity:.6}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}`}</style>
 
                 {/* @container enables cqi units inside for tile font scaling */}
-                <div className="@container grid aspect-square w-full grid-cols-4 grid-rows-4 gap-[2.5%]">
+                <div className="d-grid mn-aspect-1-1 w-100 mn-columns-4 mn-rows-4 mn-gutter-2-5">
                     {Array.from({ length: SIZE }, (_, r) =>
                         Array.from({ length: SIZE }, (_, c) => {
                             const tile = board[r]?.[c] ?? null;
                             return (
-                                <div key={`${r}-${c}`} className="bg-background border-border relative size-full rounded-md border">
+                                <div key={`${r}-${c}`} className="bg-body border position-relative w-100 h-100 rounded-2">
                                     {tile && (
                                         <div key={tile.id} className={tileClasses(tile.value, tile.fresh, tile.merged, reduce)}>
                                             {tile.value}
@@ -556,27 +552,27 @@ export function Game2048({
 
                 {/* Overlays */}
                 {status !== 'playing' && (
-                    <div className="bg-background/80 absolute inset-0 grid place-items-center rounded-lg backdrop-blur-[1px]">
-                        <div className="flex flex-col items-center gap-3 px-6 text-center">
+                    <div className="bg-body bg-opacity-75 position-absolute top-0 bottom-0 start-0 end-0 d-grid place-center rounded-3">
+                        <div className="d-flex flex-column align-items-center gap-3 px-4 text-center">
                             {status === 'gameover' ? (
                                 <>
-                                    <p className="text-lg font-semibold">Partie terminée</p>
-                                    <p className="text-muted-foreground text-sm">
+                                    <p className="fs-5 fw-semibold">Partie terminée</p>
+                                    <p className="text-body-secondary small">
                                         Ton score : {score}
                                         {score >= high && score > 0 ? ' — nouveau record !' : ''}
                                     </p>
                                 </>
                             ) : status === 'won' ? (
                                 <>
-                                    <p className="text-lg font-semibold">Tu as atteint 2048 !</p>
-                                    <p className="text-muted-foreground text-sm">Score: {score}</p>
-                                    <div className="flex gap-2">
+                                    <p className="fs-5 fw-semibold">Tu as atteint 2048 !</p>
+                                    <p className="text-body-secondary small">Score: {score}</p>
+                                    <div className="d-flex gap-2">
                                         <button
                                             type="button"
                                             onClick={keepGoing}
                                             className={cn(
-                                                'bg-secondary text-secondary-foreground inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium',
-                                                'hover:bg-secondary/80 focus-visible:ring-ring transition-colors focus-visible:ring-2 focus-visible:outline-none',
+                                                'bg-warning-subtle text-warning-emphasis d-inline-flex mn-h-9 align-items-center justify-content-center rounded-2 border px-3 small fw-medium',
+                                                '',
                                             )}
                                         >
                                             Continuer
@@ -585,8 +581,8 @@ export function Game2048({
                                             type="button"
                                             onClick={startGame}
                                             className={cn(
-                                                'border-primary bg-primary text-primary-foreground inline-flex h-12 items-center justify-center rounded-xl border-2 px-6 text-base font-bold',
-                                                'hover:bg-primary/90 focus-visible:ring-ring transition-colors focus-visible:ring-2 focus-visible:outline-none',
+                                                'border-primary bg-primary text-dark d-inline-flex mn-h-12 align-items-center justify-content-center rounded-3 border-2 px-4 fs-6 fw-bold',
+                                                '',
                                             )}
                                         >
                                             Nouvelle partie
@@ -595,8 +591,8 @@ export function Game2048({
                                 </>
                             ) : (
                                 <>
-                                    <p className="text-lg font-semibold">2048</p>
-                                    <p className="text-muted-foreground text-sm">Glisse ton doigt pour fusionner les nombres.</p>
+                                    <p className="fs-5 fw-semibold">2048</p>
+                                    <p className="text-body-secondary small">Glisse ton doigt pour fusionner les nombres.</p>
                                 </>
                             )}
                             {(status === 'idle' || status === 'gameover') && (
@@ -604,8 +600,8 @@ export function Game2048({
                                     type="button"
                                     onClick={startGame}
                                     className={cn(
-                                        'border-primary bg-primary text-primary-foreground inline-flex h-12 items-center justify-center rounded-xl border-2 px-6 text-base font-bold',
-                                        'hover:bg-primary/90 focus-visible:ring-ring transition-colors focus-visible:ring-2 focus-visible:outline-none',
+                                        'border-primary bg-primary text-dark d-inline-flex mn-h-12 align-items-center justify-content-center rounded-3 border-2 px-4 fs-6 fw-bold',
+                                        '',
                                     )}
                                 >
                                     {status === 'gameover' ? 'Rejouer' : 'Jouer'}

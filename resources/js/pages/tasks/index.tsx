@@ -1,8 +1,8 @@
+import { Button } from '@/components/bootstrap/button';
+import { Input } from '@/components/bootstrap/input';
 import { NativeSelect } from '@/components/form-fields';
 import { NewTaskButton } from '@/components/task-form-dialog';
 import { TaskList } from '@/components/task-item';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData, type Task } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -35,18 +35,24 @@ export default function Tasks({ tasks, filters }: { tasks: Task[]; filters: Filt
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Tâches" />
-            <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h1 className="text-xl font-semibold">Toutes les tâches</h1>
-                    <div className="flex flex-wrap gap-2">
-                        <Button variant="outline" asChild><Link href={route('task-templates.index', filters.room ? { room_id: filters.room } : {})}><BookOpen /> Catalogue</Link></Button>
+            <div className="mx-auto d-flex w-100 mn-content-4xl flex-column gap-4 p-3">
+                <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <h1 className="fs-4 fw-semibold">Toutes les tâches</h1>
+                    <div className="d-flex flex-wrap gap-2">
+                        <Button variant="outline" asChild>
+                            <Link href={route('task-templates.index', filters.room ? { room_id: filters.room } : {})}>
+                                <BookOpen /> Catalogue
+                            </Link>
+                        </Button>
                         <NewTaskButton />
                     </div>
                 </div>
 
-                <p className="text-muted-foreground text-sm">🧽 Du rouge au vert : les missions les plus pressantes passent en premier. Une tâche faite, et sa jauge revient au vert !</p>
+                <p className="text-body-secondary small">
+                    🧽 Du rouge au vert : les missions les plus pressantes passent en premier. Une tâche faite, et sa jauge revient au vert !
+                </p>
 
-                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="d-grid gap-2 mn-sm-columns-2 mn-lg-columns-4">
                     <form onSubmit={search}>
                         <Input type="search" placeholder="Rechercher…" value={q} onChange={(e) => setQ(e.target.value)} />
                     </form>

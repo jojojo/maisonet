@@ -1,9 +1,9 @@
+import { Button } from '@/components/bootstrap/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/bootstrap/dialog';
+import { Input } from '@/components/bootstrap/input';
 import { NativeSelect } from '@/components/form-fields';
 import { GoalMountain } from '@/components/goal-mountain';
 import { PointAdjustment } from '@/components/point-adjustment';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { pointsLabel, requestStatus } from '@/lib/progress';
 import { type Member, type SharedData } from '@/types';
@@ -79,7 +79,7 @@ interface Props {
     }[];
 }
 const date = (value: string) => new Date(value.slice(0, 10) + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-const panel = 'min-w-0 rounded-2xl border bg-card p-5 sm:p-6';
+const panel = 'mn-min-w-0 rounded-4 border bg-body p-4 p-sm-4';
 
 function Meter({ value, label }: { value: number; label: string }) {
     return (
@@ -89,9 +89,9 @@ function Meter({ value, label }: { value: number; label: string }) {
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={Math.round(value)}
-            className="bg-muted h-3 overflow-hidden rounded-full"
+            className="bg-body-tertiary mn-h-3 overflow-hidden rounded-pill"
         >
-            <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
+            <div className="h-100 rounded-pill bg-success" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
         </div>
     );
 }
@@ -100,18 +100,18 @@ function Settings({ member }: { member: Progress }) {
     const form = useForm({ target_points: member.next_target_points, reward_stars: member.next_reward_stars });
     return (
         <form
-            className="mt-4 grid gap-3 border-t pt-4"
+            className="mt-3 d-grid gap-3 border-top pt-3"
             onSubmit={(event) => {
                 event.preventDefault();
                 form.patch(route('goals.settings', member.id), { preserveScroll: true });
             }}
         >
-            <p className="flex items-center gap-2 text-sm font-medium">
-                <ShieldCheck className="size-4" />
+            <p className="d-flex align-items-center gap-2 small fw-medium">
+                <ShieldCheck className="mn-icon-4" />
                 Réglage parent
             </p>
-            <div className="grid grid-cols-2 gap-3">
-                <label className="grid gap-1 text-sm">
+            <div className="d-grid mn-columns-2 gap-3">
+                <label className="d-grid gap-1 small">
                     Points à atteindre
                     <Input
                         type="number"
@@ -122,7 +122,7 @@ function Settings({ member }: { member: Progress }) {
                         onChange={(e) => form.setData('target_points', Number(e.target.value))}
                     />
                 </label>
-                <label className="grid gap-1 text-sm">
+                <label className="d-grid gap-1 small">
                     Étoiles à gagner
                     <Input
                         type="number"
@@ -134,11 +134,9 @@ function Settings({ member }: { member: Progress }) {
                     />
                 </label>
             </div>
-            <p className="text-muted-foreground text-xs">
-                S’applique aux prochaines ascensions. La montagne en cours garde son objectif et ses étoiles.
-            </p>
+            <p className="text-body-secondary small">S’applique aux prochaines ascensions. La montagne en cours garde son objectif et ses étoiles.</p>
             {Object.values(form.errors).map((error) => (
-                <p role="alert" key={error} className="text-destructive text-sm">
+                <p role="alert" key={error} className="text-danger small">
                     {error}
                 </p>
             ))}
@@ -170,23 +168,24 @@ function Review({ completion, members }: { completion: Pending; members: Member[
         form.post(route('goals.review-completion', completion.id), { preserveScroll: true });
     };
     return (
-        <article className="grid gap-3 rounded-xl border p-4">
+        <article className="d-grid gap-3 rounded-3 border p-3">
             <div>
-                <h3 className="font-medium">{completion.task.title}</h3>
-                <p className="text-muted-foreground text-xs">
+                <h3 className="fw-medium">{completion.task.title}</h3>
+                <p className="text-body-secondary small">
                     {completion.task.room?.name} · {date(completion.completed_on)} · {completion.submitter?.name ?? 'Historique à vérifier'}
                 </p>
             </div>
-            <p className="text-sm">
+            <p className="small">
                 {completion.awards_points
                     ? `${form.data.awarded_points || '0'} points à partager entre les participants réels.`
                     : 'Réalisation sans points : tâche non cotée ou délai entre deux gains non atteint.'}
             </p>
-            <fieldset className="flex flex-wrap gap-3">
-                <legend className="mb-2 text-xs font-medium">Qui a participé ?</legend>
+            <fieldset className="d-flex flex-wrap gap-3">
+                <legend className="mb-2 small fw-medium">Qui a participé ?</legend>
                 {members.map((member) => (
-                    <label key={member.id} className="flex items-center gap-2 text-sm">
+                    <label key={member.id} className="d-flex align-items-center gap-2 small">
                         <input
+                            className="form-check-input"
                             type="checkbox"
                             checked={form.data.member_ids.includes(member.id)}
                             onChange={(e) =>
@@ -211,11 +210,11 @@ function Review({ completion, members }: { completion: Pending; members: Member[
                 />
             )}
             {Object.values(form.errors).map((error) => (
-                <p role="alert" key={error} className="text-destructive text-sm">
+                <p role="alert" key={error} className="text-danger small">
                     {error}
                 </p>
             ))}
-            <div className="flex flex-wrap gap-2">
+            <div className="d-flex flex-wrap gap-2">
                 <Button
                     disabled={form.processing || (completion.awards_points && (!form.data.member_ids.length || !validPoints))}
                     onClick={() => submit('approve')}
@@ -239,16 +238,16 @@ function AccountLink({ account, members }: { account: Account; members: Member[]
                 form.transform((data) => ({ member_id: data.member_id ? Number(data.member_id) : null }));
                 form.patch(route('goals.link-account', account.id), { preserveScroll: true });
             }}
-            className="grid gap-2 rounded-xl border p-3"
+            className="d-grid gap-2 rounded-3 border p-3"
         >
-            <div className="min-w-0">
-                <p className="font-medium">{account.name}</p>
-                <p className="text-muted-foreground text-xs break-all">{account.email}</p>
+            <div className="mn-min-w-0">
+                <p className="fw-medium">{account.name}</p>
+                <p className="text-body-secondary small text-break">{account.email}</p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="d-flex flex-wrap gap-2">
                 <NativeSelect
                     aria-label={`Membre pour ${account.name}`}
-                    className="min-w-0 flex-1"
+                    className="mn-min-w-0 flex-fill"
                     value={form.data.member_id}
                     onChange={(e) => form.setData('member_id', e.target.value)}
                 >
@@ -264,7 +263,7 @@ function AccountLink({ account, members }: { account: Account; members: Member[]
                 </Button>
             </div>
             {form.errors.member_id && (
-                <p role="alert" className="text-destructive text-sm">
+                <p role="alert" className="text-danger small">
                     {form.errors.member_id}
                 </p>
             )}
@@ -296,20 +295,20 @@ export default function Goals(props: Props) {
     const alreadyRequested = target && ongoing.some((request) => request.reward_id === target.id);
     const parentCount = props.pendingCount + requests.filter((request) => request.status === 'pending').length;
     const requestList = (items: Claim[], parent: boolean) => (
-        <div className="grid gap-3">
+        <div className="d-grid gap-3">
             {items.map((request) => (
-                <article key={request.id} className="bg-card flex flex-wrap items-center gap-3 rounded-2xl border p-4">
-                    <span className="text-2xl" aria-hidden>
+                <article key={request.id} className="bg-body d-flex flex-wrap align-items-center gap-3 rounded-4 border p-3">
+                    <span className="fs-3" aria-hidden>
                         {request.icon}
                     </span>
-                    <div className="min-w-0 flex-1">
-                        <h3 className="font-medium">{request.title}</h3>
-                        <p className="text-muted-foreground text-xs">
+                    <div className="mn-min-w-0 flex-fill">
+                        <h3 className="fw-medium">{request.title}</h3>
+                        <p className="text-body-secondary small">
                             {parent && `${request.member.name} · `}
                             {request.star_cost} ★ · {requestStatus[request.status] ?? request.status}
                         </p>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="d-flex flex-wrap gap-2">
                         {parent && request.status === 'pending' && (
                             <Button disabled={busy} onClick={() => act(route('goals.review-request', request.id), { action: 'approve' })}>
                                 Accepter
@@ -347,20 +346,20 @@ export default function Goals(props: Props) {
     return (
         <AppLayout breadcrumbs={[{ title: 'Mon aventure', href: '/goals' }]}>
             <Head title="Mon aventure" />
-            <div className="mx-auto grid w-full max-w-6xl min-w-0 gap-5 p-4 pb-8 sm:gap-6 sm:p-6">
-                <header className="flex flex-wrap items-center justify-between gap-4">
+            <div className="mx-auto d-grid w-100 mn-content-6xl mn-min-w-0 gap-4 p-3 pb-5 gap-sm-4 p-sm-4">
+                <header className="d-flex flex-wrap align-items-center justify-content-between gap-3">
                     <div>
-                        <p className="text-muted-foreground text-xs font-medium">
+                        <p className="text-body-secondary small fw-medium">
                             Ascension n° {selected?.ascent_number ?? 1} · {selected?.summits ?? 0} sommet(s) atteint(s)
                         </p>
-                        <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+                        <h1 className="mt-1 fs-3 fw-bold mn-sm-heading-3xl">
                             À toi le sommet ! <span aria-hidden>🏔️</span>
                         </h1>
                     </div>
                     {canManage && (
-                        <div className="bg-muted flex rounded-full p-1" aria-label="Vue des objectifs">
+                        <div className="bg-body-tertiary d-flex rounded-pill p-1" aria-label="Vue des objectifs">
                             <Button
-                                className="rounded-full"
+                                className="rounded-pill"
                                 variant={view === 'adventure' ? 'default' : 'ghost'}
                                 aria-pressed={view === 'adventure'}
                                 onClick={() => setView('adventure')}
@@ -368,15 +367,15 @@ export default function Goals(props: Props) {
                                 L’aventure
                             </Button>
                             <Button
-                                className="rounded-full"
+                                className="rounded-pill"
                                 variant={view === 'parents' ? 'default' : 'ghost'}
                                 aria-pressed={view === 'parents'}
                                 onClick={() => setView('parents')}
                             >
-                                <ShieldCheck className="size-4" />
+                                <ShieldCheck className="mn-icon-4" />
                                 Coin parents
                                 {parentCount > 0 && (
-                                    <span className="flex size-5 items-center justify-center rounded-full bg-amber-200 text-xs text-amber-950">
+                                    <span className="d-flex mn-icon-5 align-items-center justify-content-center rounded-pill bg-warning-subtle small text-warning-emphasis">
                                         {parentCount}
                                     </span>
                                 )}
@@ -385,17 +384,17 @@ export default function Goals(props: Props) {
                     )}
                 </header>
                 {flash?.success && (
-                    <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100">
+                    <p role="status" className="rounded-3 bg-success-subtle p-3 small text-success-emphasis">
                         {flash.success}
                     </p>
                 )}
                 {error && (
-                    <p role="alert" className="text-destructive rounded-xl border p-3">
+                    <p role="alert" className="text-danger rounded-3 border p-3">
                         {error}
                     </p>
                 )}
                 {canManage && (
-                    <nav aria-label="Choisir un membre" className="flex flex-wrap gap-2">
+                    <nav aria-label="Choisir un membre" className="d-flex flex-wrap gap-2">
                         {members.map((member) => (
                             <Link
                                 key={member.id}
@@ -403,10 +402,10 @@ export default function Goals(props: Props) {
                                 preserveState
                                 preserveScroll
                                 aria-current={selected?.id === member.id ? 'true' : undefined}
-                                className={`flex items-center gap-2 rounded-full border py-1.5 pr-4 pl-1.5 text-sm transition-colors ${selected?.id === member.id ? 'border-emerald-500 bg-emerald-50 font-semibold text-emerald-950 dark:bg-emerald-950 dark:text-emerald-100' : 'bg-card hover:bg-muted'}`}
+                                className={`d-flex align-items-center gap-2 rounded-pill border py-2 pe-3 ps-2 small ${selected?.id === member.id ? 'border-success bg-success-subtle fw-semibold text-success-emphasis' : 'bg-body'}`}
                             >
                                 <span
-                                    className="flex size-8 items-center justify-center rounded-full text-sm font-bold text-white"
+                                    className="d-flex mn-icon-8 align-items-center justify-content-center rounded-pill small fw-bold text-white"
                                     style={{ backgroundColor: member.color }}
                                 >
                                     {member.name.charAt(0)}
@@ -420,19 +419,19 @@ export default function Goals(props: Props) {
                     <>
                         {!selected && (
                             <section className={`${panel} text-center`}>
-                                <span className="text-6xl" aria-hidden>
+                                <span className="display-4" aria-hidden>
                                     🎒
                                 </span>
-                                <h2 className="mt-4 text-xl font-bold">Ton aventure va bientôt commencer</h2>
-                                <p className="text-muted-foreground mt-2 text-sm">
+                                <h2 className="mt-3 fs-4 fw-bold">Ton aventure va bientôt commencer</h2>
+                                <p className="text-body-secondary mt-2 small">
                                     Demande à un parent de relier ton compte à ton prénom dans le Coin parents.
                                 </p>
                             </section>
                         )}
                         {selected && (
                             <>
-                                <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,1fr)]">
-                                    <div className="grid gap-3">
+                                <div className="d-grid align-items-start gap-4 mn-lg-columns-minmax-0-1-55fr-minmax-280px-1fr">
+                                    <div className="d-grid gap-3">
                                         <GoalMountain
                                             key={selected.id}
                                             name={selected.name}
@@ -442,70 +441,70 @@ export default function Goals(props: Props) {
                                             stars={selected.reward_stars}
                                             pending={selected.pending_points}
                                         />
-                                        <Button asChild className="h-12 rounded-2xl text-base">
+                                        <Button asChild className="mn-h-12 rounded-4 fs-6">
                                             <Link href={route('tasks.index', { member: selected.id })}>
-                                                <Footprints className="size-5" />
+                                                <Footprints className="mn-icon-5" />
                                                 Choisir ma prochaine mission
-                                                <ArrowRight className="size-4" />
+                                                <ArrowRight className="mn-icon-4" />
                                             </Link>
                                         </Button>
-                                        <p className="text-muted-foreground text-center text-xs">
+                                        <p className="text-body-secondary text-center small">
                                             Chaque sommet donne ses étoiles, puis la montagne repart à zéro, sans report du dépassement. Aucun retour
                                             à zéro le lundi.
                                         </p>
                                     </div>
-                                    <section className="family-card grid gap-5 rounded-[2rem] border-2 border-amber-400 bg-amber-100/80 p-5 sm:p-6 dark:border-amber-900 dark:bg-amber-950/20">
-                                        <div className="flex items-center justify-between gap-3">
-                                            <h2 className="flex items-center gap-2 font-bold">
-                                                <Backpack className="size-5 text-amber-600" />
+                                    <section className="family-card d-grid gap-4 mn-round-2rem border-2 border-warning bg-warning-subtle p-4 p-sm-4">
+                                        <div className="d-flex align-items-center justify-content-between gap-3">
+                                            <h2 className="d-flex align-items-center gap-2 fw-bold">
+                                                <Backpack className="mn-icon-5 text-warning" />
                                                 Mon sac à étoiles
                                             </h2>
-                                            <span className="rounded-full bg-amber-100 px-3 py-1 text-lg font-bold text-amber-900">
+                                            <span className="rounded-pill bg-warning-subtle px-3 py-1 fs-5 fw-bold text-warning-emphasis">
                                                 {selected.star_balance} ★
                                             </span>
                                         </div>
                                         {selected.star_balance < 0 && (
-                                            <p className="text-sm text-amber-900 dark:text-amber-200">
+                                            <p className="small text-warning-emphasis">
                                                 Une mission annulée a retiré des étoiles déjà utilisées. Les prochaines rempliront d’abord ton sac.
                                             </p>
                                         )}
-                                        <div className="bg-card rounded-2xl border border-amber-100 p-5 text-center dark:border-amber-900">
+                                        <div className="bg-body rounded-4 border border-warning-subtle p-4 text-center">
                                             <span
-                                                className="mx-auto flex size-20 -rotate-6 items-center justify-center rounded-3xl border-2 border-amber-200 bg-amber-50 text-5xl shadow-[3px_4px_0_#f5e6bb] dark:border-amber-800 dark:bg-amber-950 dark:shadow-none"
+                                                className="mx-auto d-flex mn-icon-20 align-items-center justify-content-center rounded-5 border-2 border-warning-subtle bg-warning-subtle display-5 shadow-sm"
                                                 aria-hidden
                                             >
                                                 {target?.icon ?? '🎁'}
                                             </span>
-                                            <p className="text-muted-foreground mt-4 text-xs font-semibold tracking-widest uppercase">
+                                            <p className="text-body-secondary mt-3 small fw-semibold eyebrow-spacing text-uppercase">
                                                 {target ? 'Mon trésor à décrocher' : 'Quel sera ton trésor ?'}
                                             </p>
-                                            <h3 className="mt-2 text-xl font-bold">{target?.title ?? 'Une envie, une aventure'}</h3>
+                                            <h3 className="mt-2 fs-4 fw-bold">{target?.title ?? 'Une envie, une aventure'}</h3>
                                             {target ? (
                                                 <>
                                                     <div
-                                                        className="mt-4 flex flex-wrap justify-center gap-2"
+                                                        className="mt-3 d-flex flex-wrap justify-content-center gap-2"
                                                         aria-label={`${Math.max(0, selected.star_balance)} étoiles disponibles sur ${target.star_cost} nécessaires`}
                                                     >
                                                         {Array.from({ length: Math.min(8, target.star_cost) }, (_, index) => (
                                                             <Star
                                                                 key={index}
-                                                                className={`size-6 ${selected.star_balance >= ((index + 1) * target.star_cost) / Math.min(8, target.star_cost) ? 'fill-amber-400 text-amber-400' : 'text-stone-200 dark:text-stone-600'}`}
+                                                                className={`mn-icon-6 ${selected.star_balance >= ((index + 1) * target.star_cost) / Math.min(8, target.star_cost) ? 'mn-fill-warning text-warning' : 'text-secondary'}`}
                                                                 aria-hidden
                                                             />
                                                         ))}
                                                     </div>
-                                                    <p className="mt-3 text-sm">
+                                                    <p className="mt-3 small">
                                                         {alreadyRequested
                                                             ? 'Ton trésor est demandé !'
                                                             : selected.star_balance >= target.star_cost
                                                               ? 'Ton sac est assez rempli !'
                                                               : `Encore ${Math.max(0, target.star_cost - selected.star_balance)} étoile(s) pour ce trésor.`}
                                                     </p>
-                                                    <p className="text-muted-foreground mt-1 text-xs">
+                                                    <p className="text-body-secondary mt-1 small">
                                                         {target.star_cost} ★{target.audience === 'family' ? ' · À partager en famille' : ''}
                                                     </p>
                                                     <Button
-                                                        className="mt-4 w-full rounded-xl"
+                                                        className="mt-3 w-100 rounded-3"
                                                         disabled={busy || !!alreadyRequested || selected.star_balance < target.star_cost}
                                                         onClick={() =>
                                                             act(route('goals.request-reward'), { member_id: selected.id, reward_id: target.id })
@@ -515,68 +514,68 @@ export default function Goals(props: Props) {
                                                     </Button>
                                                 </>
                                             ) : (
-                                                <p className="text-muted-foreground mt-3 text-sm">
+                                                <p className="text-body-secondary mt-3 small">
                                                     Choisis ce qui te ferait plaisir. Chaque sommet t’en rapproche.
                                                 </p>
                                             )}
                                             <Button
-                                                className="mt-3 rounded-xl"
+                                                className="mt-3 rounded-3"
                                                 variant={target ? 'ghost' : 'default'}
                                                 onClick={() => setChoosing(true)}
                                             >
                                                 {target ? 'Changer d’envie' : 'Choisir mon trésor'}
                                             </Button>
                                         </div>
-                                        <p className="text-muted-foreground text-center text-xs">
+                                        <p className="text-body-secondary text-center small">
                                             Les parents valident tes missions et tes demandes de trésors.
                                         </p>
                                     </section>
                                 </div>
                                 {ongoing.length > 0 && (
-                                    <section className="grid gap-3">
-                                        <h2 className="flex items-center gap-2 font-bold">
-                                            <Gift className="size-5 text-amber-500" />
+                                    <section className="d-grid gap-3">
+                                        <h2 className="d-flex align-items-center gap-2 fw-bold">
+                                            <Gift className="mn-icon-5 text-warning" />
                                             Mes trésors en préparation
                                         </h2>
                                         {requestList(ongoing, false)}
-                                        <p className="text-muted-foreground text-xs">
+                                        <p className="text-body-secondary small">
                                             Tes étoiles sont réservées. Elles reviennent dans ton sac si la demande est refusée ou annulée.
                                         </p>
                                     </section>
                                 )}
-                                <details className="bg-card rounded-2xl border p-4">
-                                    <summary className="cursor-pointer text-sm font-medium">
+                                <details className="bg-body rounded-4 border p-3">
+                                    <summary className="cursor-pointer small fw-medium">
                                         Mon carnet d’aventures · {pointsLabel(selected.total_points)} points depuis le début
                                     </summary>
-                                    <div className="mt-4 grid gap-5 sm:grid-cols-2">
+                                    <div className="mt-3 d-grid gap-4 mn-sm-columns-2">
                                         <section>
-                                            <h2 className="text-sm font-semibold">Mes derniers coups de main</h2>
-                                            <ul className="mt-2 divide-y">
+                                            <h2 className="small fw-semibold">Mes derniers coups de main</h2>
+                                            <ul className="mt-2 divided-list">
                                                 {props.pointHistory.map((entry) => (
                                                     <li
                                                         key={entry.id}
-                                                        className={`flex justify-between gap-3 py-2 text-sm ${entry.is_void ? 'text-muted-foreground line-through' : ''}`}
+                                                        className={`d-flex justify-content-between gap-3 py-2 small ${entry.is_void ? 'text-body-secondary text-decoration-line-through' : ''}`}
                                                     >
                                                         <span>
                                                             {entry.task_title}
-                                                            <span className="text-muted-foreground block text-xs">
+                                                            <span className="text-body-secondary d-block small">
                                                                 {date(entry.completed_on)}
                                                                 {entry.is_void ? ' · Annulé' : ''}
                                                             </span>
                                                         </span>
-                                                        <span className="shrink-0">+{pointsLabel(entry.points)} pts</span>
+                                                        <span className="flex-shrink-0">+{pointsLabel(entry.points)} pts</span>
                                                     </li>
                                                 ))}
                                             </ul>
                                             {!props.pointHistory.length && (
-                                                <p className="text-muted-foreground mt-2 text-sm">Ton premier coup de main t’attend !</p>
+                                                <p className="text-body-secondary mt-2 small">Ton premier coup de main t’attend !</p>
                                             )}
                                         </section>
                                         <section>
-                                            <h2 className="text-sm font-semibold">Mes étoiles</h2>
-                                            <ul className="mt-2 divide-y">
+                                            <h2 className="small fw-semibold">Mes étoiles</h2>
+                                            <ul className="mt-2 divided-list">
                                                 {props.starHistory.map((entry) => (
-                                                    <li key={entry.id} className="flex justify-between gap-3 py-2 text-sm">
+                                                    <li key={entry.id} className="d-flex justify-content-between gap-3 py-2 small">
                                                         <span>
                                                             {entry.type === 'goal' || entry.type === 'mountain'
                                                                 ? entry.mountain_goal
@@ -584,7 +583,7 @@ export default function Goals(props: Props) {
                                                                     : `Ancien objectif du ${date(entry.weekly_goal?.week_start ?? '')}`
                                                                 : `${entry.type === 'refund' ? 'Étoiles rendues' : 'Trésor demandé'} : ${entry.reward_request?.title ?? 'Récompense'}`}
                                                         </span>
-                                                        <span className="shrink-0">
+                                                        <span className="flex-shrink-0">
                                                             {entry.amount > 0 ? '+' : ''}
                                                             {entry.amount} ★
                                                         </span>
@@ -594,7 +593,7 @@ export default function Goals(props: Props) {
                                         </section>
                                     </div>
                                     {ownRequests.filter((request) => !['pending', 'approved'].includes(request.status)).length > 0 && (
-                                        <div className="mt-4">
+                                        <div className="mt-3">
                                             {requestList(
                                                 ownRequests.filter((request) => !['pending', 'approved'].includes(request.status)),
                                                 false,
@@ -607,44 +606,44 @@ export default function Goals(props: Props) {
                     </>
                 )}
                 {canManage && view === 'parents' && (
-                    <div className="grid gap-5">
+                    <div className="d-grid gap-4">
                         <section className={panel}>
-                            <h2 className="flex items-center gap-2 text-lg font-bold">
-                                <ShieldCheck className="size-5" />
-                                Les missions à valider <span className="text-muted-foreground">({props.pendingCount})</span>
+                            <h2 className="d-flex align-items-center gap-2 fs-5 fw-bold">
+                                <ShieldCheck className="mn-icon-5" />
+                                Les missions à valider <span className="text-body-secondary">({props.pendingCount})</span>
                             </h2>
-                            <p className="text-muted-foreground mt-2 text-sm">
+                            <p className="text-body-secondary mt-2 small">
                                 Vérifie qui a participé : les points sont partagés entre les participants.
                             </p>
-                            <div className="mt-4 grid gap-3 md:grid-cols-2">
+                            <div className="mt-3 d-grid gap-3 mn-md-columns-2">
                                 {props.pendingCompletions.map((completion) => (
                                     <Review key={completion.id} completion={completion} members={members} />
                                 ))}
                             </div>
-                            {!props.pendingCount && <p className="mt-4 text-sm">Tout est à jour, les aventuriers peuvent continuer !</p>}
-                            {props.pendingCount > 100 && <p className="mt-3 text-sm">Les 100 plus anciennes missions sont affichées en premier.</p>}
+                            {!props.pendingCount && <p className="mt-3 small">Tout est à jour, les aventuriers peuvent continuer !</p>}
+                            {props.pendingCount > 100 && <p className="mt-3 small">Les 100 plus anciennes missions sont affichées en premier.</p>}
                         </section>
                         <section className={panel}>
-                            <h2 className="mb-4 text-lg font-bold">Les trésors demandés</h2>
+                            <h2 className="mb-3 fs-5 fw-bold">Les trésors demandés</h2>
                             {requestList(requests, true)}
-                            {!requests.length && <p className="text-muted-foreground text-sm">Aucune demande pour le moment.</p>}
-                            <Button asChild variant="outline" className="mt-4">
+                            {!requests.length && <p className="text-body-secondary small">Aucune demande pour le moment.</p>}
+                            <Button asChild variant="outline" className="mt-3">
                                 <Link href={route('rewards.index')}>
-                                    <Gift className="size-4" />
+                                    <Gift className="mn-icon-4" />
                                     Gérer le catalogue de récompenses
                                 </Link>
                             </Button>
                         </section>
-                        <div className="grid items-start gap-5 lg:grid-cols-2">
+                        <div className="d-grid align-items-start gap-4 mn-lg-columns-2">
                             {selected && (
                                 <details className={panel}>
-                                    <summary className="cursor-pointer font-semibold">Régler la montagne de {selected.name}</summary>
+                                    <summary className="cursor-pointer fw-semibold">Régler la montagne de {selected.name}</summary>
                                     <Settings key={selected.id} member={selected} />
                                 </details>
                             )}
                             <details className={panel}>
-                                <summary className="cursor-pointer font-semibold">La progression de la famille</summary>
-                                <p className="text-muted-foreground mt-3 mb-3 text-sm">
+                                <summary className="cursor-pointer fw-semibold">La progression de la famille</summary>
+                                <p className="text-body-secondary mt-3 mb-3 small">
                                     {pointsLabel(props.familyProgress.points)} / {props.familyProgress.target} points sur les montagnes en cours.
                                     Chacun à son rythme.
                                 </p>
@@ -655,11 +654,9 @@ export default function Goals(props: Props) {
                             </details>
                         </div>
                         <details className={panel}>
-                            <summary className="cursor-pointer font-semibold">Relier les comptes aux prénoms</summary>
-                            <p className="text-muted-foreground mt-3 text-sm">
-                                Relie chaque compte à un membre pour lui donner accès à son aventure.
-                            </p>
-                            <div className="mt-4 grid gap-3 md:grid-cols-2">
+                            <summary className="cursor-pointer fw-semibold">Relier les comptes aux prénoms</summary>
+                            <p className="text-body-secondary mt-3 small">Relie chaque compte à un membre pour lui donner accès à son aventure.</p>
+                            <div className="mt-3 d-grid gap-3 mn-md-columns-2">
                                 {props.accounts.map((account) => (
                                     <AccountLink key={`${account.id}-${account.member_id}`} account={account} members={members} />
                                 ))}
@@ -668,12 +665,12 @@ export default function Goals(props: Props) {
                     </div>
                 )}
                 <Dialog open={choosing && !!selected} onOpenChange={setChoosing}>
-                    <DialogContent className="max-h-[85svh] overflow-y-auto sm:max-w-2xl">
+                    <DialogContent className="mn-max-h-85svh overflow-y-auto mn-sm-content-2xl">
                         <DialogHeader>
                             <DialogTitle>Choisis ton prochain trésor</DialogTitle>
                             <DialogDescription>Une envie qui donne envie de grimper !</DialogDescription>
                         </DialogHeader>
-                        <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="d-grid gap-3 mn-sm-columns-2">
                             {rewards.map((reward) => (
                                 <button
                                     key={reward.id}
@@ -682,14 +679,14 @@ export default function Goals(props: Props) {
                                         if (selected)
                                             act(route('goals.target'), { member_id: selected.id, reward_id: reward.id }, () => setChoosing(false));
                                     }}
-                                    className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-colors hover:border-amber-400 hover:bg-amber-50 disabled:opacity-50 dark:hover:bg-amber-950 ${target?.id === reward.id ? 'border-amber-400 bg-amber-50 dark:bg-amber-950' : ''}`}
+                                    className={`d-flex align-items-center gap-3 rounded-4 border p-3 text-start ${target?.id === reward.id ? 'border-warning bg-warning-subtle' : ''}`}
                                 >
-                                    <span className="text-3xl" aria-hidden>
+                                    <span className="fs-2" aria-hidden>
                                         {reward.icon}
                                     </span>
-                                    <span className="min-w-0">
-                                        <span className="block font-semibold">{reward.title}</span>
-                                        <span className="text-muted-foreground mt-1 block text-xs">
+                                    <span className="mn-min-w-0">
+                                        <span className="d-block fw-semibold">{reward.title}</span>
+                                        <span className="text-body-secondary mt-1 d-block small">
                                             {reward.star_cost} ★{reward.audience === 'family' ? ' · En famille' : ''}
                                         </span>
                                     </span>
@@ -697,17 +694,17 @@ export default function Goals(props: Props) {
                             ))}
                         </div>
                         {!rewards.length && (
-                            <p className="text-muted-foreground py-5 text-center text-sm">
+                            <p className="text-body-secondary py-4 text-center small">
                                 Les parents préparent les trésors. Reviens bientôt !
                                 {canManage && (
-                                    <Link href={route('rewards.index')} className="mt-3 block underline">
+                                    <Link href={route('rewards.index')} className="mt-3 d-block text-decoration-underline">
                                         Activer des récompenses
                                     </Link>
                                 )}
                             </p>
                         )}
                         {error && (
-                            <p role="alert" className="text-destructive text-sm">
+                            <p role="alert" className="text-danger small">
                                 {error}
                             </p>
                         )}

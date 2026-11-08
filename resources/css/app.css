@@ -1,208 +1,312 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import '@fontsource/nunito/400.css';
+@import '@fontsource/nunito/600.css';
+@import '@fontsource/nunito/800.css';
+@import './maisonet-layout.css';
 
 :root {
     --background: hsl(177, 45%, 96%);
-    --background-rgb: 240, 249, 249;
     --foreground: hsl(195, 48%, 23%);
-    --foreground-rgb: 30, 73, 87;
     --card: hsl(0, 0%, 100%);
-    --card-rgb: 255, 255, 255;
     --card-foreground: hsl(174, 28%, 22%);
-    --card-foreground-rgb: 40, 72, 69;
     --popover: hsl(0, 0%, 100%);
-    --popover-rgb: 255, 255, 255;
     --popover-foreground: hsl(174, 28%, 22%);
-    --popover-foreground-rgb: 40, 72, 69;
     --primary: hsl(182, 57%, 57%);
-    --primary-rgb: 83, 204, 208;
     --primary-foreground: hsl(195, 65%, 16%);
-    --primary-foreground-rgb: 14, 54, 67;
     --secondary: hsl(44, 100%, 72%);
-    --secondary-rgb: 255, 217, 112;
     --secondary-foreground: hsl(28, 60%, 20%);
-    --secondary-foreground-rgb: 82, 49, 20;
     --muted: hsl(40, 28%, 93%);
-    --muted-rgb: 242, 239, 232;
     --muted-foreground: hsl(173, 12%, 41%);
-    --muted-foreground-rgb: 92, 117, 114;
     --accent: hsl(179, 57%, 87%);
-    --accent-rgb: 203, 241, 240;
     --accent-foreground: hsl(195, 65%, 19%);
-    --accent-foreground-rgb: 17, 64, 80;
     --destructive: hsl(9, 89%, 74%);
-    --destructive-rgb: 248, 147, 130;
     --destructive-foreground: hsl(5, 60%, 20%);
-    --destructive-foreground-rgb: 82, 25, 20;
     --border: hsl(36, 24%, 86%);
-    --border-rgb: 228, 221, 211;
     --input: hsl(36, 24%, 81%);
-    --input-rgb: 218, 209, 195;
     --ring: hsl(188, 68%, 33%);
-    --ring-rgb: 27, 126, 141;
     --button-edge: hsl(195, 48%, 23%);
-    --button-edge-rgb: 30, 73, 87;
     --cartoon-ink: hsl(195, 48%, 23%);
-    --cartoon-ink-rgb: 30, 73, 87;
     --cartoon-shadow: hsl(185, 27%, 76%);
-    --cartoon-shadow-rgb: 177, 208, 210;
     --chart-1: hsl(12, 76%, 61%);
-    --chart-1-rgb: 231, 110, 80;
     --chart-2: hsl(173, 58%, 39%);
-    --chart-2-rgb: 42, 157, 144;
     --chart-3: hsl(197, 37%, 24%);
-    --chart-3-rgb: 39, 71, 84;
     --chart-4: hsl(43, 74%, 66%);
-    --chart-4-rgb: 232, 196, 104;
     --chart-5: hsl(27, 87%, 67%);
-    --chart-5-rgb: 244, 164, 98;
     --radius: 1.125rem;
     --sidebar-background: hsl(178, 51%, 91%);
-    --sidebar-background-rgb: 220, 244, 243;
     --sidebar-foreground: hsl(174, 28%, 25%);
-    --sidebar-foreground-rgb: 46, 82, 78;
     --sidebar-primary: hsl(165, 44%, 30%);
-    --sidebar-primary-rgb: 43, 110, 93;
     --sidebar-primary-foreground: hsl(40, 70%, 98%);
-    --sidebar-primary-foreground-rgb: 253, 251, 246;
     --sidebar-accent: hsl(180, 55%, 73%);
-    --sidebar-accent-rgb: 148, 224, 224;
     --sidebar-accent-foreground: hsl(165, 45%, 23%);
-    --sidebar-accent-foreground-rgb: 32, 85, 72;
     --sidebar-border: hsl(36, 24%, 86%);
-    --sidebar-border-rgb: 228, 221, 211;
     --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
-    --sidebar-ring-rgb: 59, 130, 246;
 }
 
-.dark {
+[data-bs-theme='dark'] {
     --background: hsl(171, 23%, 10%);
-    --background-rgb: 20, 31, 30;
     --foreground: hsl(40, 30%, 93%);
-    --foreground-rgb: 243, 239, 232;
     --card: hsl(171, 19%, 14%);
-    --card-rgb: 29, 42, 40;
     --card-foreground: hsl(0, 0%, 98%);
-    --card-foreground-rgb: 250, 250, 250;
     --popover: hsl(171, 19%, 14%);
-    --popover-rgb: 29, 42, 40;
     --popover-foreground: hsl(0, 0%, 98%);
-    --popover-foreground-rgb: 250, 250, 250;
     --primary: hsl(182, 57%, 65%);
-    --primary-rgb: 115, 213, 217;
     --primary-foreground: hsl(171, 35%, 15%);
-    --primary-foreground-rgb: 25, 52, 48;
     --secondary: hsl(44, 85%, 68%);
-    --secondary-rgb: 243, 206, 104;
     --secondary-foreground: hsl(28, 60%, 20%);
-    --secondary-foreground-rgb: 82, 49, 20;
     --muted: hsl(171, 17%, 19%);
-    --muted-rgb: 40, 57, 54;
     --muted-foreground: hsl(160, 13%, 69%);
-    --muted-foreground-rgb: 166, 186, 179;
     --accent: hsl(165, 22%, 23%);
-    --accent-rgb: 46, 72, 65;
     --accent-foreground: hsl(0, 0%, 98%);
-    --accent-foreground-rgb: 250, 250, 250;
     --destructive: hsl(9, 89%, 74%);
-    --destructive-rgb: 248, 147, 130;
     --destructive-foreground: hsl(5, 60%, 20%);
-    --destructive-foreground-rgb: 82, 25, 20;
     --border: hsl(167, 16%, 27%);
-    --border-rgb: 58, 80, 75;
     --input: hsl(167, 16%, 34%);
-    --input-rgb: 73, 101, 95;
     --button-edge: hsl(175, 30%, 7%);
-    --button-edge-rgb: 12, 23, 22;
     --cartoon-ink: hsl(169, 43%, 72%);
-    --cartoon-ink-rgb: 153, 214, 203;
     --cartoon-shadow: hsl(175, 30%, 7%);
-    --cartoon-shadow-rgb: 12, 23, 22;
     --ring: hsl(0, 0%, 83.1%);
-    --ring-rgb: 212, 212, 212;
     --chart-1: hsl(220, 70%, 50%);
-    --chart-1-rgb: 38, 98, 217;
     --chart-2: hsl(160, 60%, 45%);
-    --chart-2-rgb: 46, 184, 138;
     --chart-3: hsl(30, 80%, 55%);
-    --chart-3-rgb: 232, 140, 48;
     --chart-4: hsl(280, 65%, 60%);
-    --chart-4-rgb: 175, 87, 219;
     --chart-5: hsl(340, 75%, 55%);
-    --chart-5-rgb: 226, 54, 112;
     --sidebar-background: hsl(171, 24%, 12%);
-    --sidebar-background-rgb: 23, 38, 36;
     --sidebar-foreground: hsl(0, 0%, 80%);
-    --sidebar-foreground-rgb: 204, 204, 204;
     --sidebar-primary: hsl(360, 100%, 100%);
-    --sidebar-primary-rgb: 255, 255, 255;
     --sidebar-primary-foreground: hsl(0, 0%, 100%);
-    --sidebar-primary-foreground-rgb: 255, 255, 255;
     --sidebar-accent: hsl(165, 22%, 23%);
-    --sidebar-accent-rgb: 46, 72, 65;
     --sidebar-accent-foreground: hsl(240, 4.8%, 95.9%);
-    --sidebar-accent-foreground-rgb: 244, 244, 245;
     --sidebar-border: hsl(167, 16%, 27%);
-    --sidebar-border-rgb: 58, 80, 75;
     --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
-    --sidebar-ring-rgb: 59, 130, 246;
 }
 
-@layer base {
-    * {
-        --compat-gap: 0px;
-        @apply border-border;
-    }
-
-    body {
-        @apply bg-background text-foreground;
-    }
-
-    h1,
-    h2,
-    h3 {
-        font-weight: 800;
-        letter-spacing: -0.025em;
-        text-wrap: balance;
-    }
-
-    summary {
-        list-style-position: inside;
+:root {
+    --bs-body-font-family: 'Nunito', system-ui, sans-serif;
+    --bs-body-bg: #edf8f7;
+    --bs-body-color: #224b59;
+    --bs-primary: #167b82;
+    --bs-primary-rgb: 22, 123, 130;
+    --bs-link-color: #167b82;
+    --bs-link-color-rgb: 22, 123, 130;
+    --bs-border-color: #c4dcd9;
+}
+[data-bs-theme='dark'] {
+    --bs-body-bg: #152723;
+    --bs-body-color: #f2f3ed;
+    --bs-primary: #70d6d8;
+    --bs-primary-rgb: 112, 214, 216;
+    --bs-link-color: #70d6d8;
+    --bs-link-color-rgb: 112, 214, 216;
+}
+body {
+    margin: 0;
+}
+h1,
+h2,
+h3 {
+    font-weight: 800;
+    letter-spacing: -0.025em;
+}
+p {
+    margin-bottom: 0.5rem;
+}
+svg.lucide {
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+.btn svg {
+    width: 1.1em;
+    height: 1.1em;
+}
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 800;
+    border-radius: 0.8rem;
+}
+.btn-primary {
+    --bs-btn-bg: #43bfc4;
+    --bs-btn-color: #163e4d;
+    --bs-btn-border-color: #224b59;
+    --bs-btn-hover-bg: #65cfd3;
+    --bs-btn-hover-color: #163e4d;
+    --bs-btn-hover-border-color: #224b59;
+    --bs-btn-active-bg: #2ba6ac;
+    --bs-btn-disabled-bg: #43bfc4;
+    --bs-btn-disabled-border-color: #224b59;
+    border-width: 2px;
+    box-shadow: 2px 3px 0 var(--button-edge);
+}
+.btn-outline-primary {
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-border-color: #459ba0;
+    --bs-btn-hover-bg: #43bfc4;
+    --bs-btn-hover-border-color: #224b59;
+    --bs-btn-hover-color: #163e4d;
+}
+.btn-secondary {
+    --bs-btn-bg: #ffe08a;
+    --bs-btn-color: #60491c;
+    --bs-btn-border-color: #b49a54;
+    --bs-btn-hover-bg: #f4cc65;
+    --bs-btn-hover-color: #60491c;
+}
+.btn-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem;
+}
+.btn:active {
+    box-shadow: none;
+}
+.btn:disabled {
+    pointer-events: auto;
+}
+.card {
+    border-radius: 1.25rem;
+    --bs-card-bg: var(--card);
+}
+.card-header {
+    padding: 1.25rem 1.25rem 0.5rem;
+}
+.family-card {
+    box-shadow: 3px 5px 0 var(--cartoon-shadow);
+}
+.family-canvas {
+    background-image: radial-gradient(var(--border) 0.65px, transparent 0.65px);
+    background-size: 20px 20px;
+}
+.brand-hero {
+    background: linear-gradient(135deg, #c9f4df, #c7eff2);
+}
+[data-bs-theme='dark'] .brand-hero {
+    background: linear-gradient(135deg, #174737, #14364a);
+}
+.app-shell {
+    min-height: 100vh;
+}
+.app-sidebar {
+    width: 250px;
+    position: fixed;
+    inset: 0 auto 0 0;
+    overflow-y: auto;
+    background: var(--bs-tertiary-bg);
+    border-right: 1px solid var(--bs-border-color);
+}
+.app-sidebar .nav-link {
+    color: var(--bs-body-color);
+}
+.nav-pills .nav-link.active {
+    background: #167b82;
+    color: white;
+}
+.app-main {
+    min-width: 0;
+}
+.app-toolbar {
+    background: var(--bs-body-bg);
+    min-height: 70px;
+}
+@media (min-width: 992px) {
+    .app-main {
+        margin-left: 250px;
     }
 }
-
-@layer components {
-    .family-canvas {
-        background-image: radial-gradient(var(--border) 0.65px, transparent 0.65px);
-        background-size: 20px 20px;
-    }
-
-    .family-card {
-        box-shadow: 3px 5px 0 var(--cartoon-shadow);
-    }
-
-    .room-card:hover {
-        transform: translateY(-3px) rotate(-0.4deg);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .room-card:hover {
-            transform: none;
-        }
+.auth-card {
+    max-width: 480px;
+}
+.form-label {
+    font-weight: 600;
+}
+.form-control,
+.form-select {
+    min-height: 44px;
+    border-radius: 0.75rem;
+}
+.form-check-input {
+    width: 1.35em;
+    height: 1.35em;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.form-check-input:checked {
+    background-color: #167b82;
+    border-color: #167b82;
+}
+.task-check {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 2px solid var(--cartoon-ink);
+    border-radius: 0.7rem;
+    box-shadow: 2px 3px 0 var(--cartoon-shadow);
+}
+.task-check-sm {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.5rem;
+    box-shadow: 1px 2px 0 var(--cartoon-shadow);
+}
+.family-modal {
+    border-radius: 1.5rem;
+    border: 2px solid var(--bs-border-color);
+}
+.modal-body {
+    padding: 1.25rem;
+}
+.modal-footer {
+    gap: 0.5rem;
+}
+.modal-content {
+    max-height: calc(100vh - 2rem);
+}
+.badge {
+    white-space: normal;
+    text-align: left;
+    line-height: 1.4;
+    border-radius: 0.6rem;
+}
+.room-card {
+    transition: transform 0.15s;
+}
+.room-card:hover {
+    transform: translateY(-2px);
+}
+.divided-list > * + * {
+    border-top: 1px solid var(--bs-border-color);
+}
+.spin {
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
     }
 }
-
-/* Safari 12 understands Grid gap, but not flex gap. */
-.no-flex-gap .flex > * + * {
-    margin-left: var(--compat-gap, 0px);
+.no-flex-gap [data-flex-gap] > * {
+    margin-right: var(--compat-column-gap, 0px);
+    margin-bottom: var(--compat-row-gap, 0px);
 }
-.no-flex-gap .flex.flex-col > * + * {
-    margin-left: 0;
-    margin-top: var(--compat-gap, 0px);
+.no-flex-gap [data-flex-gap] > :last-child {
+    margin-right: 0;
+    margin-bottom: 0;
 }
-.no-flex-gap .flex.flex-wrap > * {
-    margin-left: 0;
-    margin-right: var(--compat-gap, 0px);
-    margin-bottom: var(--compat-gap, 0px);
+.progress {
+    min-height: 0.65rem;
+}
+.form-check-input:focus-visible,
+.btn:focus-visible,
+a:focus-visible {
+    outline: 3px solid #dc9e27;
+    outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
 }

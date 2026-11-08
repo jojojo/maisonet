@@ -1,5 +1,5 @@
+import { Button } from '@/components/bootstrap/button';
 import { MemberDot } from '@/components/form-fields';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { type Member } from '@/types';
 import { router } from '@inertiajs/react';
@@ -15,7 +15,7 @@ export function MemberFilter({ members, value, only }: { members: Member[]; valu
     if (members.length === 0) return null;
 
     return (
-        <div className="flex flex-wrap gap-2">
+        <div className="d-flex flex-wrap gap-2">
             <Button size="sm" variant={value === null ? 'default' : 'outline'} onClick={() => select(null)}>
                 Tous
             </Button>

@@ -64,6 +64,7 @@ export function MobileSkipControl({
                     <label>
                         Motif facultatif
                         <input
+                            className="form-control"
                             value={reason}
                             maxLength={500}
                             disabled={busy}

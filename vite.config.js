@@ -1,8 +1,6 @@
 import react from '@vitejs/plugin-react';
 import laravel from 'laravel-vite-plugin';
-import {
-    defineConfig
-} from 'vite';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
     plugins: [
@@ -13,8 +11,8 @@ export default defineConfig({
         }),
         react(),
     ],
+    build: { target: ['safari12', 'ios12'], cssTarget: 'safari12' },
     esbuild: {
         jsx: 'automatic',
     },
-    build: { target: ['safari12', 'ios12'], cssTarget: 'safari12' },
 });

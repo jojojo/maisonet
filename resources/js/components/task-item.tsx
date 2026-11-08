@@ -1,3 +1,5 @@
+import { Badge } from '@/components/bootstrap/badge';
+import { Button } from '@/components/bootstrap/button';
 import { DayPeriodBadge } from '@/components/day-period-badge';
 import { DirtGauge } from '@/components/dirt-gauge';
 import { EffortBadge } from '@/components/effort-badge';
@@ -5,8 +7,6 @@ import { MemberDot } from '@/components/form-fields';
 import { TaskCompletionControl } from '@/components/task-completion-control';
 import { TaskFormDialog } from '@/components/task-form-dialog';
 import { TaskSkipControl } from '@/components/task-skip-control';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { dirtStyle, dueLabel, formatDate, recurrenceLabel, sortByDirt, statusStyles } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { type Task } from '@/types';
@@ -27,44 +27,44 @@ export function TaskItem({ task, showRoom = true, onCompleted }: { task: Task; s
     return (
         <div
             className={cn(
-                'family-card bg-card grid grid-cols-[48px_minmax(0,1fr)] items-start gap-x-3 gap-y-2 rounded-2xl border p-4 sm:flex sm:gap-3',
+                'family-card bg-body d-grid mn-columns-48px-minmax-0-1fr align-items-start column-gap-3 row-gap-2 rounded-4 border p-3 d-sm-flex gap-sm-3',
                 task.dirt_level !== null && dirtStyle(task.dirt_level).surface,
             )}
         >
-            <TaskCompletionControl task={task} onCompleted={onCompleted} className="mt-0.5" />
+            <TaskCompletionControl task={task} onCompleted={onCompleted} className="mt-1" />
 
-            <div className="min-w-0 flex-1">
-                <p className={cn('font-medium break-words', done && 'text-muted-foreground line-through')}>{task.title}</p>
-                <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+            <div className="mn-min-w-0 flex-fill">
+                <p className={cn('fw-medium text-break', done && 'text-body-secondary text-decoration-line-through')}>{task.title}</p>
+                <div className="text-body-secondary mt-1 d-flex flex-wrap align-items-center column-gap-3 row-gap-1 small">
                     {showRoom && task.room && (
                         <Badge variant="secondary">
                             {task.room.icon} {task.room.name}
                         </Badge>
                     )}
-                    <span className={cn('font-medium', statusStyles[task.status])}>{dueLabel(task)}</span>
+                    <span className={cn('fw-medium', statusStyles[task.status])}>{dueLabel(task)}</span>
                     <EffortBadge task={task} />
                     <DayPeriodBadge period={task.day_period} />
                     {task.completion_info?.status === 'pending' && (
-                        <Badge variant="outline" className="text-amber-700 dark:text-amber-300">
+                        <Badge variant="outline" className="text-warning-emphasis">
                             Points à valider
                         </Badge>
                     )}
-                    <span className="inline-flex items-center gap-1">
-                        <Repeat className="size-3" /> {recurrenceLabel(task.recurrence, task.interval)}
+                    <span className="d-inline-flex align-items-center gap-1">
+                        <Repeat className="mn-icon-3" /> {recurrenceLabel(task.recurrence, task.interval)}
                     </span>
                     {task.members.map((member) => (
-                        <span key={member.id} className="inline-flex items-center gap-1.5">
+                        <span key={member.id} className="d-inline-flex align-items-center gap-2">
                             <MemberDot color={member.color} /> {member.name}
                         </span>
                     ))}
                     {task.last_completed_at && <span>Dernière fois : {formatDate(task.last_completed_at)}</span>}
                 </div>
-                {task.notes && <p className="text-muted-foreground mt-1 text-xs">{task.notes}</p>}
+                {task.notes && <p className="text-body-secondary mt-1 small">{task.notes}</p>}
                 {task.dirt_level !== null && <DirtGauge level={task.dirt_level} />}
                 <TaskSkipControl task={task} />
             </div>
 
-            <div className="col-start-2 -mt-1 flex shrink-0 justify-end sm:mt-0">
+            <div className="mission-actions d-flex flex-shrink-0 justify-content-end mt-sm-0">
                 <Button variant="ghost" size="icon" onClick={() => setEditing(true)} aria-label="Modifier">
                     <Pencil />
                 </Button>
@@ -82,15 +82,15 @@ export function TaskList({ tasks, showRoom = true, empty }: { tasks: Task[]; sho
     const [completed, setCompleted] = useState('');
 
     return (
-        <div className="grid gap-2">
+        <div className="d-grid gap-2">
             <div role="status" aria-live="polite">
                 {completed && (
-                    <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">
+                    <p className="rounded-3 border border-success-subtle bg-success-subtle p-3 small text-success-emphasis">
                         ✨ Réalisation de « {completed} » enregistrée.
                     </p>
                 )}
             </div>
-            {tasks.length === 0 && empty && <p className="text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">{empty}</p>}
+            {tasks.length === 0 && empty && <p className="text-body-secondary rounded-3 border border-dashed p-4 text-center small">{empty}</p>}
             {sortByDirt(tasks).map((t) => (
                 <TaskItem key={t.id} task={t} showRoom={showRoom} onCompleted={setCompleted} />
             ))}

@@ -1,3 +1,6 @@
+import { Button } from '@/components/bootstrap/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/bootstrap/dialog';
+import { Input } from '@/components/bootstrap/input';
 import { DayPeriodBadge } from '@/components/day-period-badge';
 import { DirtGauge } from '@/components/dirt-gauge';
 import { EffortBadge } from '@/components/effort-badge';
@@ -5,9 +8,6 @@ import { HouseBuddy } from '@/components/house-buddy';
 import { KioskMiniGame } from '@/components/kiosk-mini-game';
 import { KioskMissionTimer } from '@/components/kiosk-mission-timer';
 import { TaskSkipControl } from '@/components/task-skip-control';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { useKioskScreen } from '@/hooks/use-kiosk-screen';
 import { useKioskTimers } from '@/hooks/use-kiosk-timers';
 import { formatElapsed } from '@/lib/kiosk-timer';
@@ -44,7 +44,7 @@ function Declare({
                     <DialogDescription>{task.title} · Les points seront validés par un parent.</DialogDescription>
                 </DialogHeader>
                 <form
-                    className="grid gap-4"
+                    className="d-grid gap-3"
                     onSubmit={(event) => {
                         event.preventDefault();
                         form.post(route('kiosk.complete', task.id), {
@@ -56,11 +56,11 @@ function Declare({
                         });
                     }}
                 >
-                    <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="d-grid gap-2 mn-sm-columns-2">
                         {members.map((member) => (
-                            <label key={member.id} className="flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border-2 p-3">
+                            <label key={member.id} className="d-flex mn-min-h-14 cursor-pointer align-items-center gap-3 rounded-3 border-2 p-3">
                                 <input
-                                    className="size-6 accent-teal-600"
+                                    className="form-check-input mn-icon-6"
                                     type="checkbox"
                                     checked={form.data.member_ids.includes(member.id)}
                                     onChange={(e) =>
@@ -72,18 +72,18 @@ function Declare({
                                         )
                                     }
                                 />
-                                <span className="size-3 rounded-full" style={{ backgroundColor: member.color }} />
+                                <span className="mn-icon-3 rounded-pill" style={{ backgroundColor: member.color }} />
                                 {member.name}
                             </label>
                         ))}
                     </div>
                     {Object.values(form.errors).map((error) => (
-                        <p role="alert" key={error} className="text-destructive text-sm">
+                        <p role="alert" key={error} className="text-danger small">
                             {error}
                         </p>
                     ))}
-                    <Button className="h-14 text-base" disabled={form.processing || !form.data.member_ids.length}>
-                        <Check className="size-5" />
+                    <Button className="mn-h-14 fs-6" disabled={form.processing || !form.data.member_ids.length}>
+                        <Check className="mn-icon-5" />
                         {form.processing ? 'Envoi…' : 'Mission accomplie !'}
                     </Button>
                 </form>
@@ -107,7 +107,7 @@ function Exit({ close }: { close: () => void }) {
                     <DialogDescription>Le mot de passe du compte connecté permet de quitter le kiosque.</DialogDescription>
                 </DialogHeader>
                 <form
-                    className="grid gap-4"
+                    className="d-grid gap-3"
                     onSubmit={(event) => {
                         event.preventDefault();
                         form.post(route('kiosk.leave'), { onFinish: () => form.reset('password') });
@@ -123,7 +123,7 @@ function Exit({ close }: { close: () => void }) {
                         required
                     />
                     {form.errors.password && (
-                        <p role="alert" className="text-destructive text-sm">
+                        <p role="alert" className="text-danger small">
                             {form.errors.password}
                         </p>
                     )}
@@ -200,31 +200,34 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
         <>
             <Head title="Kiosque familial" />
             <main
-                className="family-canvas bg-background text-foreground min-h-svh px-4 py-5 sm:px-7 sm:py-6"
+                className="family-canvas bg-body text-body min-vh-100 px-3 py-4 px-sm-4 py-sm-4"
                 style={{ paddingTop: 'max(1.25rem, env(safe-area-inset-top))', paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}
             >
-                <div className="mx-auto grid max-w-7xl gap-6">
-                    <header className="flex flex-wrap items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <img src="/pwa-icons/icon-192.png" className="size-14 rounded-2xl bg-white" alt="" />
+                <div className="mx-auto d-grid mn-content-7xl gap-4">
+                    <header className="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                        <div className="d-flex align-items-center gap-3">
+                            <img src="/pwa-icons/icon-192.png" className="mn-icon-14 rounded-4 bg-white" alt="" />
                             <div>
-                                <h1 className="text-2xl font-extrabold">
-                                    Maiso’net <span className="text-amber-500">✦</span>
+                                <h1 className="fs-3 fw-bold">
+                                    Maiso’net <span className="text-warning">✦</span>
                                 </h1>
-                                <p className="text-muted-foreground text-sm">Notre tableau de famille</p>
+                                <p className="text-body-secondary small">Notre tableau de famille</p>
                             </div>
                         </div>
-                        <div className="flex flex-wrap items-center gap-3">
-                            <div className="text-right">
-                                <p className="text-2xl font-extrabold tabular-nums">
-                                    {now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                                </p>
-                                <p className="text-muted-foreground text-sm capitalize">
+                        <div className="d-flex flex-wrap align-items-center gap-3">
+                            <div className="text-end">
+                                <p className="fs-3 fw-bold numeric">{now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
+                                <p className="text-body-secondary small text-capitalize">
                                     {now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
                                 </p>
                             </div>
                             {active && (
-                                <Button variant="outline" className="h-12 gap-2 px-4" aria-label="Quitter le kiosque" onClick={() => setExit(true)}>
+                                <Button
+                                    variant="outline"
+                                    className="mn-h-12 gap-2 px-3"
+                                    aria-label="Quitter le kiosque"
+                                    onClick={() => setExit(true)}
+                                >
                                     <LockKeyhole />
                                     Quitter le kiosque
                                 </Button>
@@ -232,13 +235,13 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                         </div>
                     </header>
                     {!active ? (
-                        <section className="family-card bg-card mx-auto grid w-full max-w-2xl justify-items-center gap-5 rounded-3xl border-2 p-6 text-center sm:p-10">
-                            <HouseBuddy className="w-40" />
-                            <h2 className="text-3xl font-extrabold">Un petit quartier général pour la famille</h2>
-                            <p className="text-muted-foreground leading-relaxed">
+                        <section className="family-card bg-body mx-auto d-grid w-100 mn-content-2xl justify-items-center gap-4 rounded-5 border-2 p-4 text-center p-sm-5">
+                            <HouseBuddy className="mn-w-40" />
+                            <h2 className="fs-2 fw-bold">Un petit quartier général pour la famille</h2>
+                            <p className="text-body-secondary lh-lg">
                                 Pose l’iPad dans la cuisine : chacun choisit son prénom, retrouve ses missions et déclare ses coups de main.
                             </p>
-                            <div className="bg-accent grid gap-3 rounded-2xl p-4 text-left text-sm">
+                            <div className="bg-primary-subtle d-grid gap-3 rounded-4 p-3 text-start small">
                                 <p>🔒 La sortie et les réglages demandent le mot de passe du parent.</p>
                                 <p>⭐ Les réalisations du kiosque attendent une validation parentale.</p>
                                 <p>
@@ -246,11 +249,11 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                     guidé dans les réglages d’accessibilité.
                                 </p>
                             </div>
-                            <Button className="h-14 px-7 text-base" onClick={() => router.post(route('kiosk.enter'))}>
+                            <Button className="mn-h-14 px-4 fs-6" onClick={() => router.post(route('kiosk.enter'))}>
                                 <Tablet />
                                 Activer le kiosque
                             </Button>
-                            <Link href={route('dashboard')} className="text-sm underline">
+                            <Link href={route('dashboard')} className="small text-decoration-underline">
                                 Retour au tableau de bord
                             </Link>
                         </section>
@@ -279,18 +282,18 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                         />
                     ) : (
                         <>
-                            <section className="family-card bg-primary/15 flex flex-wrap items-center justify-between gap-4 rounded-3xl border-2 border-cyan-500 p-5">
+                            <section className="family-card bg-primary d-flex flex-wrap align-items-center justify-content-between gap-3 rounded-5 border-2 border-info p-4">
                                 <div>
-                                    <h2 className="text-2xl font-extrabold">Qui relève une mission aujourd’hui ?</h2>
-                                    <p className="text-muted-foreground mt-1 text-sm">Un prénom, une mission, et la maison sourit !</p>
+                                    <h2 className="fs-3 fw-bold">Qui relève une mission aujourd’hui ?</h2>
+                                    <p className="text-body-secondary mt-1 small">Un prénom, une mission, et la maison sourit !</p>
                                 </div>
-                                <p className="bg-card flex items-center gap-2 rounded-2xl px-4 py-3 font-bold">
-                                    <Trophy className="text-amber-600" />
+                                <p className="bg-body d-flex align-items-center gap-2 rounded-4 px-3 py-3 fw-bold">
+                                    <Trophy className="text-warning" />
                                     {completedToday} coup(s) de main aujourd’hui
                                 </p>
                             </section>
                             {timers.length > 0 && (
-                                <section aria-label="Chronomètres des missions" className="grid gap-3 md:grid-cols-2">
+                                <section aria-label="Chronomètres des missions" className="d-grid gap-3 mn-md-columns-2">
                                     {timers.map((timer) => {
                                         const task = tasks.find((task) => task.id === timer.taskId);
                                         if (!task) return null;
@@ -298,18 +301,16 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                         return (
                                             <div
                                                 key={timer.taskId}
-                                                className="family-card bg-secondary flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-cyan-500 p-4"
+                                                className="family-card bg-warning-subtle d-flex flex-wrap align-items-center justify-content-between gap-3 rounded-4 border-2 border-info p-3"
                                             >
-                                                <div className="flex min-w-0 flex-1 items-start gap-3">
-                                                    <Timer className="mt-1 shrink-0" />
-                                                    <div className="min-w-0">
-                                                        <h3 className="font-bold break-words">{task.title}</h3>
-                                                        {member && <p className="text-muted-foreground text-sm">{member.name}</p>}
-                                                        <p className="mt-1 flex flex-wrap items-center gap-2">
-                                                            <span className="text-xl font-extrabold tabular-nums">
-                                                                {formatElapsed(elapsedMs(timer))}
-                                                            </span>
-                                                            <span className="text-xs">{timer.startedAt === null ? 'En pause' : 'En cours'}</span>
+                                                <div className="d-flex mn-min-w-0 flex-fill align-items-start gap-3">
+                                                    <Timer className="mt-1 flex-shrink-0" />
+                                                    <div className="mn-min-w-0">
+                                                        <h3 className="fw-bold text-break">{task.title}</h3>
+                                                        {member && <p className="text-body-secondary small">{member.name}</p>}
+                                                        <p className="mt-1 d-flex flex-wrap align-items-center gap-2">
+                                                            <span className="fs-4 fw-bold numeric">{formatElapsed(elapsedMs(timer))}</span>
+                                                            <span className="small">{timer.startedAt === null ? 'En pause' : 'En cours'}</span>
                                                         </p>
                                                     </div>
                                                 </div>
@@ -323,15 +324,15 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                         );
                                     })}
                                     {storageError && (
-                                        <p role="status" className="text-sm text-amber-800 dark:text-amber-200">
+                                        <p role="status" className="small text-warning-emphasis">
                                             La sauvegarde des chronomètres sur cet appareil est indisponible.
                                         </p>
                                     )}
                                 </section>
                             )}
-                            <nav aria-label="Choisir un membre" className="flex flex-wrap gap-3">
+                            <nav aria-label="Choisir un membre" className="d-flex flex-wrap gap-3">
                                 <Button
-                                    className="h-14 rounded-2xl px-5 text-base"
+                                    className="mn-h-14 rounded-4 px-4 fs-6"
                                     variant={memberId === null ? 'default' : 'outline'}
                                     aria-pressed={memberId === null}
                                     onClick={() => setMemberId(null)}
@@ -341,13 +342,13 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                 {members.map((member) => (
                                     <Button
                                         key={member.id}
-                                        className="h-14 rounded-2xl px-4 text-base"
+                                        className="mn-h-14 rounded-4 px-3 fs-6"
                                         variant={memberId === member.id ? 'default' : 'outline'}
                                         aria-pressed={memberId === member.id}
                                         onClick={() => setMemberId(member.id)}
                                     >
                                         <span
-                                            className="flex size-8 items-center justify-center rounded-full font-bold text-white"
+                                            className="d-flex mn-icon-8 align-items-center justify-content-center rounded-pill fw-bold text-white"
                                             style={{ backgroundColor: member.color }}
                                         >
                                             {member.name.charAt(0)}
@@ -357,12 +358,12 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                 ))}
                             </nav>
                             {flash?.success && (
-                                <p role="status" className="rounded-2xl bg-emerald-100 p-4 font-semibold text-emerald-900">
+                                <p role="status" className="rounded-4 bg-success-subtle p-3 fw-semibold text-success-emphasis">
                                     ✨ {flash.success}
                                 </p>
                             )}
-                            <div className="flex flex-wrap items-center justify-between gap-3">
-                                <div className="flex flex-wrap gap-2">
+                            <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                <div className="d-flex flex-wrap gap-2">
                                     <Button
                                         variant={period === 'today' ? 'secondary' : 'ghost'}
                                         aria-pressed={period === 'today'}
@@ -379,11 +380,11 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                     </Button>
                                 </div>
                                 <Button variant="ghost" disabled={refreshing} onClick={refresh}>
-                                    <RefreshCw className={refreshing ? 'animate-spin motion-reduce:animate-none' : ''} />
+                                    <RefreshCw className={refreshing ? 'spin' : ''} />
                                     Actualiser
                                 </Button>
                             </div>
-                            <section aria-label="Missions de la famille" className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
+                            <section aria-label="Missions de la famille" className="d-grid align-items-start gap-3 mn-md-columns-2 mn-xl-columns-3">
                                 {visible.map((task) => {
                                     const doneToday = task.last_completed_at === todayISO();
                                     const taskTimer = timers.find((timer) => timer.taskId === task.id);
@@ -391,40 +392,38 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                         <article
                                             key={task.id}
                                             className={cn(
-                                                'family-card bg-card grid gap-4 rounded-3xl border-2 p-5',
+                                                'family-card bg-body d-grid gap-3 rounded-5 border-2 p-4',
                                                 task.dirt_level !== null && dirtStyle(task.dirt_level).surface,
                                             )}
                                         >
-                                            <div className="flex items-start gap-3">
+                                            <div className="d-flex align-items-start gap-3">
                                                 <span
-                                                    className="bg-card flex size-12 shrink-0 items-center justify-center rounded-2xl text-3xl"
+                                                    className="bg-body d-flex mn-icon-12 flex-shrink-0 align-items-center justify-content-center rounded-4 fs-2"
                                                     aria-hidden
                                                 >
                                                     {task.room?.icon ?? '🧽'}
                                                 </span>
-                                                <div className="min-w-0 flex-1">
-                                                    <h3 className="text-lg font-extrabold break-words">{task.title}</h3>
-                                                    <p className="text-muted-foreground mt-1 text-sm">
+                                                <div className="mn-min-w-0 flex-fill">
+                                                    <h3 className="fs-5 fw-bold text-break">{task.title}</h3>
+                                                    <p className="text-body-secondary mt-1 small">
                                                         {task.room?.name} · {dueLabel(task)}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="flex flex-wrap items-center gap-2">
+                                            <div className="d-flex flex-wrap align-items-center gap-2">
                                                 <EffortBadge task={task} />
                                                 <DayPeriodBadge period={task.day_period} />
                                                 {task.members.map((member) => (
-                                                    <span key={member.id} className="bg-card rounded-full px-2.5 py-1 text-xs font-semibold">
+                                                    <span key={member.id} className="bg-body rounded-pill px-2 py-1 small fw-semibold">
                                                         {member.name}
                                                     </span>
                                                 ))}
-                                                {!task.members.length && (
-                                                    <span className="text-muted-foreground text-xs">Tout le monde peut aider</span>
-                                                )}
+                                                {!task.members.length && <span className="text-body-secondary small">Tout le monde peut aider</span>}
                                             </div>
                                             {task.dirt_level !== null && <DirtGauge level={task.dirt_level} compact />}
                                             {!doneToday && (
                                                 <Button
-                                                    className="h-14 w-full rounded-2xl text-base"
+                                                    className="mn-h-14 w-100 rounded-4 fs-6"
                                                     onClick={() => {
                                                         startTimer(
                                                             task.id,
@@ -440,7 +439,7 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                             )}
                                             <Button
                                                 variant={doneToday ? 'outline' : 'ghost'}
-                                                className="h-14 w-full rounded-2xl text-base"
+                                                className="mn-h-14 w-100 rounded-4 fs-6"
                                                 disabled={doneToday}
                                                 onClick={() => setDeclaring(task)}
                                             >
@@ -464,21 +463,21 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                 })}
                             </section>
                             {!visible.length && (
-                                <section className="bg-card grid justify-items-center gap-3 rounded-3xl border-2 border-dashed p-8 text-center">
-                                    <HouseBuddy className="w-36" />
-                                    <h2 className="text-2xl font-extrabold">
+                                <section className="bg-body d-grid justify-items-center gap-3 rounded-5 border-2 border-dashed p-5 text-center">
+                                    <HouseBuddy className="mn-w-36" />
+                                    <h2 className="fs-3 fw-bold">
                                         {period === 'today' ? 'Tout est au vert pour aujourd’hui !' : 'Pas encore de mission ici'}
                                     </h2>
-                                    <p className="text-muted-foreground">
+                                    <p className="text-body-secondary">
                                         {period === 'today'
                                             ? 'Un peu de repos, ça se mérite aussi.'
                                             : 'Les parents peuvent préparer les prochaines missions.'}
                                     </p>
                                 </section>
                             )}
-                            <footer className="flex flex-wrap items-center justify-between gap-3 border-t py-4">
-                                <p className="text-muted-foreground text-sm">Mise à jour automatique chaque minute · Validation par les parents</p>
-                                <div className="flex flex-wrap gap-3">
+                            <footer className="d-flex flex-wrap align-items-center justify-content-between gap-3 border-top py-3">
+                                <p className="text-body-secondary small">Mise à jour automatique chaque minute · Validation par les parents</p>
+                                <div className="d-flex flex-wrap gap-3">
                                     <Button
                                         variant={screen.awake ? 'secondary' : 'outline'}
                                         aria-pressed={screen.awake}
@@ -493,7 +492,7 @@ export default function Kiosk({ active, tasks, completedToday }: { active: boole
                                     </Button>
                                 </div>
                                 {screen.message && (
-                                    <p role="status" className="w-full text-sm">
+                                    <p role="status" className="w-100 small">
                                         {screen.message}
                                     </p>
                                 )}

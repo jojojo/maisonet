@@ -27,16 +27,16 @@ export function GoalMountain({ name, color, points, target, stars, pending }: Pr
     const complete = progress === 1;
 
     return (
-        <section className="family-card relative isolate overflow-hidden rounded-[2rem] border-2 border-cyan-500 bg-[#ddf5f5] text-slate-800 dark:border-sky-900 dark:bg-[#152a3d] dark:text-sky-50">
-            <div className="relative z-10 px-5 pt-5 sm:px-7 sm:pt-6">
-                <div className="flex items-center justify-between gap-3">
-                    <p className="text-xs font-bold tracking-[0.16em] text-sky-700 uppercase dark:text-sky-200">L’ascension de {name}</p>
-                    <span className="rounded-full bg-white/85 px-3 py-1.5 text-xs font-bold text-amber-800">Sommet : {stars} ★</span>
+        <section className="family-card position-relative overflow-hidden mn-round-2rem border-2 border-info bg-info-subtle text-secondary-emphasis">
+            <div className="position-relative z-1 px-4 pt-4 px-sm-4 pt-sm-4">
+                <div className="d-flex align-items-center justify-content-between gap-3">
+                    <p className="small fw-bold eyebrow-spacing text-info-emphasis text-uppercase">L’ascension de {name}</p>
+                    <span className="rounded-pill bg-body bg-opacity-75 px-3 py-2 small fw-bold text-warning-emphasis">Sommet : {stars} ★</span>
                 </div>
-                <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
+                <h2 className="mt-3 fs-3 fw-bold mn-sm-heading-3xl">
                     {complete ? 'Tu as décroché le sommet !' : points > 0 ? 'Chaque mission te fait grimper.' : 'Prêt pour l’aventure ?'}
                 </h2>
-                <p className="mt-2 text-sm text-slate-600 dark:text-sky-100/75">
+                <p className="mt-2 small text-secondary">
                     {complete
                         ? 'Bravo ! Tes étoiles ont rejoint ta réserve.'
                         : `Encore ${pointsLabel(Math.max(0, target - points))} points avant le sommet.`}
@@ -44,7 +44,7 @@ export function GoalMountain({ name, color, points, target, stars, pending }: Pr
             </div>
             <svg
                 viewBox="0 0 560 405"
-                className="mt-1 block w-full"
+                className="mt-1 d-block w-100"
                 role="img"
                 aria-label={`${name} a gravi ${Math.round(progress * 100)} % de sa montagne : ${pointsLabel(points)} points sur ${target}.`}
             >
@@ -119,10 +119,7 @@ export function GoalMountain({ name, color, points, target, stars, pending }: Pr
                 <text x="365" y="30" textAnchor="middle" fontSize="23" fill="#d59c28">
                     ★
                 </text>
-                <g
-                    style={{ transform: `translate(${x}px, ${y}px)`, transition: 'transform 900ms cubic-bezier(.2,.8,.2,1)' }}
-                    className="motion-reduce:transition-none"
-                >
+                <g style={{ transform: `translate(${x}px, ${y}px)`, transition: 'transform 900ms cubic-bezier(.2,.8,.2,1)' }} className="">
                     <ellipse cy="14" rx="18" ry="4" fill="#244b42" opacity=".18" />
                     <path d="m-5 5-4 7m14-7 4 7" stroke="#345b55" strokeWidth="5" strokeLinecap="round" />
                     <rect x="-17" y="-17" width="13" height="21" rx="5" fill="#eec872" stroke="#345b55" strokeWidth="2" />
@@ -144,13 +141,15 @@ export function GoalMountain({ name, color, points, target, stars, pending }: Pr
                     </g>
                 )}
             </svg>
-            <div className="relative flex flex-wrap items-center justify-between gap-2 border-t border-emerald-900/10 bg-white/75 px-5 py-4 text-sm sm:px-7 dark:bg-slate-950/30">
+            <div className="position-relative d-flex flex-wrap align-items-center justify-content-between gap-2 border-top border-success bg-body bg-opacity-75 px-4 py-3 small px-sm-4">
                 <p>
-                    <strong className="text-lg">{pointsLabel(points)}</strong> / {target} points{' '}
-                    <span className="text-slate-500 dark:text-sky-200">sur cette ascension</span>
+                    <strong className="fs-5">{pointsLabel(points)}</strong> / {target} points{' '}
+                    <span className="text-secondary">sur cette ascension</span>
                 </p>
                 {pending > 0 && (
-                    <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900">+{pointsLabel(pending)} à valider</span>
+                    <span className="rounded-pill bg-warning-subtle px-3 py-1 small fw-medium text-warning-emphasis">
+                        +{pointsLabel(pending)} à valider
+                    </span>
                 )}
             </div>
         </section>

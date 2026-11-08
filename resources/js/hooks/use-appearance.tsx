@@ -7,32 +7,30 @@ const prefersDark = () => window.matchMedia('(prefers-color-scheme: dark)').matc
 const applyTheme = (appearance: Appearance) => {
     const isDark = appearance === 'dark' || (appearance === 'system' && prefersDark());
 
-    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
 };
 
 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-const readAppearance = (): Appearance => {
+function savedAppearance(): Appearance {
     try {
         const value = localStorage.getItem('appearance');
         return value === 'dark' || value === 'light' ? value : 'system';
     } catch {
         return 'system';
     }
-};
+}
 
 const handleSystemThemeChange = () => {
-    const currentAppearance = readAppearance();
-    applyTheme(currentAppearance || 'system');
+    applyTheme(savedAppearance());
 };
 
 export function initializeTheme() {
-    const savedAppearance = readAppearance();
-
-    applyTheme(savedAppearance);
+    applyTheme(savedAppearance());
 
     // Add the event listener for system theme changes...
-    mediaQuery.addEventListener('change', handleSystemThemeChange);
+    if (mediaQuery.addEventListener) mediaQuery.addEventListener('change', handleSystemThemeChange);
+    else mediaQuery.addListener(handleSystemThemeChange);
 }
 
 export function useAppearance() {
@@ -43,14 +41,13 @@ export function useAppearance() {
         try {
             localStorage.setItem('appearance', mode);
         } catch {
-            /* Some private sessions disable storage. */
+            // Keep the selected appearance for this page when storage is unavailable.
         }
         applyTheme(mode);
     };
 
     useEffect(() => {
-        const savedAppearance = readAppearance();
-        updateAppearance(savedAppearance || 'system');
+        setAppearance(savedAppearance());
     }, []);
 
     return { appearance, updateAppearance };

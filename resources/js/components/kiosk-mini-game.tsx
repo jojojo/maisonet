@@ -1,6 +1,6 @@
+import { Button } from '@/components/bootstrap/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/bootstrap/dialog';
 import { HouseBuddy } from '@/components/house-buddy';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { kioskGameTitles as titles, type KioskGameId } from '@/lib/kiosk-games';
 import { type KioskMiniGameOffer } from '@/types';
 import { Gamepad2, Sparkles } from 'lucide-react';
@@ -80,9 +80,9 @@ export function KioskMiniGame({
                 if (!open) close();
             }}
         >
-            <DialogContent className="max-h-[92svh] w-[calc(100%-1.5rem)] max-w-lg overflow-y-auto rounded-3xl border-2 border-cyan-500 p-5 sm:p-6">
+            <DialogContent className="mn-max-h-92svh mn-w-calc-100-1-5rem mn-content-lg overflow-y-auto rounded-5 border-2 border-info p-4 p-sm-4">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center justify-center gap-2 text-xl font-extrabold sm:justify-start">
+                    <DialogTitle className="d-flex align-items-center justify-content-center gap-2 fs-4 fw-bold justify-content-sm-start">
                         <Gamepad2 />
                         {phase === 'invite' ? 'Une petite surprise !' : phase === 'finished' ? 'Bien joué !' : titles[offer.game]}
                     </DialogTitle>
@@ -93,40 +93,38 @@ export function KioskMiniGame({
                     </DialogDescription>
                 </DialogHeader>
                 {phase === 'invite' ? (
-                    <div className="grid justify-items-center gap-4 text-center">
-                        <HouseBuddy className="w-28" />
-                        <p className="text-lg font-bold">Ton jeu surprise : {titles[offer.game]}</p>
-                        <p className="text-muted-foreground text-sm">
-                            Une petite pause de jeu, juste pour le plaisir. Une partie, 90 secondes maximum.
-                        </p>
-                        <Button className="h-12 w-full rounded-2xl" onClick={() => setPhase('playing')}>
+                    <div className="d-grid justify-items-center gap-3 text-center">
+                        <HouseBuddy className="mn-w-28" />
+                        <p className="fs-5 fw-bold">Ton jeu surprise : {titles[offer.game]}</p>
+                        <p className="text-body-secondary small">Une petite pause de jeu, juste pour le plaisir. Une partie, 90 secondes maximum.</p>
+                        <Button className="mn-h-12 w-100 rounded-4" onClick={() => setPhase('playing')}>
                             <Sparkles />
                             Découvrir le jeu
                         </Button>
-                        <Button variant="outline" className="h-12 w-full rounded-2xl" onClick={close}>
+                        <Button variant="outline" className="mn-h-12 w-100 rounded-4" onClick={close}>
                             Pas maintenant
                         </Button>
                     </div>
                 ) : phase === 'finished' ? (
-                    <div className="grid justify-items-center gap-4 py-3 text-center">
-                        <span className="text-5xl" aria-hidden>
+                    <div className="d-grid justify-items-center gap-3 py-3 text-center">
+                        <span className="display-5" aria-hidden>
                             🎉
                         </span>
-                        <p className="text-lg font-bold">{library ? 'Une jolie pause en famille !' : 'Merci pour ton coup de main !'}</p>
-                        <p className="text-muted-foreground text-sm">La pause est terminée. On retrouve la famille ?</p>
-                        <Button className="h-12 w-full rounded-2xl" onClick={close}>
+                        <p className="fs-5 fw-bold">{library ? 'Une jolie pause en famille !' : 'Merci pour ton coup de main !'}</p>
+                        <p className="text-body-secondary small">La pause est terminée. On retrouve la famille ?</p>
+                        <Button className="mn-h-12 w-100 rounded-4" onClick={close}>
                             {returnLabel}
                         </Button>
                     </div>
                 ) : (
                     <>
-                        <p className="text-muted-foreground text-center text-xs">
+                        <p className="text-body-secondary text-center small">
                             {deadline === null ? 'Prêt ? Appuie sur Jouer !' : `Encore ${remaining} s de pause`}
                         </p>
                         <GameBoundary>
                             <Suspense
                                 fallback={
-                                    <p role="status" className="py-12 text-center">
+                                    <p role="status" className="py-5 text-center">
                                         On prépare le jeu…
                                     </p>
                                 }
@@ -141,12 +139,12 @@ export function KioskMiniGame({
                                 />
                             </Suspense>
                         </GameBoundary>
-                        <Button variant="outline" className="h-12 w-full rounded-2xl" onClick={close}>
+                        <Button variant="outline" className="mn-h-12 w-100 rounded-4" onClick={close}>
                             {returnLabel}
                         </Button>
                     </>
                 )}
-                <p className="text-muted-foreground text-center text-xs">Le jeu n’ajoute ni ne retire de points.</p>
+                <p className="text-body-secondary text-center small">Le jeu n’ajoute ni ne retire de points.</p>
             </DialogContent>
         </Dialog>
     );

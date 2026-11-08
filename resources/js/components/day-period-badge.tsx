@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/bootstrap/badge';
 import { dayPeriodOptions, type DayPeriod } from '@/lib/day-periods';
 
 export function DayPeriodBadge({ period }: { period: DayPeriod }) {

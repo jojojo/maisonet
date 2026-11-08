@@ -1,7 +1,7 @@
+import { Button } from '@/components/bootstrap/button';
+import { Checkbox } from '@/components/bootstrap/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/bootstrap/dialog';
 import { MemberDot } from '@/components/form-fields';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { pointsLabel } from '@/lib/progress';
 import { formatDate, todayISO } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
@@ -38,19 +38,19 @@ function CompletionDialog({ task, onClose, onCompleted }: { task: Task; onClose:
                     <DialogDescription>{task.title}</DialogDescription>
                 </DialogHeader>
                 {!auth.user.is_parent && !own ? (
-                    <p className="text-sm">
+                    <p className="small">
                         Un parent doit d’abord relier ton compte à ton profil familial dans{' '}
-                        <Link href={route('goals.index')} className="underline">
+                        <Link href={route('goals.index')} className="text-decoration-underline">
                             Objectifs
                         </Link>
                         .
                     </p>
                 ) : (
                     <>
-                        <p className="text-muted-foreground text-sm">
+                        <p className="text-body-secondary small">
                             Coche les personnes qui ont vraiment participé. Les points sont partagés entre elles.
                         </p>
-                        <div className="grid gap-2 sm:grid-cols-2">
+                        <div className="d-grid gap-2 mn-sm-columns-2">
                             {members.map((member) => {
                                 const index = selected.indexOf(member.id);
                                 const share =
@@ -58,8 +58,9 @@ function CompletionDialog({ task, onClose, onCompleted }: { task: Task; onClose:
                                         ? (Math.floor(cents / selected.length) + (index < cents % selected.length ? 1 : 0)) / 100
                                         : 0;
                                 return (
-                                    <label key={member.id} className="flex items-center gap-2 rounded-lg border p-3 text-sm">
+                                    <label key={member.id} className="d-flex align-items-center gap-2 rounded-3 border p-3 small">
                                         <input
+                                            className="form-check-input"
                                             type="checkbox"
                                             checked={index >= 0}
                                             disabled={form.processing || (!auth.user.is_parent && own === member.id)}
@@ -73,13 +74,13 @@ function CompletionDialog({ task, onClose, onCompleted }: { task: Task; onClose:
                                             }
                                         />
                                         <MemberDot color={member.color} />
-                                        <span className="min-w-0 flex-1 break-words">{member.name}</span>
-                                        {index >= 0 && <span className="text-xs font-semibold">{pointsLabel(share)} pts</span>}
+                                        <span className="mn-min-w-0 flex-fill text-break">{member.name}</span>
+                                        {index >= 0 && <span className="small fw-semibold">{pointsLabel(share)} pts</span>}
                                     </label>
                                 );
                             })}
                         </div>
-                        <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
+                        <p className="rounded-3 bg-success-subtle p-3 small text-success-emphasis">
                             {task.can_earn_points
                                 ? `${task.effort_points} point(s) d’effort au total.`
                                 : task.effort_points
@@ -88,7 +89,7 @@ function CompletionDialog({ task, onClose, onCompleted }: { task: Task; onClose:
                             {!auth.user.is_parent && 'Un parent doit valider la réalisation avant que les points comptent.'}
                         </p>
                         {Object.values(form.errors).map((error) => (
-                            <p key={error} role="alert" className="text-destructive text-sm">
+                            <p key={error} role="alert" className="text-danger small">
                                 {error}
                             </p>
                         ))}
@@ -115,7 +116,10 @@ export function TaskCompletionControl({ task, className, onCompleted }: { task: 
     if (passed && task.status === 'done')
         return (
             <span
-                className={cn('bg-muted text-muted-foreground flex size-12 items-center justify-center rounded-xl border-2 text-xl', className)}
+                className={cn(
+                    'bg-body-tertiary text-body-secondary d-flex mn-icon-12 align-items-center justify-content-center rounded-3 border-2 fs-4',
+                    className,
+                )}
                 title="Occurrence passée sans réalisation"
                 aria-label="Occurrence passée"
             >
@@ -126,10 +130,7 @@ export function TaskCompletionControl({ task, className, onCompleted }: { task: 
     return (
         <>
             <Checkbox
-                className={cn(
-                    'bg-card hover:bg-accent data-[state=checked]:bg-primary size-12 touch-manipulation rounded-xl border-[3px] border-[var(--cartoon-ink)] shadow-[2px_3px_0_var(--cartoon-shadow)] transition-[background-color,box-shadow,transform] active:translate-y-px active:shadow-none data-[state=checked]:border-[var(--cartoon-ink)] motion-reduce:transform-none motion-reduce:transition-none [&_svg]:size-8 [&_svg]:stroke-[3.5]',
-                    className,
-                )}
+                className={cn('task-check touch-manipulation', className)}
                 checked={done}
                 disabled={done && !canUndo}
                 aria-label={`${label} : ${task.title}`}

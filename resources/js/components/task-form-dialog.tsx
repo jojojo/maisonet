@@ -1,7 +1,7 @@
+import { Button } from '@/components/bootstrap/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/bootstrap/dialog';
+import { Input } from '@/components/bootstrap/input';
 import { Field, NativeSelect } from '@/components/form-fields';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { dayPeriodOptions, type DayPeriod } from '@/lib/day-periods';
 import { recurrenceOptions, todayISO } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
@@ -28,7 +28,7 @@ const effortOptions: { size: EffortSize; points: number; label: string }[] = [
 export function TaskFormDialog({ task, defaultRoomId, open, onOpenChange }: Props) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[90vh] overflow-y-auto">
+            <DialogContent className="mn-max-h-90vh overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>{task ? 'Modifier la tâche' : 'Nouvelle tâche'}</DialogTitle>
                     <DialogDescription>Pièce, personnes responsables et fréquence de la tâche.</DialogDescription>
@@ -64,11 +64,11 @@ function TaskForm({ task, defaultRoomId, onDone }: { task?: Task; defaultRoomId?
     };
 
     if (rooms.length === 0) {
-        return <p className="text-muted-foreground text-sm">Crée d'abord une pièce pour pouvoir y ajouter des tâches.</p>;
+        return <p className="text-body-secondary small">Crée d'abord une pièce pour pouvoir y ajouter des tâches.</p>;
     }
 
     return (
-        <form onSubmit={submit} className="grid gap-4">
+        <form onSubmit={submit} className="d-grid gap-3">
             <Field label="Titre" error={form.errors.title}>
                 <Input
                     value={form.data.title}
@@ -79,18 +79,16 @@ function TaskForm({ task, defaultRoomId, onDone }: { task?: Task; defaultRoomId?
                 />
             </Field>
 
-            <fieldset className="grid gap-2">
-                <legend className="mb-2 text-sm font-medium">Taille d’effort</legend>
-                <div className="grid grid-cols-5 gap-2">
+            <fieldset className="d-grid gap-2">
+                <legend className="mb-2 small fw-medium">Taille d’effort</legend>
+                <div className="d-grid mn-columns-5 gap-2">
                     {effortOptions.map((option) => (
                         <label
                             key={option.size}
                             title={option.label}
                             className={cn(
-                                'relative flex cursor-pointer flex-col items-center gap-1 rounded-lg border p-2 text-center has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-violet-500',
-                                form.data.effort_size === option.size
-                                    ? 'border-violet-500 bg-violet-50 text-violet-800 dark:bg-violet-950 dark:text-violet-200'
-                                    : 'hover:bg-muted',
+                                'position-relative d-flex cursor-pointer flex-column align-items-center gap-1 rounded-3 border p-2 text-center',
+                                form.data.effort_size === option.size ? 'border-primary bg-primary-subtle text-primary-emphasis' : '',
                             )}
                         >
                             <input
@@ -99,17 +97,18 @@ function TaskForm({ task, defaultRoomId, onDone }: { task?: Task; defaultRoomId?
                                 value={option.size}
                                 checked={form.data.effort_size === option.size}
                                 onChange={() => form.setData('effort_size', option.size)}
-                                className="sr-only"
+                                className="form-check-input visually-hidden"
                             />
-                            <span className="font-semibold">{option.size}</span>
-                            <span className="text-xs">
+                            <span className="fw-semibold">{option.size}</span>
+                            <span className="small">
                                 {option.points} {option.points === 1 ? 'pt' : 'pts'}
                             </span>
                         </label>
                     ))}
                 </div>
-                <label className="text-muted-foreground flex items-center gap-2 text-xs">
+                <label className="text-body-secondary d-flex align-items-center gap-2 small">
                     <input
+                        className="form-check-input"
                         type="radio"
                         name="effort_size"
                         value=""
@@ -118,15 +117,15 @@ function TaskForm({ task, defaultRoomId, onDone }: { task?: Task; defaultRoomId?
                     />
                     Non cotée
                 </label>
-                <p className="text-muted-foreground text-xs">De XS (très léger) à XL (très important), selon le temps et l’énergie nécessaires.</p>
+                <p className="text-body-secondary small">De XS (très léger) à XL (très important), selon le temps et l’énergie nécessaires.</p>
                 {form.errors.effort_size && (
-                    <p role="alert" className="text-destructive text-xs">
+                    <p role="alert" className="text-danger small">
                         {form.errors.effort_size}
                     </p>
                 )}
             </fieldset>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="d-grid gap-3 mn-sm-columns-2">
                 <Field label="Pièce" error={form.errors.room_id}>
                     <NativeSelect value={form.data.room_id} onChange={(e) => form.setData('room_id', e.target.value)}>
                         {rooms.map((r) => (
@@ -138,12 +137,13 @@ function TaskForm({ task, defaultRoomId, onDone }: { task?: Task; defaultRoomId?
                 </Field>
             </div>
 
-            <fieldset className="grid gap-2">
-                <legend className="mb-2 text-sm font-medium">Attribuée à</legend>
-                <div className="grid grid-cols-2 gap-2">
+            <fieldset className="d-grid gap-2">
+                <legend className="mb-2 small fw-medium">Attribuée à</legend>
+                <div className="d-grid mn-columns-2 gap-2">
                     {members.map((member) => (
-                        <label key={member.id} className="flex items-center gap-2 rounded-md border p-2 text-sm">
+                        <label key={member.id} className="d-flex align-items-center gap-2 rounded-2 border p-2 small">
                             <input
+                                className="form-check-input"
                                 type="checkbox"
                                 checked={form.data.member_ids.includes(member.id)}
                                 onChange={(event) =>
@@ -159,17 +159,17 @@ function TaskForm({ task, defaultRoomId, onDone }: { task?: Task; defaultRoomId?
                         </label>
                     ))}
                 </div>
-                <p className="text-muted-foreground text-xs">Coche une ou plusieurs personnes. Aucune sélection : tâche non attribuée.</p>
+                <p className="text-body-secondary small">Coche une ou plusieurs personnes. Aucune sélection : tâche non attribuée.</p>
                 {Object.entries(form.errors)
                     .filter(([key]) => key === 'member_ids' || key.startsWith('member_ids.'))
                     .map(([key, error]) => (
-                        <p key={key} role="alert" className="text-destructive text-xs">
+                        <p key={key} role="alert" className="text-danger small">
                             {error}
                         </p>
                     ))}
             </fieldset>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="d-grid gap-3 mn-sm-columns-2">
                 <Field label="Récurrence" error={form.errors.recurrence}>
                     <NativeSelect value={form.data.recurrence} onChange={(e) => form.setData('recurrence', e.target.value as Recurrence)}>
                         {recurrenceOptions.map((o) => (
@@ -204,12 +204,12 @@ function TaskForm({ task, defaultRoomId, onDone }: { task?: Task; defaultRoomId?
                         </option>
                     ))}
                 </NativeSelect>
-                <p className="text-muted-foreground mt-1 text-xs">Un seul créneau, conservé à chaque récurrence.</p>
+                <p className="text-body-secondary mt-1 small">Un seul créneau, conservé à chaque récurrence.</p>
             </Field>
 
             <Field label="Notes" error={form.errors.notes}>
                 <textarea
-                    className="border-input bg-background focus-visible:ring-ring/50 min-h-20 w-full rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
+                    className="form-control border bg-body mn-min-h-20 w-100 rounded-2 px-3 py-2 small shadow-sm"
                     value={form.data.notes}
                     onChange={(e) => form.setData('notes', e.target.value)}
                 />

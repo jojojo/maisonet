@@ -607,51 +607,54 @@ export function DinoRunner({
             aria-label="Jeu du petit dinosaure"
             style={width ? { maxWidth: width } : undefined}
             className={cn(
-                'relative flex w-full select-none flex-col gap-2 outline-none',
+                'position-relative d-flex w-100 flex-column gap-2 user-select-none',
                 // Focus ring only matters when keys are focus-scoped; global capture hides it.
-                !captureGlobalKeys && 'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                !captureGlobalKeys && '',
                 className,
             )}
         >
             {/* Score bar */}
-            <div className="flex items-center justify-between gap-3 text-sm">
-                <span className="inline-flex items-center rounded-md border bg-secondary px-2 py-0.5 font-medium tabular-nums text-secondary-foreground">
+            <div className="d-flex align-items-center justify-content-between gap-3 small">
+                <span className="bg-warning-subtle text-warning-emphasis d-inline-flex align-items-center rounded-2 border px-2 py-1 fw-medium numeric">
                     Score {score}
                 </span>
-                <span className="tabular-nums text-muted-foreground">Record {high}</span>
+                <span className="text-body-secondary numeric">Record {high}</span>
             </div>
 
             {/* Responsive playfield */}
             <div
                 ref={playfieldRef}
-                className={cn('relative aspect-[8/3] w-full overflow-hidden rounded-lg border bg-background', status !== 'playing' && 'min-h-48')}
+                className={cn(
+                    'bg-body position-relative mn-aspect-8-3 w-100 overflow-hidden rounded-3 border',
+                    status !== 'playing' && 'mn-min-h-48',
+                )}
             >
-                <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full touch-none" />
+                <canvas ref={canvasRef} className="position-absolute top-0 bottom-0 start-0 end-0 d-block h-100 w-100 touch-none" />
 
                 {/* Overlay */}
                 {status !== 'playing' && (
-                    <div className="absolute inset-0 grid place-items-center bg-background/80 backdrop-blur-[1px]">
-                        <div className="flex flex-col items-center gap-3 px-6 text-center">
+                    <div className="bg-body bg-opacity-75 position-absolute top-0 bottom-0 start-0 end-0 d-grid place-center">
+                        <div className="d-flex flex-column align-items-center gap-3 px-4 text-center">
                             {status === 'gameover' ? (
                                 <>
-                                    <p className="text-lg font-semibold">Partie terminée</p>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="fs-5 fw-semibold">Partie terminée</p>
+                                    <p className="text-body-secondary small">
                                         Ton score : {score}
                                         {score >= high && score > 0 ? ' — nouveau record !' : ''}
                                     </p>
                                 </>
                             ) : (
                                 <>
-                                    <p className="text-lg font-semibold">Petit dinosaure</p>
-                                    <p className="text-sm text-muted-foreground">Touche le terrain pour sauter par-dessus les obstacles.</p>
+                                    <p className="fs-5 fw-semibold">Petit dinosaure</p>
+                                    <p className="text-body-secondary small">Touche le terrain pour sauter par-dessus les obstacles.</p>
                                 </>
                             )}
                             <button
                                 type="button"
                                 onClick={start}
                                 className={cn(
-                                    'inline-flex h-12 items-center justify-center rounded-xl border-2 border-primary bg-primary px-6 text-base font-bold text-primary-foreground',
-                                    'transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                                    'border-primary bg-primary text-dark d-inline-flex mn-h-12 align-items-center justify-content-center rounded-3 border-2 px-4 fs-6 fw-bold',
+                                    '',
                                 )}
                             >
                                 {status === 'gameover' ? 'Rejouer' : 'Jouer'}
@@ -662,7 +665,7 @@ export function DinoRunner({
             </div>
 
             {/* Accessible live region */}
-            <div aria-live="polite" className="sr-only">
+            <div aria-live="polite" className="visually-hidden">
                 {status === 'playing' ? `Score: ${score}` : null}
                 {status === 'gameover' ? `Partie terminée. Score final: ${score}. Record : ${high}.` : null}
             </div>

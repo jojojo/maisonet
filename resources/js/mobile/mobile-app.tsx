@@ -1,6 +1,6 @@
-import * as Dialog from '@radix-ui/react-dialog';
 import { Check, ChevronRight, ClipboardCheck, Home, LoaderCircle, LogOut, RefreshCw, ShieldCheck, Sparkles, Star, UserRound, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import Modal from 'react-bootstrap/Modal';
 import { HouseBuddy } from '../components/house-buddy';
 import { PointAdjustment } from '../components/point-adjustment';
 import { dayPeriodLabel } from '../lib/day-periods';
@@ -156,11 +156,26 @@ function Login({ connect, notice, platform }: { connect: (session: Session) => P
                 )}
                 <label>
                     Adresse e-mail
-                    <input name="email" type="email" autoComplete="username" required placeholder="toi@exemple.fr" autoCapitalize="none" />
+                    <input
+                        className="form-control"
+                        name="email"
+                        type="email"
+                        autoComplete="username"
+                        required
+                        placeholder="toi@exemple.fr"
+                        autoCapitalize="none"
+                    />
                 </label>
                 <label>
                     Mot de passe
-                    <input name="password" type="password" autoComplete="current-password" required placeholder="Ton mot de passe" />
+                    <input
+                        className="form-control"
+                        name="password"
+                        type="password"
+                        autoComplete="current-password"
+                        required
+                        placeholder="Ton mot de passe"
+                    />
                 </label>
                 <button className="action primary" disabled={busy}>
                     {busy ? <LoaderCircle className="spin" /> : <Sparkles />} C’est parti !
@@ -405,8 +420,13 @@ function Workspace({
                                 </div>
                                 <label className="room-filter">
                                     <Home size={17} />
-                                    <span className="sr-only">Filtrer par pièce</span>
-                                    <select disabled={loading || moreBusy} value={room} onChange={(event) => setRoom(event.target.value)}>
+                                    <span className="visually-hidden">Filtrer par pièce</span>
+                                    <select
+                                        className="form-select"
+                                        disabled={loading || moreBusy}
+                                        value={room}
+                                        onChange={(event) => setRoom(event.target.value)}
+                                    >
                                         <option value="">Toutes les pièces</option>
                                         {account.rooms.map((room) => (
                                             <option key={room.id} value={room.id}>
@@ -762,126 +782,117 @@ function MissionDialog({
         setIds((previous) => (previous.includes(member.id) ? previous.filter((id) => id !== member.id) : [...previous, member.id]));
     }
     return (
-        <Dialog.Root
-            open
-            onOpenChange={(open) => {
-                if (!open && !busy) close();
+        <Modal
+            show
+            onHide={() => {
+                if (!busy) close();
             }}
+            centered
+            scrollable
+            keyboard={!busy}
+            backdrop={busy ? 'static' : true}
+            aria-labelledby="mission-title"
+            aria-describedby="mission-description"
+            contentClassName="mission-dialog"
         >
-            <Dialog.Portal>
-                <Dialog.Overlay className="mobile-overlay" />
-                <Dialog.Content
-                    className="mission-dialog"
-                    onEscapeKeyDown={(event) => {
-                        if (busy) event.preventDefault();
-                    }}
-                    onPointerDownOutside={(event) => {
-                        if (busy) event.preventDefault();
-                    }}
-                >
-                    <Dialog.Close className="icon-button dialog-close" aria-label="Fermer" disabled={busy}>
-                        <X size={20} />
-                    </Dialog.Close>
-                    <span className="dialog-emoji">{selection.kind === 'review' ? '🎉' : '🧽'}</span>
-                    <Dialog.Title>
-                        {selection.kind === 'review'
-                            ? 'Une victoire à valider !'
-                            : selection.skip
-                              ? 'Pas besoin cette fois ?'
-                              : 'Mission accomplie ?'}
-                    </Dialog.Title>
-                    <Dialog.Description>
-                        {task.title} · {task.room?.name ?? 'À la maison'}
-                    </Dialog.Description>
-                    {task.notes && <p className="task-notes">{task.notes}</p>}
-                    <p className="recurrence-note">{recurrenceLabel(task)}</p>
-                    {!(selection.kind === 'complete' && selection.skip) && (
-                        <>
-                            <fieldset disabled={busy}>
-                                <legend>Qui a donné un coup de main ?</legend>
-                                <div className="participant-options">
-                                    {account.members.map((member) => (
-                                        <label key={member.id} className={ids.includes(member.id) ? 'selected' : ''}>
-                                            <input
-                                                type="checkbox"
-                                                checked={ids.includes(member.id)}
-                                                disabled={!account.is_parent && member.id === account.member_id}
-                                                onChange={() => toggle(member)}
-                                            />
-                                            <span className="member-dot" style={{ background: member.color }}>
-                                                {member.name.charAt(0)}
-                                            </span>
-                                            {member.name}
-                                        </label>
-                                    ))}
-                                </div>
-                            </fieldset>
-                            <p className="points-note">
-                                <Star size={19} />
-                                {selection.kind === 'review'
-                                    ? selection.completion.awards_points
-                                        ? `${pointLabel(Number(awardedPoints))} à partager entre les participants.`
-                                        : 'Cette réalisation ne rapporte pas de nouveaux points.'
-                                    : task.can_earn_points
-                                      ? `${pointLabel(task.effort_points ?? 0)} à partager${account.is_parent ? '.' : ' après validation d’un parent.'}`
-                                      : 'Un coup de main utile ! Aucun nouveau point disponible pour cette réalisation.'}
+            <Modal.Header closeButton={!busy} closeLabel="Fermer" />
+            <Modal.Body>
+                <span className="dialog-emoji">{selection.kind === 'review' ? '🎉' : '🧽'}</span>
+                <h2 id="mission-title">
+                    {selection.kind === 'review' ? 'Une victoire à valider !' : selection.skip ? 'Pas besoin cette fois ?' : 'Mission accomplie ?'}
+                </h2>
+                <p id="mission-description">
+                    {task.title} · {task.room?.name ?? 'À la maison'}
+                </p>
+                {task.notes && <p className="task-notes">{task.notes}</p>}
+                <p className="recurrence-note">{recurrenceLabel(task)}</p>
+                {!(selection.kind === 'complete' && selection.skip) && (
+                    <>
+                        <fieldset disabled={busy}>
+                            <legend>Qui a donné un coup de main ?</legend>
+                            <div className="participant-options">
+                                {account.members.map((member) => (
+                                    <label key={member.id} className={ids.includes(member.id) ? 'selected' : ''}>
+                                        <input
+                                            className="form-check-input"
+                                            type="checkbox"
+                                            checked={ids.includes(member.id)}
+                                            disabled={!account.is_parent && member.id === account.member_id}
+                                            onChange={() => toggle(member)}
+                                        />
+                                        <span className="member-dot" style={{ background: member.color }}>
+                                            {member.name.charAt(0)}
+                                        </span>
+                                        {member.name}
+                                    </label>
+                                ))}
+                            </div>
+                        </fieldset>
+                        <p className="points-note">
+                            <Star size={19} />
+                            {selection.kind === 'review'
+                                ? selection.completion.awards_points
+                                    ? `${pointLabel(Number(awardedPoints))} à partager entre les participants.`
+                                    : 'Cette réalisation ne rapporte pas de nouveaux points.'
+                                : task.can_earn_points
+                                  ? `${pointLabel(task.effort_points ?? 0)} à partager${account.is_parent ? '.' : ' après validation d’un parent.'}`
+                                  : 'Un coup de main utile ! Aucun nouveau point disponible pour cette réalisation.'}
+                        </p>
+                        {selection.kind === 'review' && adjustsPoints && (
+                            <PointAdjustment
+                                basePoints={selection.completion.effort_points ?? 0}
+                                value={awardedPoints}
+                                onChange={setAwardedPoints}
+                                note={reviewNote}
+                                onNoteChange={setReviewNote}
+                                disabled={busy}
+                            />
+                        )}
+                        {error && (
+                            <p className="message error" role="alert">
+                                {error}
                             </p>
-                            {selection.kind === 'review' && adjustsPoints && (
-                                <PointAdjustment
-                                    basePoints={selection.completion.effort_points ?? 0}
-                                    value={awardedPoints}
-                                    onChange={setAwardedPoints}
-                                    note={reviewNote}
-                                    onNoteChange={setReviewNote}
-                                    disabled={busy}
-                                />
-                            )}
-                            {error && (
-                                <p className="message error" role="alert">
-                                    {error}
-                                </p>
-                            )}
-                            {reject ? (
-                                <div className="reject-confirm">
-                                    <p>Refuser cette réalisation ? La tâche pourra être remise à faire.</p>
-                                    <button className="action danger" disabled={busy} onClick={() => void submit('reject')}>
-                                        Oui, refuser
+                        )}
+                        {reject ? (
+                            <div className="reject-confirm">
+                                <p>Refuser cette réalisation ? La tâche pourra être remise à faire.</p>
+                                <button className="action danger" disabled={busy} onClick={() => void submit('reject')}>
+                                    Oui, refuser
+                                </button>
+                                <button className="text-button" disabled={busy} onClick={() => setReject(false)}>
+                                    Revenir
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <button
+                                    className="action primary"
+                                    disabled={busy || ids.length === 0 || (adjustsPoints && !validPoints)}
+                                    onClick={() => void submit()}
+                                >
+                                    {busy ? <LoaderCircle className="spin" /> : <Check />}
+                                    {busy ? 'Enregistrement…' : selection.kind === 'review' ? 'Valider la mission' : 'Oui, c’est fait !'}
+                                </button>
+                                {selection.kind === 'review' && (
+                                    <button className="text-button reject-button" disabled={busy} onClick={() => setReject(true)}>
+                                        Refuser cette réalisation
                                     </button>
-                                    <button className="text-button" disabled={busy} onClick={() => setReject(false)}>
-                                        Revenir
-                                    </button>
-                                </div>
-                            ) : (
-                                <>
-                                    <button
-                                        className="action primary"
-                                        disabled={busy || ids.length === 0 || (adjustsPoints && !validPoints)}
-                                        onClick={() => void submit()}
-                                    >
-                                        {busy ? <LoaderCircle className="spin" /> : <Check />}
-                                        {busy ? 'Enregistrement…' : selection.kind === 'review' ? 'Valider la mission' : 'Oui, c’est fait !'}
-                                    </button>
-                                    {selection.kind === 'review' && (
-                                        <button className="text-button reject-button" disabled={busy} onClick={() => setReject(true)}>
-                                            Refuser cette réalisation
-                                        </button>
-                                    )}
-                                </>
-                            )}
-                        </>
-                    )}
-                    {selection.kind === 'complete' && account.is_parent && (
-                        <MobileSkipControl
-                            task={task}
-                            api={api}
-                            skipped={success}
-                            changed={changed}
-                            busyChanged={setBusy}
-                            initiallyOpen={selection.kind === 'complete' && selection.skip}
-                        />
-                    )}
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+                                )}
+                            </>
+                        )}
+                    </>
+                )}
+                {selection.kind === 'complete' && account.is_parent && (
+                    <MobileSkipControl
+                        task={task}
+                        api={api}
+                        skipped={success}
+                        changed={changed}
+                        busyChanged={setBusy}
+                        initiallyOpen={selection.kind === 'complete' && selection.skip}
+                    />
+                )}
+            </Modal.Body>
+        </Modal>
     );
 }

@@ -32,6 +32,7 @@ export function PointAdjustment({
                 </button>
                 <label>
                     <input
+                        className="form-control"
                         aria-label="Total des points à attribuer"
                         type="number"
                         inputMode="numeric"
@@ -61,6 +62,7 @@ export function PointAdjustment({
             <label className="point-adjustment-note">
                 Un petit mot pour expliquer ? <span>(facultatif)</span>
                 <input
+                    className="form-control"
                     type="text"
                     maxLength={500}
                     value={note}

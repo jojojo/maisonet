@@ -317,28 +317,28 @@ export function TicTacToe({ className, width, autoFocus = true, captureGlobalKey
             aria-label="Jeu de morpion"
             style={width ? { maxWidth: width } : undefined}
             className={cn(
-                'relative flex w-full max-w-sm flex-col gap-3 outline-none select-none',
+                'position-relative d-flex w-100 mn-content-sm flex-column gap-3 user-select-none',
                 // Focus ring only matters when keys are focus-scoped; global capture hides it.
-                !captureGlobalKeys && 'focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2',
+                !captureGlobalKeys && '',
                 className,
             )}
         >
             {/* Session tally */}
-            <div className="flex items-center justify-between gap-2 text-sm">
-                <span className="bg-primary text-primary-foreground inline-flex items-center rounded-md border px-2 py-0.5 font-medium tabular-nums">
+            <div className="d-flex align-items-center justify-content-between gap-2 small">
+                <span className="bg-primary text-dark d-inline-flex align-items-center rounded-2 border px-2 py-1 fw-medium numeric">
                     Victoires {wins}
                 </span>
-                <span className="bg-secondary text-secondary-foreground inline-flex items-center rounded-md border px-2 py-0.5 font-medium tabular-nums">
+                <span className="bg-warning-subtle text-warning-emphasis d-inline-flex align-items-center rounded-2 border px-2 py-1 fw-medium numeric">
                     Défaites {losses}
                 </span>
-                <span className="bg-muted text-muted-foreground inline-flex items-center rounded-md border px-2 py-0.5 font-medium tabular-nums">
+                <span className="bg-body-tertiary text-body-secondary d-inline-flex align-items-center rounded-2 border px-2 py-1 fw-medium numeric">
                     Égalités {draws}
                 </span>
             </div>
 
             {/* Board */}
-            <div className="bg-muted relative overflow-hidden rounded-lg border">
-                <div className="@container grid aspect-square w-full grid-cols-3 grid-rows-3 gap-[2%]" role="grid" aria-label="Grille du morpion">
+            <div className="bg-body-tertiary position-relative overflow-hidden rounded-3 border">
+                <div className="d-grid mn-aspect-1-1 w-100 mn-columns-3 mn-rows-3 mn-gutter-2" role="grid" aria-label="Grille du morpion">
                     {board.map((cell, i) => {
                         const isWinCell = winLine !== null && winLine.includes(i);
                         const isCursor = cursor === i && started && !gameOver && turn === 'X';
@@ -362,33 +362,30 @@ export function TicTacToe({ className, width, autoFocus = true, captureGlobalKey
                                     placeAt(i, board, turn);
                                 }}
                                 className={cn(
-                                    'relative flex size-full items-center justify-center',
-                                    'text-[clamp(1.5rem,22cqi,4rem)] leading-none font-bold',
-                                    'border-border bg-background',
-                                    !isLastRow && 'border-b',
-                                    !isLastCol && 'border-r',
+                                    'position-relative d-flex w-100 h-100 align-items-center justify-content-center',
+                                    'mn-type-1-5rem lh-1 fw-bold',
+                                    'border bg-body',
+                                    !isLastRow && 'border-bottom',
+                                    !isLastCol && 'border-end',
                                     // hover accent when empty and playable
-                                    cell === null && !gameOver && turn === 'X' && started && 'hover:bg-accent cursor-pointer',
+                                    cell === null && !gameOver && turn === 'X' && started && 'cursor-pointer',
                                     // cursor highlight
-                                    isCursor && 'bg-accent',
+                                    isCursor && 'bg-primary-subtle',
                                     // win cell highlight
-                                    isWinCell && 'bg-primary/10',
+                                    isWinCell && 'bg-primary',
                                     // transition unless reduced motion
-                                    !reduce && 'transition-colors duration-150',
+                                    !reduce && '',
                                     // disabled cursor
                                     (cell !== null || gameOver || turn !== 'X' || !started) && 'cursor-default',
                                 )}
                             >
                                 {cell === 'X' && (
-                                    <span className={cn('leading-none', isWinCell ? 'text-primary' : 'text-primary')} aria-hidden="true">
+                                    <span className={cn('lh-1', isWinCell ? 'text-primary' : 'text-primary')} aria-hidden="true">
                                         X
                                     </span>
                                 )}
                                 {cell === 'O' && (
-                                    <span
-                                        className={cn('leading-none', isWinCell ? 'text-secondary-foreground' : 'text-secondary-foreground')}
-                                        aria-hidden="true"
-                                    >
+                                    <span className={cn('lh-1', isWinCell ? 'text-warning-emphasis' : 'text-warning-emphasis')} aria-hidden="true">
                                         O
                                     </span>
                                 )}
@@ -399,30 +396,30 @@ export function TicTacToe({ className, width, autoFocus = true, captureGlobalKey
 
                 {/* Game-over / idle overlay */}
                 {(!started || gameOver) && (
-                    <div className="bg-background/80 absolute inset-0 grid place-items-center backdrop-blur-[1px]">
-                        <div className="flex flex-col items-center gap-3 px-6 text-center">
+                    <div className="bg-body bg-opacity-75 position-absolute top-0 bottom-0 start-0 end-0 d-grid place-center">
+                        <div className="d-flex flex-column align-items-center gap-3 px-4 text-center">
                             {!started ? (
                                 <>
-                                    <p className="text-lg font-semibold">Morpion</p>
-                                    <p className="text-muted-foreground text-sm">Tu joues les X. Aligne trois symboles !</p>
+                                    <p className="fs-5 fw-semibold">Morpion</p>
+                                    <p className="text-body-secondary small">Tu joues les X. Aligne trois symboles !</p>
                                 </>
                             ) : winResult ? (
                                 <>
-                                    <p className="text-lg font-semibold">{winResult.winner === 'X' ? 'Bravo !' : 'La maison gagne !'}</p>
-                                    <p className="text-muted-foreground text-sm">{winResult.winner === 'X' ? 'Bien joué !' : 'Bien essayé !'}</p>
+                                    <p className="fs-5 fw-semibold">{winResult.winner === 'X' ? 'Bravo !' : 'La maison gagne !'}</p>
+                                    <p className="text-body-secondary small">{winResult.winner === 'X' ? 'Bien joué !' : 'Bien essayé !'}</p>
                                 </>
                             ) : (
                                 <>
-                                    <p className="text-lg font-semibold">Égalité !</p>
-                                    <p className="text-muted-foreground text-sm">Vous avez bien défendu !</p>
+                                    <p className="fs-5 fw-semibold">Égalité !</p>
+                                    <p className="text-body-secondary small">Vous avez bien défendu !</p>
                                 </>
                             )}
                             <button
                                 type="button"
                                 onClick={handleStart}
                                 className={cn(
-                                    'border-primary bg-primary text-primary-foreground inline-flex h-12 items-center justify-center rounded-xl border-2 px-6 text-base font-bold',
-                                    'hover:bg-primary/90 focus-visible:ring-ring transition-colors focus-visible:ring-2 focus-visible:outline-none',
+                                    'border-primary bg-primary text-dark d-inline-flex mn-h-12 align-items-center justify-content-center rounded-3 border-2 px-4 fs-6 fw-bold',
+                                    '',
                                 )}
                             >
                                 {!started ? 'Jouer' : 'Rejouer'}
@@ -433,7 +430,7 @@ export function TicTacToe({ className, width, autoFocus = true, captureGlobalKey
             </div>
 
             {/* Status / aria-live region */}
-            <p className="text-muted-foreground text-center text-sm" aria-live="polite" aria-atomic="true">
+            <p className="text-body-secondary text-center small" aria-live="polite" aria-atomic="true">
                 {statusText}
             </p>
         </div>

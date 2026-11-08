@@ -1,6 +1,6 @@
+import { Button } from '@/components/bootstrap/button';
+import { Card, CardContent } from '@/components/bootstrap/card';
 import { KioskMiniGame } from '@/components/kiosk-mini-game';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { kioskGameTitles, type KioskGameId } from '@/lib/kiosk-games';
 import { Head, Link } from '@inertiajs/react';
@@ -19,12 +19,7 @@ const details: Record<KioskGameId, { emoji: string; description: string }> = {
     'fruit-ninja': { emoji: '🍉', description: 'Découpe les fruits d’un geste du doigt.' },
     stack: { emoji: '🏗️', description: 'Empile les étages au bon moment.' },
 };
-const tints = [
-    'bg-amber-100 dark:bg-amber-950/40',
-    'bg-rose-100 dark:bg-rose-950/40',
-    'bg-sky-100 dark:bg-sky-950/40',
-    'bg-emerald-100 dark:bg-emerald-950/40',
-];
+const tints = ['bg-warning-subtle', 'bg-danger-subtle', 'bg-info-subtle', 'bg-success-subtle'];
 
 export default function ParentGames() {
     const [selected, setSelected] = useState<KioskGameId | null>(null);
@@ -32,18 +27,18 @@ export default function ParentGames() {
     return (
         <AppLayout breadcrumbs={[{ title: 'Espace parents', href: '/parents/games' }]}>
             <Head title="Espace parents · Jeux" />
-            <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4 sm:p-6">
-                <div className="rounded-3xl border-2 border-cyan-500 bg-cyan-50 p-5 sm:p-7 dark:bg-cyan-950/30">
-                    <p className="text-sm font-bold text-cyan-700 dark:text-cyan-300">Espace parents</p>
-                    <h1 className="mt-2 flex items-center gap-3 text-2xl font-extrabold">
-                        <Gamepad2 className="shrink-0" />
+            <div className="mx-auto d-flex w-100 mn-content-5xl flex-column gap-4 p-3 p-sm-4">
+                <div className="rounded-5 border-2 border-info bg-info-subtle p-4 p-sm-4">
+                    <p className="small fw-bold text-info-emphasis">Espace parents</p>
+                    <h1 className="mt-2 d-flex align-items-center gap-3 fs-3 fw-bold">
+                        <Gamepad2 className="flex-shrink-0" />
                         La bibliothèque de jeux
                     </h1>
-                    <p className="text-muted-foreground mt-3 max-w-2xl text-sm">
+                    <p className="text-body-secondary mt-3 mn-content-2xl small">
                         Choisissez un jeu pour le découvrir ou partager une petite pause en famille. Une partie dure au maximum 90 secondes et ne
                         modifie pas les points.
                     </p>
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="mt-3 d-flex flex-wrap gap-2">
                         <Button variant="outline" asChild>
                             <Link href="/goals">Valider les missions</Link>
                         </Button>
@@ -55,20 +50,20 @@ export default function ParentGames() {
                         </Button>
                     </div>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="d-grid gap-3 mn-sm-columns-2 mn-lg-columns-3">
                     {(Object.keys(kioskGameTitles) as KioskGameId[]).map((id, index) => (
-                        <Card key={id} className="rounded-3xl">
-                            <CardContent className="flex h-full flex-col items-start gap-3 p-5">
+                        <Card key={id} className="rounded-5">
+                            <CardContent className="d-flex h-100 flex-column align-items-start gap-3 p-4">
                                 <span
                                     aria-hidden
-                                    className={`flex size-16 items-center justify-center rounded-2xl text-4xl ${tints[index % tints.length]}`}
+                                    className={`d-flex mn-icon-16 align-items-center justify-content-center rounded-4 fs-1 ${tints[index % tints.length]}`}
                                 >
                                     {details[id].emoji}
                                 </span>
-                                <h2 className="text-lg font-extrabold">{kioskGameTitles[id]}</h2>
-                                <p className="text-muted-foreground flex-1 text-sm">{details[id].description}</p>
+                                <h2 className="fs-5 fw-bold">{kioskGameTitles[id]}</h2>
+                                <p className="text-body-secondary flex-fill small">{details[id].description}</p>
                                 <Button
-                                    className="mt-1 h-12 w-full rounded-2xl"
+                                    className="mt-1 mn-h-12 w-100 rounded-4"
                                     onClick={() => setSelected(id)}
                                     aria-label={`Jouer à ${kioskGameTitles[id]}`}
                                 >
@@ -79,7 +74,7 @@ export default function ParentGames() {
                         </Card>
                     ))}
                 </div>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-body-secondary small">
                     En mode kiosque, les jeux restent des surprises proposées après certaines missions. Cet accès libre est réservé aux parents.
                 </p>
             </div>

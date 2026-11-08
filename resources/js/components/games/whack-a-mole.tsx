@@ -320,33 +320,33 @@ export function WhackAMole({
             aria-label="Jeu de tape-taupe"
             style={width ? { maxWidth: width } : undefined}
             className={cn(
-                'relative flex w-full max-w-sm flex-col gap-2 outline-none select-none',
+                'position-relative d-flex w-100 mn-content-sm flex-column gap-2 user-select-none',
                 // Focus ring only matters when keys are focus-scoped; global capture hides it.
-                !captureGlobalKeys && 'focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2',
+                !captureGlobalKeys && '',
                 className,
             )}
         >
             {/* Score / timer bar */}
-            <div className="flex items-center justify-between gap-3 text-sm">
+            <div className="d-flex align-items-center justify-content-between gap-3 small">
                 <span
-                    className="bg-secondary text-secondary-foreground inline-flex items-center rounded-md border px-2 py-0.5 font-medium tabular-nums"
+                    className="bg-warning-subtle text-warning-emphasis d-inline-flex align-items-center rounded-2 border px-2 py-1 fw-medium numeric"
                     aria-live="polite"
                     aria-atomic="true"
                 >
                     Score {score}
                 </span>
                 <span
-                    className="bg-secondary text-secondary-foreground inline-flex items-center rounded-md border px-2 py-0.5 font-medium tabular-nums"
+                    className="bg-warning-subtle text-warning-emphasis d-inline-flex align-items-center rounded-2 border px-2 py-1 fw-medium numeric"
                     aria-live="polite"
                     aria-atomic="true"
                 >
                     {timeLeft}s
                 </span>
-                <span className="text-muted-foreground tabular-nums">Record {high}</span>
+                <span className="text-body-secondary numeric">Record {high}</span>
             </div>
 
             {/* Hidden live region for accessibility announcements */}
-            <div aria-live="polite" aria-atomic="true" className="sr-only">
+            <div aria-live="polite" aria-atomic="true" className="visually-hidden">
                 {status === 'gameover'
                     ? `Partie terminée. Tu as touché ${score} taupes.${isNewBest ? ' Nouveau record !' : ''}`
                     : status === 'playing'
@@ -355,8 +355,8 @@ export function WhackAMole({
             </div>
 
             {/* Game grid */}
-            <div className="bg-background relative overflow-hidden rounded-lg border p-4">
-                <div className="grid aspect-square w-full grid-cols-3 grid-rows-3 gap-[4%]">
+            <div className="bg-body position-relative overflow-hidden rounded-3 border p-3">
+                <div className="d-grid mn-aspect-1-1 w-100 mn-columns-3 mn-rows-3 mn-gutter-4">
                     {holes.map((hole, i) => (
                         <HoleButton key={i} index={i} hole={hole} reduce={reduce} onClick={handleHoleClick} disabled={status !== 'playing'} />
                     ))}
@@ -364,28 +364,28 @@ export function WhackAMole({
 
                 {/* Overlay for idle / game over */}
                 {status !== 'playing' && (
-                    <div className="bg-background/80 absolute inset-0 grid place-items-center backdrop-blur-[1px]">
-                        <div className="flex flex-col items-center gap-3 px-6 text-center">
+                    <div className="bg-body bg-opacity-75 position-absolute top-0 bottom-0 start-0 end-0 d-grid place-center">
+                        <div className="d-flex flex-column align-items-center gap-3 px-4 text-center">
                             {status === 'gameover' ? (
                                 <>
-                                    <p className="text-lg font-semibold">Partie terminée</p>
-                                    <p className="text-muted-foreground text-sm">
+                                    <p className="fs-5 fw-semibold">Partie terminée</p>
+                                    <p className="text-body-secondary small">
                                         Tu as touché {score} taupes
                                         {isNewBest ? ' — nouveau record !' : ''}
                                     </p>
                                 </>
                             ) : (
                                 <>
-                                    <p className="text-lg font-semibold">Tape-taupe</p>
-                                    <p className="text-muted-foreground text-sm">Touche les taupes avant leur disparition !</p>
+                                    <p className="fs-5 fw-semibold">Tape-taupe</p>
+                                    <p className="text-body-secondary small">Touche les taupes avant leur disparition !</p>
                                 </>
                             )}
                             <button
                                 type="button"
                                 onClick={start}
                                 className={cn(
-                                    'border-primary bg-primary text-primary-foreground inline-flex h-12 items-center justify-center rounded-xl border-2 px-6 text-base font-bold',
-                                    'hover:bg-primary/90 focus-visible:ring-ring transition-colors focus-visible:ring-2 focus-visible:outline-none',
+                                    'border-primary bg-primary text-dark d-inline-flex mn-h-12 align-items-center justify-content-center rounded-3 border-2 px-4 fs-6 fw-bold',
+                                    '',
                                 )}
                             >
                                 {status === 'gameover' ? 'Rejouer' : 'Jouer'}
@@ -423,8 +423,8 @@ function HoleButton({ index, hole, reduce, onClick, disabled }: HoleButtonProps)
             aria-label={hole.active ? `Trou ${index + 1}, touche la taupe` : `Trou ${index + 1}, vide`}
             className={cn(
                 // Hole container: aspect-square fills its grid cell, full width
-                'border-border bg-muted relative size-full overflow-hidden rounded-full border-2',
-                'focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none',
+                'border bg-body-tertiary position-relative w-100 h-100 overflow-hidden rounded-pill border-2',
+                '',
                 !disabled && 'cursor-pointer',
                 disabled && 'cursor-default',
             )}
@@ -433,38 +433,28 @@ function HoleButton({ index, hole, reduce, onClick, disabled }: HoleButtonProps)
             <span
                 aria-hidden="true"
                 className={cn(
-                    'absolute inset-x-0 bottom-0 flex justify-center',
-                    hole.active || hole.hit ? 'translate-y-[14%]' : 'translate-y-full',
-                    !reduce && 'transition-transform duration-150 ease-out',
+                    'position-absolute start-0 end-0 bottom-0 d-flex justify-content-center',
+                    hole.active || hole.hit ? 'mn-translate-14' : 'mn-translate-full',
+                    !reduce && '',
                 )}
             >
                 {/* Mole head — 62% of the hole width, square */}
                 <span
                     className={cn(
-                        'relative block aspect-square w-[62%] rounded-t-full rounded-b-[45%]',
-                        hole.hit ? 'bg-accent ring-accent ring-offset-background ring-2 ring-offset-1' : 'bg-primary',
+                        'position-relative d-block mn-aspect-1-1 mn-w-62 rounded-arch rounded-hill',
+                        hole.hit ? 'bg-primary-subtle border border-primary' : 'bg-primary',
                     )}
                 >
                     {/* Eyes */}
-                    <span className="absolute top-[28%] left-1/2 flex -translate-x-1/2 gap-[22%]">
-                        <span
-                            className={cn(
-                                'block size-[3px] rounded-full sm:size-[4px]',
-                                hole.hit ? 'bg-accent-foreground/70' : 'bg-primary-foreground/70',
-                            )}
-                        />
-                        <span
-                            className={cn(
-                                'block size-[3px] rounded-full sm:size-[4px]',
-                                hole.hit ? 'bg-accent-foreground/70' : 'bg-primary-foreground/70',
-                            )}
-                        />
+                    <span className="position-absolute mn-top-28 start-50 d-flex translate-middle-x mn-gutter-22">
+                        <span className={cn('d-block mn-icon-3px rounded-pill mn-sm-icon-4px', hole.hit ? 'bg-dark' : 'bg-dark')} />
+                        <span className={cn('d-block mn-icon-3px rounded-pill mn-sm-icon-4px', hole.hit ? 'bg-dark' : 'bg-dark')} />
                     </span>
                     {/* Snout */}
                     <span
                         className={cn(
-                            'absolute bottom-[18%] left-1/2 block h-[22%] w-[46%] -translate-x-1/2 rounded-full',
-                            hole.hit ? 'bg-accent-foreground/30' : 'bg-primary-foreground/30',
+                            'position-absolute mn-bottom-18 start-50 d-block mn-h-22 mn-w-46 translate-middle-x rounded-pill',
+                            hole.hit ? 'bg-dark' : 'bg-dark',
                         )}
                     />
                 </span>

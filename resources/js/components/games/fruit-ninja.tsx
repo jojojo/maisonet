@@ -946,30 +946,26 @@ export function FruitNinja({
             role="application"
             aria-label="Jeu de découpe de fruits"
             style={width ? { maxWidth: width } : undefined}
-            className={cn(
-                'relative flex w-full select-none flex-col gap-2 outline-none',
-                !captureGlobalKeys && 'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-                className,
-            )}
+            className={cn('position-relative d-flex w-100 flex-column gap-2 user-select-none', !captureGlobalKeys && '', className)}
         >
             {/* Score bar */}
-            <div className="flex items-center justify-between gap-3 text-sm">
-                <span className="inline-flex items-center rounded-md border bg-secondary px-2 py-0.5 font-medium tabular-nums text-secondary-foreground">
+            <div className="d-flex align-items-center justify-content-between gap-3 small">
+                <span className="bg-warning-subtle text-warning-emphasis d-inline-flex align-items-center rounded-2 border px-2 py-1 fw-medium numeric">
                     Score {score}
                 </span>
                 <span
                     className={cn(
-                        'inline-flex items-center rounded-md border px-2 py-0.5 font-medium tabular-nums',
-                        timeLeft <= 10 && status === 'playing' ? 'bg-destructive text-white' : 'bg-muted text-muted-foreground',
+                        'd-inline-flex align-items-center rounded-2 border px-2 py-1 fw-medium numeric',
+                        timeLeft <= 10 && status === 'playing' ? 'bg-danger text-white' : 'bg-body-tertiary text-body-secondary',
                     )}
                 >
                     {timeLeft}s
                 </span>
-                <span className="tabular-nums text-muted-foreground">Record {high}</span>
+                <span className="text-body-secondary numeric">Record {high}</span>
             </div>
 
             {/* aria-live region */}
-            <div aria-live="polite" className="sr-only">
+            <div aria-live="polite" className="visually-hidden">
                 {status === 'playing'
                     ? `Score ${score}, encore ${timeLeft} secondes`
                     : status === 'gameover'
@@ -978,33 +974,33 @@ export function FruitNinja({
             </div>
 
             {/* Canvas container */}
-            <div ref={playfieldRef} className="relative aspect-[3/4] w-full overflow-hidden rounded-lg border bg-background">
-                <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full cursor-crosshair touch-none" />
+            <div ref={playfieldRef} className="bg-body position-relative mn-aspect-3-4 w-100 overflow-hidden rounded-3 border">
+                <canvas ref={canvasRef} className="position-absolute top-0 bottom-0 start-0 end-0 d-block h-100 w-100 cursor-crosshair touch-none" />
 
                 {/* Overlays */}
                 {status !== 'playing' && (
-                    <div className="absolute inset-0 grid place-items-center bg-background/80 backdrop-blur-[1px]">
-                        <div className="flex flex-col items-center gap-3 px-6 text-center">
+                    <div className="bg-body bg-opacity-75 position-absolute top-0 bottom-0 start-0 end-0 d-grid place-center">
+                        <div className="d-flex flex-column align-items-center gap-3 px-4 text-center">
                             {isOver ? (
                                 <>
-                                    <p className="text-lg font-semibold">Temps écoulé !</p>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="fs-5 fw-semibold">Temps écoulé !</p>
+                                    <p className="text-body-secondary small">
                                         Ton score : {score}
                                         {score >= high && score > 0 ? ' — nouveau record !' : ''}
                                     </p>
                                 </>
                             ) : (
                                 <>
-                                    <p className="text-lg font-semibold">Découpe de fruits</p>
-                                    <p className="text-sm text-muted-foreground">Glisse ton doigt pour découper les fruits. Évite les bombes !</p>
+                                    <p className="fs-5 fw-semibold">Découpe de fruits</p>
+                                    <p className="text-body-secondary small">Glisse ton doigt pour découper les fruits. Évite les bombes !</p>
                                 </>
                             )}
                             <button
                                 type="button"
                                 onClick={start}
                                 className={cn(
-                                    'inline-flex h-12 items-center justify-center rounded-xl border-2 border-primary bg-primary px-6 text-base font-bold text-primary-foreground',
-                                    'transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                                    'border-primary bg-primary text-dark d-inline-flex mn-h-12 align-items-center justify-content-center rounded-3 border-2 px-4 fs-6 fw-bold',
+                                    '',
                                 )}
                             >
                                 {isOver ? 'Rejouer' : 'Jouer'}

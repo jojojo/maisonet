@@ -13,19 +13,17 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=nunito:400,500,600,700,800" rel="stylesheet" />
 
         @routes
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         @inertiaHead
     </head>
-    <body class="font-sans antialiased">
+    <body>
         @inertia
         @if(session('full_interface_trial'))
-            <aside style="position:fixed;right:8px;bottom:8px;z-index:1000;padding:6px 10px;border:1px solid #225466;border-radius:10px;background:white;color:#225466;font:12px sans-serif">
-                Essai iPad · <a href="{{ route(auth()->check() ? 'kiosk.compatibility.index' : 'compatibility.login') }}" style="color:#225466;text-decoration:underline">Version de secours</a>
+            <aside style="position:fixed;right:8px;bottom:8px;z-index:2000;padding:6px 10px;border-radius:12px;background:#fff;color:#224b59;border:1px solid #8dbfc1;font:13px sans-serif">
+                Essai Bootstrap · <a href="{{ route(auth()->check() ? 'kiosk.compatibility.index' : 'compatibility.login') }}">Version de secours</a>
             </aside>
         @endif
     </body>

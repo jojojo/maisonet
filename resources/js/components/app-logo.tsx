@@ -4,17 +4,17 @@ export default function AppLogo() {
     const { household } = usePage<SharedData>().props;
     return (
         <>
-            <div className="flex aspect-square size-9 items-center justify-center rounded-xl bg-white shadow-sm">
-                <img src="/pwa-icons/icon-192.png" className="size-8 rounded-lg object-contain" alt="" />
+            <div className="d-flex mn-aspect-1-1 mn-icon-9 align-items-center justify-content-center rounded-3 bg-white shadow-sm">
+                <img src="/pwa-icons/icon-192.png" className="mn-icon-8 rounded-3 object-fit-contain" alt="" />
             </div>
-            <div className="ml-1 grid min-w-0 flex-1 text-left text-sm">
-                <span className="truncate text-lg leading-none font-extrabold tracking-tight">
+            <div className="ms-1 d-grid mn-min-w-0 flex-fill text-start small">
+                <span className="text-truncate fs-5 lh-1 fw-bold">
                     Maiso'net
-                    <span className="ml-1 text-amber-500" aria-hidden>
+                    <span className="ms-1 text-warning" aria-hidden>
                         ✦
                     </span>
                 </span>
-                <span className="text-muted-foreground mt-1 truncate text-[10px] font-medium">{household?.name}</span>
+                <span className="text-body-secondary mt-1 text-truncate mn-type-10px fw-medium">{household?.name}</span>
             </div>
         </>
     );

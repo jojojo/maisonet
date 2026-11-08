@@ -52,22 +52,50 @@ export function dueLabel(task: Pick<Task, 'status' | 'next_due_date'>): string {
 }
 
 export const statusStyles: Record<TaskStatus, string> = {
-    overdue: 'text-red-600 dark:text-red-400',
-    today: 'text-amber-600 dark:text-amber-400',
-    upcoming: 'text-muted-foreground',
-    done: 'text-green-600 dark:text-green-400',
+    overdue: 'text-danger',
+    today: 'text-warning',
+    upcoming: 'text-body-secondary',
+    done: 'text-success',
 };
 
 export function dirtStyle(level: number) {
-    if (level >= 90) return { label: 'Mission nettoyage !', emoji: '🧽', fill: 'bg-red-500', text: 'text-red-700 dark:text-red-300', surface: 'border-red-200 bg-red-50/60 dark:border-red-900 dark:bg-red-950/20' };
-    if (level >= 65) return { label: 'Un coup de main ?', emoji: '🫧', fill: 'bg-orange-500', text: 'text-orange-700 dark:text-orange-300', surface: 'border-orange-200 bg-orange-50/60 dark:border-orange-900 dark:bg-orange-950/20' };
-    if (level >= 35) return { label: 'Ça se prépare', emoji: '🌤️', fill: 'bg-yellow-400', text: 'text-yellow-800 dark:text-yellow-200', surface: 'border-yellow-200 bg-yellow-50/60 dark:border-yellow-900 dark:bg-yellow-950/20' };
-    return { label: 'Tout propre !', emoji: '✨', fill: 'bg-emerald-500', text: 'text-emerald-700 dark:text-emerald-300', surface: 'border-emerald-200 bg-emerald-50/60 dark:border-emerald-900 dark:bg-emerald-950/20' };
+    if (level >= 90)
+        return {
+            label: 'Mission nettoyage !',
+            emoji: '🧽',
+            fill: 'bg-danger',
+            text: 'text-danger-emphasis',
+            surface: 'border-danger-subtle bg-danger-subtle',
+        };
+    if (level >= 65)
+        return {
+            label: 'Un coup de main ?',
+            emoji: '🫧',
+            fill: 'bg-warning',
+            text: 'text-warning-emphasis',
+            surface: 'border-warning-subtle bg-warning-subtle',
+        };
+    if (level >= 35)
+        return {
+            label: 'Ça se prépare',
+            emoji: '🌤️',
+            fill: 'bg-warning',
+            text: 'text-warning-emphasis',
+            surface: 'border-warning-subtle bg-warning-subtle',
+        };
+    return {
+        label: 'Tout propre !',
+        emoji: '✨',
+        fill: 'bg-success',
+        text: 'text-success-emphasis',
+        surface: 'border-success-subtle bg-success-subtle',
+    };
 }
 
 export function sortByDirt(tasks: Task[]): Task[] {
     const urgency = (task: Task) => task.dirt_level ?? (['overdue', 'today'].includes(task.status) ? 100 : task.status === 'done' ? -1 : 0);
-    return [...tasks].sort((a, b) => urgency(b) - urgency(a)
-        || (a.next_due_date ?? '9999').localeCompare(b.next_due_date ?? '9999')
-        || a.title.localeCompare(b.title, 'fr'));
+    return [...tasks].sort(
+        (a, b) =>
+            urgency(b) - urgency(a) || (a.next_due_date ?? '9999').localeCompare(b.next_due_date ?? '9999') || a.title.localeCompare(b.title, 'fr'),
+    );
 }

@@ -246,13 +246,13 @@ export function MemoryMatch({ className, autoFocus = true, persistHighScore = tr
     // ── card bg / text classes ──────────────────────────────────────────────────
     function cardClasses(state: Card['state']): string {
         if (state === 'face-down') {
-            return 'bg-primary text-primary-foreground';
+            return 'bg-primary text-dark';
         }
         if (state === 'flipped') {
-            return 'bg-secondary text-secondary-foreground';
+            return 'bg-warning-subtle text-warning-emphasis';
         }
         // matched
-        return 'bg-accent text-accent-foreground opacity-60';
+        return 'bg-primary-subtle text-primary-emphasis opacity-75';
     }
 
     // ── flip animation class ────────────────────────────────────────────────────
@@ -273,26 +273,22 @@ export function MemoryMatch({ className, autoFocus = true, persistHighScore = tr
             aria-label="Jeu de mémoire"
             onKeyDown={handleWrapperKey}
             style={width ? { maxWidth: width } : undefined}
-            className={cn(
-                'relative flex w-full max-w-sm flex-col gap-2 outline-none select-none',
-                'focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2',
-                className,
-            )}
+            className={cn('position-relative d-flex w-100 mn-content-sm flex-column gap-2 user-select-none', '', className)}
         >
             {/* ── score bar ─────────────────────────────────────────────────────── */}
-            <div className="flex items-center justify-between gap-3 text-sm">
+            <div className="d-flex align-items-center justify-content-between gap-3 small">
                 <span
-                    className="bg-secondary text-secondary-foreground inline-flex items-center rounded-md border px-2 py-0.5 font-medium tabular-nums"
+                    className="bg-warning-subtle text-warning-emphasis d-inline-flex align-items-center rounded-2 border px-2 py-1 fw-medium numeric"
                     aria-live="polite"
                 >
                     Essais {moves}
                 </span>
-                <span className="text-muted-foreground tabular-nums">Record {best === 0 ? '—' : best}</span>
+                <span className="text-body-secondary numeric">Record {best === 0 ? '—' : best}</span>
             </div>
 
             {/* ── board ─────────────────────────────────────────────────────────── */}
-            <div className="bg-muted relative overflow-hidden rounded-lg border p-2">
-                <div className="@container grid aspect-square w-full grid-cols-4 grid-rows-3 gap-[3%]">
+            <div className="bg-body-tertiary position-relative overflow-hidden rounded-3 border p-2">
+                <div className="d-grid mn-aspect-1-1 w-100 mn-columns-4 mn-rows-3 mn-gutter-3">
                     {cards.map((card, index) => (
                         <button
                             key={card.id}
@@ -307,10 +303,10 @@ export function MemoryMatch({ className, autoFocus = true, persistHighScore = tr
                             }
                             onClick={() => handleFlip(index)}
                             className={cn(
-                                'flex size-full items-center justify-center rounded-md',
-                                'text-[clamp(1rem,14cqi,2.5rem)] font-bold',
-                                'focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none',
-                                'disabled:cursor-default',
+                                'd-flex w-100 h-100 align-items-center justify-content-center rounded-2',
+                                'mn-type-1-5rem fw-bold',
+                                '',
+                                '',
                                 cardClasses(card.state),
                                 transitionClass(card.state),
                             )}
@@ -322,28 +318,28 @@ export function MemoryMatch({ className, autoFocus = true, persistHighScore = tr
 
                 {/* ── overlay ─────────────────────────────────────────────────────── */}
                 {status !== 'playing' && (
-                    <div className="bg-background/80 absolute inset-0 grid place-items-center rounded-lg backdrop-blur-[1px]">
-                        <div className="flex flex-col items-center gap-3 px-6 text-center">
+                    <div className="bg-body bg-opacity-75 position-absolute top-0 bottom-0 start-0 end-0 d-grid place-center rounded-3">
+                        <div className="d-flex flex-column align-items-center gap-3 px-4 text-center">
                             {status === 'won' ? (
                                 <>
-                                    <p className="text-lg font-semibold">Bravo !</p>
-                                    <p className="text-muted-foreground text-sm">
+                                    <p className="fs-5 fw-semibold">Bravo !</p>
+                                    <p className="text-body-secondary small">
                                         {moves} essais
                                         {isNewBestOnWin ? ' — nouveau record !' : ''}
                                     </p>
                                 </>
                             ) : (
                                 <>
-                                    <p className="text-lg font-semibold">Les paires de la maison</p>
-                                    <p className="text-muted-foreground text-sm">Retrouve les 6 paires de la maison.</p>
+                                    <p className="fs-5 fw-semibold">Les paires de la maison</p>
+                                    <p className="text-body-secondary small">Retrouve les 6 paires de la maison.</p>
                                 </>
                             )}
                             <button
                                 type="button"
                                 onClick={start}
                                 className={cn(
-                                    'border-primary bg-primary text-primary-foreground inline-flex h-12 items-center justify-center rounded-xl border-2 px-6 text-base font-bold',
-                                    'hover:bg-primary/90 focus-visible:ring-ring transition-colors focus-visible:ring-2 focus-visible:outline-none',
+                                    'border-primary bg-primary text-dark d-inline-flex mn-h-12 align-items-center justify-content-center rounded-3 border-2 px-4 fs-6 fw-bold',
+                                    '',
                                 )}
                             >
                                 {status === 'won' ? 'Rejouer' : 'Jouer'}
@@ -354,7 +350,7 @@ export function MemoryMatch({ className, autoFocus = true, persistHighScore = tr
             </div>
 
             {/* ── aria-live region for screen readers ──────────────────────────── */}
-            <div aria-live="polite" aria-atomic="true" className="sr-only">
+            <div aria-live="polite" aria-atomic="true" className="visually-hidden">
                 {announcement}
             </div>
         </div>

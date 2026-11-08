@@ -1,7 +1,7 @@
+import { Button } from '@/components/bootstrap/button';
 import { RoomFormDialog } from '@/components/room-form-dialog';
 import { NewTaskButton } from '@/components/task-form-dialog';
 import { TaskList } from '@/components/task-item';
-import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Room, type Task } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
@@ -25,12 +25,12 @@ export default function RoomShow({ room, tasks }: { room: Room; tasks: Task[] })
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={room.name} />
-            <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h1 className="text-xl font-semibold">
+            <div className="mx-auto d-flex w-100 mn-content-4xl flex-column gap-4 p-3">
+                <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <h1 className="fs-4 fw-semibold">
                         {room.icon} {room.name}
                     </h1>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="d-flex flex-wrap align-items-center gap-2">
                         <Button variant="outline" size="icon" onClick={() => setEditing(true)} aria-label="Modifier la pièce">
                             <Pencil />
                         </Button>
@@ -38,7 +38,11 @@ export default function RoomShow({ room, tasks }: { room: Room; tasks: Task[] })
                             <Trash2 />
                         </Button>
                         <NewTaskButton defaultRoomId={room.id} />
-                        <Button variant="outline" asChild><Link href={route('task-templates.index', { room_id: room.id })}><BookOpen /> Ajouter des modèles</Link></Button>
+                        <Button variant="outline" asChild>
+                            <Link href={route('task-templates.index', { room_id: room.id })}>
+                                <BookOpen /> Ajouter des modèles
+                            </Link>
+                        </Button>
                     </div>
                 </div>
                 <TaskList tasks={tasks} showRoom={false} empty="Aucune tâche dans cette pièce." />

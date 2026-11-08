@@ -1,7 +1,7 @@
+import { Button } from '@/components/bootstrap/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/bootstrap/dialog';
+import { Input } from '@/components/bootstrap/input';
 import { Field } from '@/components/form-fields';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { type Room } from '@/types';
 import { useForm } from '@inertiajs/react';
@@ -34,26 +34,26 @@ function RoomForm({ room, onDone }: { room?: Room; onDone: () => void }) {
     };
 
     return (
-        <form onSubmit={submit} className="grid gap-4">
+        <form onSubmit={submit} className="d-grid gap-3">
             <Field label="Nom" error={form.errors.name}>
                 <Input value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} autoFocus required />
             </Field>
-            <div className="grid gap-1.5 text-sm font-medium">
+            <div className="d-grid gap-2 small fw-medium">
                 Icône
-                <div className="flex flex-wrap gap-1.5">
+                <div className="d-flex flex-wrap gap-2">
                     {icons.map((i) => (
                         <button
                             type="button"
                             key={i}
                             onClick={() => form.setData('icon', i)}
-                            className={cn('size-9 rounded-md border text-lg', form.data.icon === i && 'border-primary bg-primary/10 ring-primary ring-2')}
+                            className={cn('mn-icon-9 rounded-2 border fs-5', form.data.icon === i && 'border-primary bg-primary border')}
                             aria-label={`Icône ${i}`}
                         >
                             {i}
                         </button>
                     ))}
                 </div>
-                {form.errors.icon && <span className="text-destructive text-xs font-normal">{form.errors.icon}</span>}
+                {form.errors.icon && <span className="text-danger small fw-normal">{form.errors.icon}</span>}
             </div>
             <DialogFooter>
                 <Button type="submit" disabled={form.processing}>

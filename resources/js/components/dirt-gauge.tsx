@@ -5,13 +5,13 @@ export function DirtGauge({ level, compact = false }: { level: number; compact?:
     const style = dirtStyle(level);
 
     return (
-        <div className={cn('grid gap-1.5', compact ? 'mt-2' : 'mt-3')}>
-            <div className={cn('flex items-center justify-between gap-2 text-xs font-medium', style.text)}>
+        <div className={cn('d-grid gap-2', compact ? 'mt-2' : 'mt-3')}>
+            <div className={cn('d-flex align-items-center justify-content-between gap-2 small fw-medium', style.text)}>
                 <span title={compact ? style.label : undefined}>
                     {style.emoji}
                     {!compact && ` ${style.label}`}
                 </span>
-                <span className="shrink-0">
+                <span className="flex-shrink-0">
                     {level} %{!compact && ' de saleté'}
                 </span>
             </div>
@@ -22,12 +22,9 @@ export function DirtGauge({ level, compact = false }: { level: number; compact?:
                 aria-valuemax={100}
                 aria-valuenow={level}
                 aria-valuetext={`${level} % de saleté : ${style.label}`}
-                className="h-3 overflow-hidden rounded-full bg-black/10 dark:bg-white/10"
+                className="progress"
             >
-                <div
-                    className={cn('h-full rounded-full transition-[width,background-color] duration-700 motion-reduce:transition-none', style.fill)}
-                    style={{ width: `${level}%` }}
-                />
+                <div className={cn('progress-bar rounded-pill', style.fill)} style={{ width: `${level}%` }} />
             </div>
         </div>
     );

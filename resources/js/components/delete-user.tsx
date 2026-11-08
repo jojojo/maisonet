@@ -2,14 +2,14 @@ import { useForm } from '@inertiajs/react';
 import { FormEventHandler, useRef } from 'react';
 
 // Components...
+import { Button } from '@/components/bootstrap/button';
+import { Input } from '@/components/bootstrap/input';
+import { Label } from '@/components/bootstrap/label';
 import InputError from '@/components/input-error';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 import HeadingSmall from '@/components/heading-small';
 
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from '@/components/bootstrap/dialog';
 
 export default function DeleteUser() {
     const passwordInput = useRef<HTMLInputElement>(null);
@@ -32,12 +32,12 @@ export default function DeleteUser() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="mn-stack-6">
             <HeadingSmall title="Delete account" description="Delete your account and all of its resources" />
-            <div className="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
-                <div className="relative space-y-0.5 text-red-600 dark:text-red-100">
-                    <p className="font-medium">Warning</p>
-                    <p className="text-sm">Please proceed with caution, this cannot be undone.</p>
+            <div className="mn-stack-4 rounded-3 border border-danger-subtle bg-danger-subtle p-3">
+                <div className="position-relative mn-stack-0-5 text-danger">
+                    <p className="fw-medium">Warning</p>
+                    <p className="small">Please proceed with caution, this cannot be undone.</p>
                 </div>
 
                 <Dialog>
@@ -50,9 +50,9 @@ export default function DeleteUser() {
                             Once your account is deleted, all of its resources and data will also be permanently deleted. Please enter your password
                             to confirm you would like to permanently delete your account.
                         </DialogDescription>
-                        <form className="space-y-6" onSubmit={deleteUser}>
-                            <div className="grid gap-2">
-                                <Label htmlFor="password" className="sr-only">
+                        <form className="mn-stack-6" onSubmit={deleteUser}>
+                            <div className="d-grid gap-2">
+                                <Label htmlFor="password" className="visually-hidden">
                                     Password
                                 </Label>
 

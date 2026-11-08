@@ -2,14 +2,13 @@ import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { type BreadcrumbItem } from '@/types';
-import { Transition } from '@headlessui/react';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler, useRef } from 'react';
 
+import { Button } from '@/components/bootstrap/button';
+import { Input } from '@/components/bootstrap/input';
+import { Label } from '@/components/bootstrap/label';
 import HeadingSmall from '@/components/heading-small';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -53,11 +52,11 @@ export default function Password() {
             <Head title="Profile settings" />
 
             <SettingsLayout>
-                <div className="space-y-6">
+                <div className="mn-stack-6">
                     <HeadingSmall title="Update password" description="Ensure your account is using a long, random password to stay secure" />
 
-                    <form onSubmit={updatePassword} className="space-y-6">
-                        <div className="grid gap-2">
+                    <form onSubmit={updatePassword} className="mn-stack-6">
+                        <div className="d-grid gap-2">
                             <Label htmlFor="current_password">Current password</Label>
 
                             <Input
@@ -66,7 +65,7 @@ export default function Password() {
                                 value={data.current_password}
                                 onChange={(e) => setData('current_password', e.target.value)}
                                 type="password"
-                                className="mt-1 block w-full"
+                                className="mt-1 d-block w-100"
                                 autoComplete="current-password"
                                 placeholder="Current password"
                             />
@@ -74,7 +73,7 @@ export default function Password() {
                             <InputError message={errors.current_password} />
                         </div>
 
-                        <div className="grid gap-2">
+                        <div className="d-grid gap-2">
                             <Label htmlFor="password">New password</Label>
 
                             <Input
@@ -83,7 +82,7 @@ export default function Password() {
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
                                 type="password"
-                                className="mt-1 block w-full"
+                                className="mt-1 d-block w-100"
                                 autoComplete="new-password"
                                 placeholder="New password"
                             />
@@ -91,7 +90,7 @@ export default function Password() {
                             <InputError message={errors.password} />
                         </div>
 
-                        <div className="grid gap-2">
+                        <div className="d-grid gap-2">
                             <Label htmlFor="password_confirmation">Confirm password</Label>
 
                             <Input
@@ -99,7 +98,7 @@ export default function Password() {
                                 value={data.password_confirmation}
                                 onChange={(e) => setData('password_confirmation', e.target.value)}
                                 type="password"
-                                className="mt-1 block w-full"
+                                className="mt-1 d-block w-100"
                                 autoComplete="new-password"
                                 placeholder="Confirm password"
                             />
@@ -107,18 +106,10 @@ export default function Password() {
                             <InputError message={errors.password_confirmation} />
                         </div>
 
-                        <div className="flex items-center gap-4">
+                        <div className="d-flex align-items-center gap-3">
                             <Button disabled={processing}>Save password</Button>
 
-                            <Transition
-                                show={recentlySuccessful}
-                                enter="transition ease-in-out"
-                                enterFrom="opacity-0"
-                                leave="transition ease-in-out"
-                                leaveTo="opacity-0"
-                            >
-                                <p className="text-sm text-neutral-600">Saved</p>
-                            </Transition>
+                            {recentlySuccessful && <p className="small text-secondary">Saved</p>}
                         </div>
                     </form>
                 </div>
